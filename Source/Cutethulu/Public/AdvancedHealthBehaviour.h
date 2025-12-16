@@ -7,14 +7,12 @@
 #include "AdvancedHealthBehaviour.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnDie);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLifeConsumed, int, remainingLifes);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnLifeConsumed, int, prevRemainingLifes, int, remainingLifes);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAllLifesConsumed);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthAlter,float,health,float,maxHealth);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHealthAltered,float,health,float,maxHealth);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnDamage,float,health,float,maxHealth,float,damageValue);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnDamaged,float,health,float,maxHealth,float,damageValue);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHeal,float,health,float,maxHealth,float,healingValue);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHealed,float,health,float,maxHealth,float,healingValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnHealthAlter,float, prevHealth, float,health,float,maxHealth);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnDamage,float, prevHealth, float,health,float,maxHealth,float,damageValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHeal,float, prevHealth,float,health,float,maxHealth,float,healingValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnMaxHealthAlter,float, prevHealth,float, prevMaxHealth, float, newHealth, float, newMaxHealth);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable, BlueprintType)
 class CUTETHULU_API UAdvancedHealthBehaviour : public UActorComponent
@@ -38,19 +36,13 @@ public:
 	FOnHealthAlter OnHealthAlter;
 
 	UPROPERTY(BlueprintAssignable, Category = "Health|Events")
-	FOnHealthAltered OnHealthAltered;
-
-	UPROPERTY(BlueprintAssignable, Category = "Health|Events")
 	FOnDamage OnDamage;
-
-	UPROPERTY(BlueprintAssignable, Category = "Health|Events")
-	FOnDamaged OnDamaged;
 
 	UPROPERTY(BlueprintAssignable, Category = "Health|Events")
 	FOnHeal OnHeal;
 
 	UPROPERTY(BlueprintAssignable, Category = "Health|Events")
-	FOnHealed OnHealed;
+	FOnMaxHealthAlter OnMaxHealthAlter;
 
 	//Functions
 
