@@ -14,6 +14,7 @@ UAdvancedHealthBehaviour::UAdvancedHealthBehaviour()
 }
 
 
+
 // Called when the game starts
 void UAdvancedHealthBehaviour::BeginPlay()
 {
@@ -28,16 +29,7 @@ void UAdvancedHealthBehaviour::BeginPlay()
 void UAdvancedHealthBehaviour::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-	if (this->regenerationOverTime) {
-		this->timeScinceLastHealthAlteration += DeltaTime;
-		if (this->timeScinceLastHealthAlteration >= this->timeToRegenerateHealth) {
-			if (this->health < this->maxHealthRegeneration) {
-				this->Heal(this->healthRegenerationSpeed * DeltaTime);
-				if (this->health > this->maxHealthRegeneration)
-					this->health = this->maxHealthRegeneration;
-			}
-		}
-	}
+	
 	// ...
 }
 
@@ -48,7 +40,6 @@ void UAdvancedHealthBehaviour::MaxHeal()
 
 void UAdvancedHealthBehaviour::Heal(float healingAmmount)
 {
-	this->timeScinceLastHealthAlteration = 0.f;
 	this->OnHeal.Broadcast(this->health,this->maxHealth,healingAmmount);
 	this->OnHealthAlter.Broadcast(this->health, this->maxHealth);
 	this->health += healingAmmount;
@@ -63,7 +54,6 @@ void UAdvancedHealthBehaviour::InstaKill() {
 }
 void UAdvancedHealthBehaviour::Damage(float damageAmmount)
 {
-	this->timeScinceLastHealthAlteration = 0.f;
 	this->OnHealthAlter.Broadcast(this->health, this->maxHealth);
 	this->OnDamage.Broadcast(this->health, this->maxHealth, damageAmmount);
 	this->health -= damageAmmount;
@@ -82,7 +72,7 @@ void UAdvancedHealthBehaviour::Damage(float damageAmmount)
 	this->OnHealthAltered.Broadcast(this->health, this->maxHealth);
 }
 
-void UAdvancedHealthBehaviour::CopyHealthBehaviour(UAdvancedHealthBehaviour* otherHealthBehaviour)
+void UAdvancedHealthBehaviour::CopyHealthBehaviour(UAdvancedHealthBehaviour* otherHealthBehaviour, bool mantainRatio)
 {
 	this->health = otherHealthBehaviour->health;
 	this->maxHealth = otherHealthBehaviour->maxHealth;
@@ -90,7 +80,60 @@ void UAdvancedHealthBehaviour::CopyHealthBehaviour(UAdvancedHealthBehaviour* oth
 	this->regenerationOverTime = otherHealthBehaviour->regenerationOverTime;
 	this->healthRegenerationSpeed = otherHealthBehaviour->healthRegenerationSpeed;
 	this->maxHealthRegeneration = otherHealthBehaviour->maxHealthRegeneration;
-	this->timeToRegenerateHealth = otherHealthBehaviour->timeToRegenerateHealth;
 }
 
+void UAdvancedHealthBehaviour::AddLifes(int lifesToAdd)
+{
+	this->lifes += lifesToAdd;
+	if (this->lifes < 0)
+		this->lifes = 0;
+}
+
+void UAdvancedHealthBehaviour::AddLife()
+{
+	this->lifes++;
+}
+
+void UAdvancedHealthBehaviour::QuitLife()
+{
+	this->lifes--;
+}
+
+void UAdvancedHealthBehaviour::SetLifes(int ammount)
+{
+	this->lifes = ammount;
+	if (this->lifes < 0)
+		this->lifes = 0;
+}
+
+
+
+void UAdvancedHealthBehaviour::SetMaxHealth(float ammount, bool addHealth, bool fillHealth) {
+	this->maxHealth += ammount;
+	if (addHealth)
+		this->Heal(ammount);
+	else if (fillHealth)
+		this->MaxHeal();
+}
+void UAdvancedHealthBehaviour::AddMaxHealth(float ammount, bool addHealth, bool fillHealth) {
+	this->SetMaxHealth(this->maxHealth + ammount, addHealth, fillHealth);
+}
+void UAdvancedHealthBehaviour::Regenerate() {
+	this->Heal(this->regenerationValue);
+	if (this->health >= maxHealthRegeneration) {
+		GetWorld()->GetTimerManager().ClearTimer(RegenerationTimer);
+		this->health = maxHealthRegeneration;
+	}
+}
+void UAdvancedHealthBehaviour::SetRegenerationEvent() {
+	GetWorld()->GetTimerManager().ClearTimer(RegenerationTimer);
+	GetWorld()->GetTimerManager().SetTimer(
+		RegenerationTimer,
+		this,
+		&UAdvancedHealthBehaviour::Regenerate,
+		this->timeBetweenRegeneration,
+		true,
+		this->timeToStartRegeneratingHealth
+	);
+}
 

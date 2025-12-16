@@ -58,6 +58,12 @@ public:
 	void Heal(float healingAmmount);
 
 	UFUNCTION(BlueprintCallable, Category = "HealthAlteration")
+	void AddMaxHealth(float ammount, bool addHealth, bool fillHealth);
+
+	UFUNCTION(BlueprintCallable, Category = "HealthAlteration")
+	void SetMaxHealth(float ammount, bool addHealth, bool fillHealth);
+
+	UFUNCTION(BlueprintCallable, Category = "HealthAlteration")
 	void Damage(float damageAmmount);
 
 	UFUNCTION(BlueprintCallable, Category = "HealthAlteration")
@@ -67,37 +73,62 @@ public:
 	void InstaKill();
 
 	UFUNCTION(BlueprintCallable, Category = "HealthAlteration")
-	void CopyHealthBehaviour(UAdvancedHealthBehaviour* otherHealthBehaviour);
+	void CopyHealthBehaviour(UAdvancedHealthBehaviour* otherHealthBehaviour, bool mantainRatio);
+
+
+	UFUNCTION(BlueprintPure, Category = "Default")
+	int GetLifes() const { return lifes; }
+
+	UFUNCTION(BlueprintCallable, Category = "Default")
+	void AddLifes(int lifesToAdd);
+	UFUNCTION(BlueprintCallable, Category = "Default")
+	void AddLife();
+	UFUNCTION(BlueprintCallable, Category = "Default")
+	void QuitLife();
+	UFUNCTION(BlueprintCallable, Category = "Default")
+	void SetLifes(int ammount);
+
+	UFUNCTION(BlueprintPure, Category = "Health")
+	float GetHealth() const { return health; }
+
+	UFUNCTION(BlueprintPure, Category = "Health")
+	float GetMaxHealth() const { return maxHealth; }
+
+
 
 	//Properties/Variables
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
 	bool useLifeSystem;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Default")
+private:
+	UPROPERTY( EditAnywhere, Category = "Default")
 	int lifes;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+	UPROPERTY(EditAnywhere, Category = "Health")
 	float health; 
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Health")
+	UPROPERTY(EditAnywhere, Category = "Health")
 	float maxHealth;
-
+public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Regeneration")
 	bool regenerationOverTime;
 
-private:
-	float timeScinceLastHealthAlteration = 0;
-
 public:
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Regeneration")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Regeneration",meta = (ToolTip = "Velocidad de regeneración de vida por segundo"))
 	float healthRegenerationSpeed;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Regeneration")
 	float maxHealthRegeneration;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Regeneration")
-	float timeToRegenerateHealth;
+	float timeToStartRegeneratingHealth;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Regeneration", meta = (ToolTip = "Cada cuando va a regenerar"))
+	float timeBetweenRegeneration;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Regeneration", meta = (ToolTip = "Que tanto va a regenerar"))
+	float regenerationValue;
 
 
 	// Sets default values for this component's properties
@@ -111,5 +142,8 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+private:
+	void SetRegenerationEvent();
+	void Regenerate();
+	FTimerHandle RegenerationTimer;
 };
