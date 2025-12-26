@@ -18,11 +18,9 @@ ACPlatform::ACPlatform()
 	PlatformOffset = CreateDefaultSubobject<USceneComponent>(TEXT("PlatformOffset"));
 	PlatformOffset->SetupAttachment(DefaultSceneRoot);
 
-	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
-	StaticMesh->SetupAttachment(PlatformOffset);
+	childActor = CreateDefaultSubobject<UChildActorComponent>(TEXT("ChildActor"));
+	childActor->SetupAttachment(PlatformOffset);
 
-	Arrow = CreateDefaultSubobject<UArrowComponent>(TEXT("Arrow"));
-	Arrow->SetupAttachment(StaticMesh);
 }
 
 // Called when the game starts or when spawned
@@ -108,7 +106,7 @@ void ACPlatform::CalculateSpeed()
 					currentSpeed = 0;
 			}
 		}
-		else{// ya está en forward o parado
+		else{
 			if (breaking){
 				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Breaking"));
 				currentSpeed -= deceleration * GetWorld()->GetDeltaSeconds();
