@@ -39,10 +39,7 @@ public:
 	TObjectPtr<USceneComponent> PlatformOffset;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
-	TObjectPtr<UStaticMeshComponent> StaticMesh;
-
-	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
-	TObjectPtr<UArrowComponent> Arrow;
+	TObjectPtr<UChildActorComponent> childActor;
 
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams")
