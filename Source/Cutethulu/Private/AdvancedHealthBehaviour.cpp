@@ -9,6 +9,8 @@ UAdvancedHealthBehaviour::UAdvancedHealthBehaviour()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+	this->maxHealth = 3;
+	this->health = this->maxHealth;
 
 	// ...
 }
@@ -64,6 +66,8 @@ void UAdvancedHealthBehaviour::Damage(float damageAmmount)
 				this->OnAllLifesConsumed.Broadcast();
 			}
 		}
+		if (!executeAlterHealthOnDie)
+			return;
 	}
 	this->OnHealthAlter.Broadcast(prevHealth, this->health, this->maxHealth);
 	this->OnDamage.Broadcast(prevHealth, this->health, this->maxHealth, damageAmmount);
