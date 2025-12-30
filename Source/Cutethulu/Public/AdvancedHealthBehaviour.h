@@ -123,6 +123,9 @@ public:
 	float regenerationValue;
 
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Events", meta = (ToolTip = "Si al morir ejecuta tambien el evento de recibir daño o simplemente el de muerte."))
+	bool executeAlterHealthOnDie;
+
 	// Sets default values for this component's properties
 	UAdvancedHealthBehaviour();
 
