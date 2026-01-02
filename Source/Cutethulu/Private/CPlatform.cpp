@@ -18,8 +18,15 @@ ACPlatform::ACPlatform()
 	PlatformOffset = CreateDefaultSubobject<USceneComponent>(TEXT("PlatformOffset"));
 	PlatformOffset->SetupAttachment(DefaultSceneRoot);
 
+	Collision = CreateDefaultSubobject<UBoxComponent>(TEXT("Collider"));
+	Collision->SetupAttachment(PlatformOffset);
+
 	childActor = CreateDefaultSubobject<UChildActorComponent>(TEXT("ChildActor"));
 	childActor->SetupAttachment(PlatformOffset);
+
+	this->lockPitch = true;
+	this->lockYaw = false;
+	this->lockRoll = true;
 
 }
 
@@ -35,6 +42,8 @@ void ACPlatform::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	FTransform targetTransform;
+	double targetRoll = 0, targetPitch = 0 , targetYaw = 0 ;
+	FRotator SplineRot, CurrentRot;
 	switch (MovementType)
 	{
 	case EMovementType::NONE:
@@ -45,10 +54,23 @@ void ACPlatform::Tick(float DeltaTime)
 			splinePos += currentSpeed;
 			if (splinePos > Route->GetSplineLength())
 				splinePos = Route->GetSplineLength();
-			targetTransform = Route->GetTransformAtDistanceAlongSpline(this->splinePos, ESplineCoordinateSpace::Local, false);
+			targetTransform = Route->GetTransformAtDistanceAlongSpline(
+				splinePos,
+				ESplineCoordinateSpace::Local,
+				false
+			);
+			SplineRot = targetTransform.GetRotation().Rotator();
+			CurrentRot = PlatformOffset->GetRelativeRotation();
+			if (lockRoll)  
+				SplineRot.Roll = CurrentRot.Roll;
+			if (lockPitch) 
+				SplineRot.Pitch = CurrentRot.Pitch;
+			if (lockYaw)   
+				SplineRot.Yaw = CurrentRot.Yaw;
+
 			PlatformOffset->SetRelativeLocationAndRotation(
 				targetTransform.GetLocation(),
-				FRotator(0, targetTransform.GetRotation().Z, 0)
+				SplineRot
 			);
 		}
 		break;
@@ -65,19 +87,48 @@ void ACPlatform::Tick(float DeltaTime)
 			if (ResetSpeedOnLoop)
 				currentSpeed = 0;
 		}
-		targetTransform = Route->GetTransformAtDistanceAlongSpline(this->splinePos, ESplineCoordinateSpace::Local, false);
+		targetTransform = Route->GetTransformAtDistanceAlongSpline(
+			splinePos,
+			ESplineCoordinateSpace::Local,
+			false
+		);
+
+
+		SplineRot = targetTransform.GetRotation().Rotator();
+		CurrentRot = PlatformOffset->GetRelativeRotation();
+		if (lockRoll)  
+			SplineRot.Roll = CurrentRot.Roll;
+		if (lockPitch) 
+			SplineRot.Pitch = CurrentRot.Pitch;
+		if (lockYaw)   
+			SplineRot.Yaw = CurrentRot.Yaw;
+
 		PlatformOffset->SetRelativeLocationAndRotation(
 			targetTransform.GetLocation(),
-			FRotator(0, targetTransform.GetRotation().Z, 0)
+			SplineRot
 		);
 		break;
 	case EMovementType::PINGPONG:
 		CalculateSpeed();
 		splinePos += currentSpeed;
-		targetTransform = Route->GetTransformAtDistanceAlongSpline(this->splinePos, ESplineCoordinateSpace::Local, false);
+		targetTransform = Route->GetTransformAtDistanceAlongSpline(
+			splinePos,
+			ESplineCoordinateSpace::Local,
+			false
+		);
+
+		SplineRot = targetTransform.GetRotation().Rotator();
+		CurrentRot = PlatformOffset->GetRelativeRotation();
+		if (lockRoll)  
+			SplineRot.Roll = CurrentRot.Roll;
+		if (lockPitch) 
+			SplineRot.Pitch = CurrentRot.Pitch;
+		if (lockYaw)   
+			SplineRot.Yaw = CurrentRot.Yaw;
+
 		PlatformOffset->SetRelativeLocationAndRotation(
 			targetTransform.GetLocation(),
-			FRotator(0, targetTransform.GetRotation().Z, 0)
+			SplineRot
 		);
 		if (!reverse && splinePos > Route->GetSplineLength()) {
 			reverse = true;
@@ -121,7 +172,7 @@ void ACPlatform::CalculateSpeed()
 		}
 	}
 	else {
-		if (currentSpeed > 0){ // venía en forward
+		if (currentSpeed > 0){ 
 			if (forceOnReverse)
 				currentSpeed = 0;
 			else{
@@ -130,7 +181,7 @@ void ACPlatform::CalculateSpeed()
 					currentSpeed = 0;
 			}
 		}
-		else{// ya está en reversa o parado
+		else{
 			if (breaking)	{
 				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Breaking"));
 				currentSpeed += deceleration * GetWorld()->GetDeltaSeconds();
