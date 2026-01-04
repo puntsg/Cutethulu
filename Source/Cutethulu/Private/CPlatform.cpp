@@ -42,13 +42,12 @@ void ACPlatform::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	FTransform targetTransform;
-	double targetRoll = 0, targetPitch = 0 , targetYaw = 0 ;
+	double targetRoll = 0, targetPitch = 0, targetYaw = 0;
 	FRotator SplineRot, CurrentRot;
 	switch (MovementType)
 	{
-	case EMovementType::NONE:
-		break;
 	case EMovementType::ONCE:
+	{
 		if (splinePos < Route->GetSplineLength()) {
 			CalculateSpeed();
 			splinePos += currentSpeed;
@@ -61,11 +60,11 @@ void ACPlatform::Tick(float DeltaTime)
 			);
 			SplineRot = targetTransform.GetRotation().Rotator();
 			CurrentRot = PlatformOffset->GetRelativeRotation();
-			if (lockRoll)  
+			if (lockRoll)
 				SplineRot.Roll = CurrentRot.Roll;
-			if (lockPitch) 
+			if (lockPitch)
 				SplineRot.Pitch = CurrentRot.Pitch;
-			if (lockYaw)   
+			if (lockYaw)
 				SplineRot.Yaw = CurrentRot.Yaw;
 
 			PlatformOffset->SetRelativeLocationAndRotation(
@@ -74,7 +73,9 @@ void ACPlatform::Tick(float DeltaTime)
 			);
 		}
 		break;
+	}
 	case EMovementType::LOOP:
+	{
 		CalculateSpeed();
 		splinePos += currentSpeed;
 		if (splinePos > Route->GetSplineLength()) {
@@ -93,14 +94,13 @@ void ACPlatform::Tick(float DeltaTime)
 			false
 		);
 
-
 		SplineRot = targetTransform.GetRotation().Rotator();
 		CurrentRot = PlatformOffset->GetRelativeRotation();
-		if (lockRoll)  
+		if (lockRoll)
 			SplineRot.Roll = CurrentRot.Roll;
-		if (lockPitch) 
+		if (lockPitch)
 			SplineRot.Pitch = CurrentRot.Pitch;
-		if (lockYaw)   
+		if (lockYaw)
 			SplineRot.Yaw = CurrentRot.Yaw;
 
 		PlatformOffset->SetRelativeLocationAndRotation(
@@ -108,9 +108,34 @@ void ACPlatform::Tick(float DeltaTime)
 			SplineRot
 		);
 		break;
+	}
 	case EMovementType::PINGPONG:
+	{
 		CalculateSpeed();
+
 		splinePos += currentSpeed;
+
+		const float splineLength = Route->GetSplineLength();
+
+		if (splinePos > splineLength)
+		{
+			const float excess = splinePos - splineLength;
+			splinePos = splineLength - excess;
+
+			reverse = true;
+			if (currentSpeed > 0.0f)
+				currentSpeed = -currentSpeed; 
+		}
+		else if (splinePos < 0.0f)
+		{
+			const float excess = -splinePos;
+			splinePos = excess;
+
+			reverse = false;
+			if (currentSpeed < 0.0f)
+				currentSpeed = -currentSpeed;
+		}
+
 		targetTransform = Route->GetTransformAtDistanceAlongSpline(
 			splinePos,
 			ESplineCoordinateSpace::Local,
@@ -119,32 +144,26 @@ void ACPlatform::Tick(float DeltaTime)
 
 		SplineRot = targetTransform.GetRotation().Rotator();
 		CurrentRot = PlatformOffset->GetRelativeRotation();
-		if (lockRoll)  
+		if (lockRoll)
 			SplineRot.Roll = CurrentRot.Roll;
-		if (lockPitch) 
+		if (lockPitch)
 			SplineRot.Pitch = CurrentRot.Pitch;
-		if (lockYaw)   
+		if (lockYaw)
 			SplineRot.Yaw = CurrentRot.Yaw;
 
 		PlatformOffset->SetRelativeLocationAndRotation(
 			targetTransform.GetLocation(),
 			SplineRot
 		);
-		if (!reverse && splinePos > Route->GetSplineLength()) {
-			reverse = true;
-			currentSpeed = 0;
-			splinePos = Route->GetSplineLength();
-		}
-		else if (reverse && splinePos < 0) {
-			reverse = false;
-			currentSpeed = 0;
-			splinePos = 0;
-		}
-		break;
-	default:
 		break;
 	}
+	default:
+	{
+		break;
+	}
+	}
 }
+
 void ACPlatform::CalculateSpeed()
 {
 	if (!reverse) {
