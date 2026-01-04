@@ -123,8 +123,15 @@ void ACPlatform::Tick(float DeltaTime)
 			splinePos = splineLength - excess;
 
 			reverse = true;
-			if (currentSpeed > 0.0f)
-				currentSpeed = -currentSpeed; 
+
+			if (forceOnReverse)
+			{
+				currentSpeed = 0.0f;
+			}
+			else if (currentSpeed > 0.0f)
+			{
+				currentSpeed = -currentSpeed;
+			}
 		}
 		else if (splinePos < 0.0f)
 		{
@@ -132,8 +139,15 @@ void ACPlatform::Tick(float DeltaTime)
 			splinePos = excess;
 
 			reverse = false;
-			if (currentSpeed < 0.0f)
+
+			if (forceOnReverse)
+			{
+				currentSpeed = 0.0f;
+			}
+			else if (currentSpeed < 0.0f)
+			{
 				currentSpeed = -currentSpeed;
+			}
 		}
 
 		targetTransform = Route->GetTransformAtDistanceAlongSpline(
@@ -155,6 +169,7 @@ void ACPlatform::Tick(float DeltaTime)
 			targetTransform.GetLocation(),
 			SplineRot
 		);
+
 		break;
 	}
 	default:
