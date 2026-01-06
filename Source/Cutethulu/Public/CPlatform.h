@@ -9,6 +9,7 @@
 
 #include <Components/SplineComponent.h>
 #include <Components/ArrowComponent.h>
+#include <Components/BoxComponent.h>
 
 #include "CPlatform.generated.h"
 
@@ -37,6 +38,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	TObjectPtr<USceneComponent> PlatformOffset;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
+	TObjectPtr<UBoxComponent> Collision;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	TObjectPtr<UChildActorComponent> childActor;
@@ -71,6 +75,14 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = (ToolTip = "Si al activar reverse la plataforma va desacelerando o fuerza su velocidad a 0"))
 	bool forceOnReverse;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/RotationParams ", meta = (ToolTip = "Bloquea la rotación en Pitch"))
+	bool lockPitch;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/RotationParams ", meta = (ToolTip = "Bloquea la rotación en Yaw"))
+	bool lockYaw;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/RotationParams ", meta = (ToolTip = "Bloquea la rotación en Roll"))
+	bool lockRoll;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
