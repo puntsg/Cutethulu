@@ -7,7 +7,7 @@
 
 void ADualLevel::BeginPlay() {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class"));
-    bool bSuccess = false;
+    /*bool bSuccess = false;
     ULevelStreamingDynamic* Stream = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
         this,
         corruptedLevel,
@@ -15,6 +15,6 @@ void ADualLevel::BeginPlay() {
         FRotator::ZeroRotator,
         bSuccess
     );
-    
+    */
 	
 }

@@ -8,13 +8,7 @@
 
 
 
-UENUM(BlueprintType)
-enum class EMapType : uint8 {
-	Single	UMETA(DisplayName = "None"),
-	ONCE UMETA(DisplayName = "Once"),
-	LOOP UMETA(DisplayName = "Loop"),
-	PINGPONG UMETA(DisplayName = "PingPong")
-};
+
 
 UCLASS()
 class CUTETHULU_API ADualLevel : public ALevelScriptActor
@@ -25,7 +19,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Streaming")
 	TSoftObjectPtr<UWorld> corruptedLevel;
 	UPROPERTY(EditAnywhere, Category = "Streaming")
-	TSoftObjectPtr<UWorld> healedAsset;+
+	TSoftObjectPtr<UWorld> healedAsset;
 
 
 protected:
