@@ -5,9 +5,33 @@
 #include <Engine/LevelStreamingDynamic.h>
 #include <Kismet/GameplayStatics.h>
 
+void ADualLevel::UnloadStreamedLevels()
+{
+}
+
+void ADualLevel::LoadHorrorLevel()
+{
+}
+
+void ADualLevel::UnloadHorrorLevel()
+{
+}
+
+void ADualLevel::LoadCuteLevel()
+{
+}
+
+void ADualLevel::UnloadCuteLevel()
+{
+}
+
+void ADualLevel::SwapLevel()
+{
+}
+
 void ADualLevel::BeginPlay() {
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class"));
-    /*bool bSuccess = false;
+    bool bSuccess = false;
     ULevelStreamingDynamic* Stream = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
         this,
         corruptedLevel,
@@ -15,6 +39,7 @@ void ADualLevel::BeginPlay() {
         FRotator::ZeroRotator,
         bSuccess
     );
-    */
+    
+    this->OnLevelLoaded.Broadcast();
 	
 }
