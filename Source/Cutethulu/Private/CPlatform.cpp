@@ -49,7 +49,7 @@ void ACPlatform::Tick(float DeltaTime)
 	case EMovementType::ONCE:
 	{
 		if (splinePos < Route->GetSplineLength()) {
-			CalculateSpeed();
+			CalculateSpeed(DeltaTime);
 			splinePos += currentSpeed * DeltaTime;
 			if (splinePos > Route->GetSplineLength())
 				splinePos = Route->GetSplineLength();
@@ -76,7 +76,7 @@ void ACPlatform::Tick(float DeltaTime)
 	}
 	case EMovementType::LOOP:
 	{
-		CalculateSpeed();
+		CalculateSpeed(DeltaTime);
 		splinePos += currentSpeed * DeltaTime;
 		if (splinePos > Route->GetSplineLength()) {
 			splinePos = 0;
@@ -111,7 +111,7 @@ void ACPlatform::Tick(float DeltaTime)
 	}
 	case EMovementType::PINGPONG:
 	{
-		CalculateSpeed();
+		CalculateSpeed(DeltaTime);
 
 		splinePos += currentSpeed * DeltaTime;
 
