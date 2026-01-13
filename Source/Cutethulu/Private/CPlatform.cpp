@@ -50,7 +50,7 @@ void ACPlatform::Tick(float DeltaTime)
 	{
 		if (splinePos < Route->GetSplineLength()) {
 			CalculateSpeed();
-			splinePos += currentSpeed;
+			splinePos += currentSpeed * DeltaTime;
 			if (splinePos > Route->GetSplineLength())
 				splinePos = Route->GetSplineLength();
 			targetTransform = Route->GetTransformAtDistanceAlongSpline(
@@ -77,7 +77,7 @@ void ACPlatform::Tick(float DeltaTime)
 	case EMovementType::LOOP:
 	{
 		CalculateSpeed();
-		splinePos += currentSpeed;
+		splinePos += currentSpeed * DeltaTime;
 		if (splinePos > Route->GetSplineLength()) {
 			splinePos = 0;
 			if (ResetSpeedOnLoop)
@@ -113,7 +113,7 @@ void ACPlatform::Tick(float DeltaTime)
 	{
 		CalculateSpeed();
 
-		splinePos += currentSpeed;
+		splinePos += currentSpeed * DeltaTime;
 
 		const float splineLength = Route->GetSplineLength();
 
@@ -146,7 +146,7 @@ void ACPlatform::Tick(float DeltaTime)
 			}
 			else if (currentSpeed < 0.0f)
 			{
-				currentSpeed = -currentSpeed;
+				currentSpeed = -currentSpeed * DeltaTime;
 			}
 		}
 
@@ -179,14 +179,14 @@ void ACPlatform::Tick(float DeltaTime)
 	}
 }
 
-void ACPlatform::CalculateSpeed()
+void ACPlatform::CalculateSpeed(float DeltaTime)
 {
 	if (!reverse) {
 		if (currentSpeed < 0){
 			if (forceOnReverse)
 				currentSpeed = 0;
 			else{
-				currentSpeed += deceleration * GetWorld()->GetDeltaSeconds();
+				currentSpeed += deceleration * DeltaTime;
 				if (currentSpeed > 0)
 					currentSpeed = 0;
 			}
@@ -194,12 +194,12 @@ void ACPlatform::CalculateSpeed()
 		else{
 			if (breaking){
 				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Breaking"));
-				currentSpeed -= deceleration * GetWorld()->GetDeltaSeconds();
+				currentSpeed -= deceleration * DeltaTime;
 				if (currentSpeed < 0)
 					currentSpeed = 0;
 			}
 			else{
-				currentSpeed += acceleration * GetWorld()->GetDeltaSeconds();
+				currentSpeed += acceleration * DeltaTime;
 				if (currentSpeed > maxSpeed)
 					currentSpeed = maxSpeed;
 			}
@@ -210,7 +210,7 @@ void ACPlatform::CalculateSpeed()
 			if (forceOnReverse)
 				currentSpeed = 0;
 			else{
-				currentSpeed -= deceleration * GetWorld()->GetDeltaSeconds();
+				currentSpeed -= deceleration * DeltaTime;
 				if (currentSpeed < 0)
 					currentSpeed = 0;
 			}
@@ -218,12 +218,12 @@ void ACPlatform::CalculateSpeed()
 		else{
 			if (breaking)	{
 				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Breaking"));
-				currentSpeed += deceleration * GetWorld()->GetDeltaSeconds();
+				currentSpeed += deceleration * DeltaTime;
 				if (currentSpeed > 0)
 					currentSpeed = 0;
 			}
 			else{
-				currentSpeed -= acceleration * GetWorld()->GetDeltaSeconds();
+				currentSpeed -= acceleration * DeltaTime;
 				if (currentSpeed < -maxSpeed)
 					currentSpeed = -maxSpeed;
 			}
