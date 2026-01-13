@@ -193,7 +193,7 @@ void ACPlatform::CalculateSpeed()
 		}
 		else{
 			if (breaking){
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Breaking"));
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Breaking"));
 				currentSpeed -= deceleration * GetWorld()->GetDeltaSeconds();
 				if (currentSpeed < 0)
 					currentSpeed = 0;
@@ -217,7 +217,7 @@ void ACPlatform::CalculateSpeed()
 		}
 		else{
 			if (breaking)	{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Breaking"));
+				//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Breaking"));
 				currentSpeed += deceleration * GetWorld()->GetDeltaSeconds();
 				if (currentSpeed > 0)
 					currentSpeed = 0;
