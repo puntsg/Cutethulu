@@ -19,7 +19,9 @@ class CUTETHULU_API ADualLevel : public ALevelScriptActor
 {
 	GENERATED_BODY()
 	
+
 public:
+
 	UPROPERTY(EditAnywhere, Category = "Streaming")
 	TSoftObjectPtr<UWorld> corruptedLevel;
 	UPROPERTY(EditAnywhere, Category = "Streaming")
