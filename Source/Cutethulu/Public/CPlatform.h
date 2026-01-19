@@ -92,5 +92,5 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 private:
-	void CalculateSpeed();
+	void CalculateSpeed(float DeltaTime);
 };
