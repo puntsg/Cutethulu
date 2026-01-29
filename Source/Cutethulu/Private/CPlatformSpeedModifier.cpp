@@ -30,35 +30,57 @@ void ACPlatformSpeedModifier::OnOverlap(UPrimitiveComponent* OverlappedComponent
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Overlapped"));
 	if(ACPlatform* overlappedPlatform = Cast<ACPlatform>(OtherActor)){
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Overlapped actor is a platform"));
-		if (this->inverseReverseValue)
+		if (this->inverseReverseValue) {
 			overlappedPlatform->reverse = !overlappedPlatform->reverse;
-		else if (this->ReverseValue.applyValue)
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Reversing reverse value to %s"), overlappedPlatform->reverse);
+		}
+		else if (this->ReverseValue.applyValue) {
 			overlappedPlatform->reverse = this->ReverseValue.Value;
-
+		}
 		if (!overlappedPlatform->reverse) {
-			if (this->setBreakingValue.applyValue)
+			if (this->setBreakingValue.applyValue){
 				overlappedPlatform->breaking = this->setBreakingValue.Value;
-			if (this->newCurrentSpeed.applyValue)
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Setting breaking to %s" ),this->setBreakingValue.Value);
+			}
+			if (this->newCurrentSpeed.applyValue) {
 				overlappedPlatform->currentSpeed = this->newCurrentSpeed.Value;
-			if (this->newMaxSpeed.applyValue)
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Breaking"));
+			}
+			if (this->newMaxSpeed.applyValue) {
 				overlappedPlatform->maxSpeed = this->newMaxSpeed.Value;
-			if (this->newAcceleration.applyValue)
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Breaking"));
+			}
+			if (this->newAcceleration.applyValue) {
 				overlappedPlatform->acceleration = this->newAcceleration.Value;
-			if (this->newDeceleration.applyValue)
-				overlappedPlatform -> deceleration = this->newDeceleration.Value;
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Breaking"));
+			}
+			if (this->newDeceleration.applyValue) {
+				overlappedPlatform->deceleration = this->newDeceleration.Value;
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Breaking"));
+			}
 		}
 		else {
 			//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Overlapped actor is a reversed platform"));
-			if (this->setReverseBreakingValue.applyValue)
+			if (this->setReverseBreakingValue.applyValue) {
 				overlappedPlatform->breaking = this->setReverseBreakingValue.Value;
-			if (this->newCurrentSpeed.applyValue)
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Breaking"));
+			}
+			if (this->newCurrentSpeed.applyValue) {
 				overlappedPlatform->currentSpeed = this->newReverseCurrentSpeed.Value;
-			if (this->newReverseMaxSpeed.applyValue)
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Breaking"));
+			}
+			if (this->newReverseMaxSpeed.applyValue) {
 				overlappedPlatform->maxSpeed = this->newReverseMaxSpeed.Value;
-			if (this->newReverseAcceleration.applyValue)
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Breaking"));
+			}
+			if (this->newReverseAcceleration.applyValue) {
 				overlappedPlatform->acceleration = this->newReverseAcceleration.Value;
-			if (this->newReverseDeceleration.applyValue)
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Breaking"));
+			}
+			if (this->newReverseDeceleration.applyValue) {
 				overlappedPlatform->deceleration = this->newReverseDeceleration.Value;
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Breaking"));
+			}
 		}
 	}
 }
