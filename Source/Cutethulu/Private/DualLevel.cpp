@@ -4,7 +4,6 @@
 #include "DualLevel.h"
 #include <Engine/LevelStreamingDynamic.h>
 #include <Kismet/GameplayStatics.h>
-#include "SwappableActor.h"
 
 void ADualLevel::UnloadStreamedLevels()
 {
@@ -12,6 +11,16 @@ void ADualLevel::UnloadStreamedLevels()
 
 void ADualLevel::LoadHorrorLevel()
 {
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LoadingHorrorLevel"));
+    bool bSuccess = false;
+    ULevelStreamingDynamic* Stream = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
+        this,
+        corruptedLevel,
+        FVector::ZeroVector,
+        FRotator::ZeroRotator,
+        bSuccess
+    );
+
 }
 
 void ADualLevel::UnloadHorrorLevel()
@@ -20,6 +29,14 @@ void ADualLevel::UnloadHorrorLevel()
 
 void ADualLevel::LoadCuteLevel()
 {
+    bool bSuccess = false;
+    ULevelStreamingDynamic* Stream = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
+        this,
+        corruptedLevel,
+        FVector::ZeroVector,
+        FRotator::ZeroRotator,
+        bSuccess
+    );
 }
 
 void ADualLevel::UnloadCuteLevel()
@@ -29,29 +46,10 @@ void ADualLevel::UnloadCuteLevel()
 void ADualLevel::SwapLevel()
 {
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class swapping"));
-	TArray<AActor*> FoundActors;
-	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASwappableActor::StaticClass(), FoundActors);
-
-	for (AActor* Actor : FoundActors)
-	{
-		ASwappableActor* TypedActor = Cast<ASwappableActor>(Actor);
-		if (TypedActor)
-		{
-			TypedActor->Swap();
-		}
-	}
 }
 
 void ADualLevel::BeginPlay() {
+    Super::BeginPlay();
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class"));
-    bool bSuccess = false;
-    ULevelStreamingDynamic* Stream = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
-        this,
-        corruptedLevel,
-        FVector::ZeroVector,
-        FRotator::ZeroRotator,
-        bSuccess
-    );
-    this->OnLevelLoaded.Broadcast();
-	
+   // LoadHorrorLevel();
 }
