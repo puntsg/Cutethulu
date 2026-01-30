@@ -25,7 +25,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Streaming")
 	TSoftObjectPtr<UWorld> corruptedLevel;
 	UPROPERTY(EditAnywhere, Category = "Streaming")
-	TSoftObjectPtr<UWorld> healedAsset;
+	TSoftObjectPtr<UWorld> healedLevel;
 
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
 	FOnLevelLoaded OnLevelLoaded;

@@ -20,7 +20,7 @@ void ADualLevel::LoadHorrorLevel()
         FRotator::ZeroRotator,
         bSuccess
     );
-
+    OnHorrorMapLoad.Broadcast();
 }
 
 void ADualLevel::UnloadHorrorLevel()
@@ -29,14 +29,16 @@ void ADualLevel::UnloadHorrorLevel()
 
 void ADualLevel::LoadCuteLevel()
 {
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LoadingCuteLevel"));
     bool bSuccess = false;
     ULevelStreamingDynamic* Stream = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
         this,
-        corruptedLevel,
+        healedLevel,
         FVector::ZeroVector,
         FRotator::ZeroRotator,
         bSuccess
     );
+    OnCuteMapLoaded.Broadcast();
 }
 
 void ADualLevel::UnloadCuteLevel()
@@ -51,5 +53,4 @@ void ADualLevel::SwapLevel()
 void ADualLevel::BeginPlay() {
     Super::BeginPlay();
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class"));
-   // LoadHorrorLevel();
 }
