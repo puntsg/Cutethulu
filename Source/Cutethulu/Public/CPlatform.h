@@ -26,8 +26,8 @@ UCLASS(Blueprintable, BlueprintType)
 class CUTETHULU_API ACPlatform : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ACPlatform();
 
@@ -62,16 +62,16 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = (Units = "Km/h", ToolTip = "Velocidad de frenado de la plataforma"))
 	float deceleration;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = (Units = "Km/h", ToolTip="Velocidad máxima de la plataforma, en caso de reversa, se invertirá el valor PE: 5 ->-5"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = (Units = "Km/h", ToolTip = "Velocidad máxima de la plataforma, en caso de reversa, se invertirá el valor PE: 5 ->-5"))
 	float maxSpeed;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = (Units = "Km", ToolTip="Que tanto ha avanzado en el spline, ni caso"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = (Units = "Km", ToolTip = "Que tanto ha avanzado en el spline, ni caso"))
 	float splinePos;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = ( ToolTip = "Recorre en sentido inverso"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = (ToolTip = "Recorre en sentido inverso"))
 	bool reverse;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = ( ToolTip = "Aplica freno y desaceleración a la plataforma"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = (ToolTip = "Aplica freno y desaceleración a la plataforma"))
 	bool breaking;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = (ToolTip = "Al dar una vuelta, la velocidad se mantiene o pasa a 0"))
@@ -88,8 +88,11 @@ public:
 	bool lockRoll;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SequenceParams")
+	bool isWaiting;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SequenceParams")
 	float waitingTime;
-	
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SequenceParams")
 	ACPlatform* nextPlatform;
 
@@ -99,8 +102,9 @@ public:
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+	float remainingTimeToActivate;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -110,5 +114,9 @@ private:
 	void LoopMovement(float DeltaTime);
 	void PingPongMovement(float DeltaTime);
 	void SequenceMovement(float DeltaTime);
+	void RestoreWaiting();
 
+	UFUNCTION()
+	void OnCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };
