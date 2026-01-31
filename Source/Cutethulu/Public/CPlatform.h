@@ -18,7 +18,8 @@ enum class EMovementType : uint8 {
 	NONE	UMETA(DisplayName = "None"),
 	ONCE UMETA(DisplayName = "Once"),
 	LOOP UMETA(DisplayName = "Loop"),
-	PINGPONG UMETA(DisplayName = "PingPong")
+	PINGPONG UMETA(DisplayName = "PingPong"),
+	SEQUENCE UMETA(DisplayName = "SEQUENCE")
 };
 
 UCLASS(Blueprintable, BlueprintType)
@@ -48,6 +49,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams")
 	EMovementType MovementType;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams")
+	bool activateWhenPlayerLands;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = (Units = "Km/h", ToolTip = "Velocidad actual de la plataforma"))
 	float currentSpeed;
@@ -83,6 +87,15 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/RotationParams ", meta = (ToolTip = "Bloquea la rotación en Roll"))
 	bool lockRoll;
 
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SequenceParams")
+	float waitingTime;
+	
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SequenceParams")
+	ACPlatform* nextPlatform;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SequenceParams")
+	ACPlatform* previousPlatform;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -93,4 +106,9 @@ public:
 
 private:
 	void CalculateSpeed(float DeltaTime);
+	void OnceMovement(float DeltaTime);
+	void LoopMovement(float DeltaTime);
+	void PingPongMovement(float DeltaTime);
+	void SequenceMovement(float DeltaTime);
+
 };
