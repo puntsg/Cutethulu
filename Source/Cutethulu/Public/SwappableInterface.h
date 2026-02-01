@@ -12,9 +12,6 @@ class USwappableInterface : public UInterface
 	GENERATED_BODY()
 };
 
-/**
- * 
- */
 class CUTETHULU_API ISwappableInterface
 {
 	GENERATED_BODY()
@@ -22,6 +19,27 @@ class CUTETHULU_API ISwappableInterface
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
 	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
-	void OnCorruptedLoaded();
-	
+	void OnHorrorLoaded();
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void OnCuteLoaded();
+
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void OnHorrorUnloaded();
+
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void OnCuteUnloaded();
+
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void OnBothLoaded();
+
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void OnBothUnloaded();
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void OnSwap();
 };
