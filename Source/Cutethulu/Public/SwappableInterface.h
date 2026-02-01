@@ -1,0 +1,45 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "UObject/Interface.h"
+
+#include "SwappableInterface.generated.h"
+
+// This class does not need to be modified.
+UINTERFACE(MinimalAPI)
+class USwappableInterface : public UInterface
+{
+	GENERATED_BODY()
+};
+
+class CUTETHULU_API ISwappableInterface
+{
+	GENERATED_BODY()
+
+	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
+public:
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void OnHorrorLoaded();
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void OnCuteLoaded();
+
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void OnHorrorUnloaded();
+
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void OnCuteUnloaded();
+
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void OnBothLoaded();
+
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void OnBothUnloaded();
+
+	UFUNCTION(BlueprintCallable, BlueprintImplementableEvent)
+	void OnSwap();
+};
