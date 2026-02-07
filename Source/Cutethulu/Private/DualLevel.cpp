@@ -143,16 +143,62 @@ void ADualLevel::SwapLevel()
 
 void ADualLevel::SaveCollectable(int CollectableID)
 {
-
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Start saving"));
-    if (UCutethulhuSaveGame* SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::CreateSaveGameObject(UCutethulhuSaveGame::StaticClass()))) {
+    UCutethulhuSaveGame* SaveGameInstance = nullptr;
+    if (UGameplayStatics::DoesSaveGameExist("player", 0)) 
+        SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::LoadGameFromSlot("player",0));
+    
+    if (!SaveGameInstance)
+        SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::CreateSaveGameObject(UCutethulhuSaveGame::StaticClass()));
 
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("SaveGameInstance founded"));
-        FAsyncSaveGameToSlotDelegate SavedDelegate;
-        UGameplayStatics::AsyncSaveGameToSlot(SaveGameInstance, "player",0,SavedDelegate);
+    while (SaveGameInstance->LevelsData.Num() <= this->LevelID)
+    {
+        FLevelData newLevelData;
+        newLevelData.LevelName = this->LevelName;
+        newLevelData.completed = false;
+        SaveGameInstance->LevelsData.Add(newLevelData);
     }
-    else
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("SaveGameInstance not founded"));
+    FLevelData& currentLevelData = SaveGameInstance->LevelsData[this->LevelID];
+    
+    while (currentLevelData.pickedCollectables.Num() <= CollectableID)
+        currentLevelData.pickedCollectables.Add(false);
+
+    currentLevelData.pickedCollectables[CollectableID] = true;
+    SaveGameInstance->SaveGame();
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Game saved"));
+}
+
+bool ADualLevel::IsCollectablePickedUp(int CollectableID)
+{
+    if (!UGameplayStatics::DoesSaveGameExist("player", 0)) {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Game save doesn't exist"));
+        return false;
+    }
+    
+    UCutethulhuSaveGame* SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
+    
+    if (!SaveGameInstance) {
+
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("SaveGameInstance is null"));
+        return false;
+    }
+
+    if (this->LevelID >= SaveGameInstance->LevelsData.Num()) {
+
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Game save doesn't contain any level"));
+        return false;
+    }
+
+    const FLevelData& levelData = SaveGameInstance->LevelsData[this->LevelID];
+    if (CollectableID >= levelData.pickedCollectables.Num()) {
+
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Current level doesn't contain collectable data"));
+        return false;
+    }
+
+
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Checking collectableData"));
+    return levelData.pickedCollectables[CollectableID];
 }
 
 void ADualLevel::BeginPlay() {

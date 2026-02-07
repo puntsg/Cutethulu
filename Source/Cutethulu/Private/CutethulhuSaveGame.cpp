@@ -2,24 +2,24 @@
 
 
 #include "CutethulhuSaveGame.h"
+#include <Kismet/GameplayStatics.h>
 
 UCutethulhuSaveGame::UCutethulhuSaveGame()
 {
-	SaveSlotName = TEXT("TestSaveSlot");
+	SaveSlotName = TEXT("player");
 	UserIndex = 0;
 }
 
 void UCutethulhuSaveGame::SaveGame()
 {
+	UGameplayStatics::SaveGameToSlot(this, SaveSlotName, UserIndex);
 }
 
 FLevelData* UCutethulhuSaveGame::GetLevelData(int levelIndex)
 {
-	try{
+	if(levelIndex >= 0 && levelIndex < LevelsData.Num())
 		return &LevelsData[levelIndex];
-	}
-	catch (const std::exception e) {
-		return nullptr;
-	}
+	return nullptr;
+	
 }
 	
