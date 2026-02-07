@@ -3,6 +3,7 @@
 
 #include "DualLevel.h"
 #include "SwappableInterface.h"
+#include "CutethulhuSaveGame.h"
 #include <Engine/LevelStreamingDynamic.h>
 #include <Kismet/GameplayStatics.h>
 
@@ -140,6 +141,20 @@ void ADualLevel::SwapLevel()
     }
 }
 
+void ADualLevel::SaveCollectable(int CollectableID)
+{
+
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Start saving"));
+    if (UCutethulhuSaveGame* SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::CreateSaveGameObject(UCutethulhuSaveGame::StaticClass()))) {
+
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("SaveGameInstance founded"));
+        FAsyncSaveGameToSlotDelegate SavedDelegate;
+        UGameplayStatics::AsyncSaveGameToSlot(SaveGameInstance, "player",0,SavedDelegate);
+    }
+    else
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("SaveGameInstance not founded"));
+}
+
 void ADualLevel::BeginPlay() {
     Super::BeginPlay();
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class"));
@@ -148,6 +163,15 @@ void ADualLevel::BeginPlay() {
             LoadCuteLevel();
         if (loadedState == ELoaded::HORROR || loadedState == ELoaded::BOTH)
             LoadHorrorLevel();
+    }
+}
+
+void ADualLevel::LoadlevelData()
+{
+    if (UGameplayStatics::DoesSaveGameExist("player",0)) {
+        UCutethulhuSaveGame* currentSaveGame = Cast<UCutethulhuSaveGame>(UGameplayStatics::LoadGameFromSlot("player",0));
+        FLevelData currentLevelData = currentSaveGame->LevelsData[LevelID];
+
     }
 }
 

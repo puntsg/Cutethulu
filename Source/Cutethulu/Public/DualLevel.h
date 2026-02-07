@@ -38,6 +38,10 @@ class CUTETHULU_API ADualLevel : public ALevelScriptActor
 	GENERATED_BODY()
 
 public:
+
+	UPROPERTY(EditAnywhere)
+	int LevelID;
+
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Streaming",meta = (ToolTip = "Si al cargar el nivel principal se quiere que se aplique el estado definido en loadedState  (el valor de abajo creo)"))
 	bool overrideLoadedState;
 
@@ -84,8 +88,13 @@ public:
 
 	UFUNCTION(BlueprintCallable, Category = "LevelLoadFunctions")
 	void SwapLevel();
+
+	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
+	void SaveCollectable(int CollectableID);
+
 protected:
 	virtual void BeginPlay() override;
+	void LoadlevelData();
 	void ApplyInterfaceEvents(ESwapEvent event);
 	ULevelStreamingDynamic* streamedHorrorLevel;
 	ULevelStreamingDynamic* streamedCuteLevel;
