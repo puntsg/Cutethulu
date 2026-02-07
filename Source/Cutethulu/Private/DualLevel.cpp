@@ -16,6 +16,7 @@ void ADualLevel::UnloadStreamedLevels()
         streamedHorrorLevel = nullptr;
         ApplyInterfaceEvents(ESwapEvent::HorrorUnloaded);
         OnHorrorMapUnload.Broadcast();
+        OnHorrorMapUnloaded.Broadcast();
         unloadedAny = true;
     }
 
@@ -23,6 +24,7 @@ void ADualLevel::UnloadStreamedLevels()
         streamedCuteLevel->SetIsRequestingUnloadAndRemoval(true);
         streamedCuteLevel = nullptr;
         ApplyInterfaceEvents(ESwapEvent::CuteUnloaded);
+        OnCuteMapUnload.Broadcast();
         OnCuteMapUnloaded.Broadcast();
         unloadedAny = true;
     }
@@ -51,13 +53,19 @@ void ADualLevel::LoadHorrorLevel()
     );
 
     if (bSuccess) {
-        loadedState = (loadedState == ELoaded::CUTE) ? ELoaded::BOTH : ELoaded::HORROR;
-        ApplyInterfaceEvents(ESwapEvent::HorrorLoaded);
         OnHorrorMapLoad.Broadcast();
-
-        if (loadedState == ELoaded::BOTH)
-            ApplyInterfaceEvents(ESwapEvent::BothLoaded);
+        streamedHorrorLevel->OnLevelShown.AddDynamic(this, &ADualLevel::OnHorrorLevelLoaded);
     }
+}
+
+void ADualLevel::OnHorrorLevelLoaded()
+{
+    loadedState = (loadedState == ELoaded::CUTE) ? ELoaded::BOTH : ELoaded::HORROR;
+    ApplyInterfaceEvents(ESwapEvent::HorrorLoaded);
+    OnHorrorMapLoaded.Broadcast();
+
+    if (loadedState == ELoaded::BOTH)
+        ApplyInterfaceEvents(ESwapEvent::BothLoaded);
 }
 
 void ADualLevel::UnloadHorrorLevel()
@@ -67,10 +75,11 @@ void ADualLevel::UnloadHorrorLevel()
         streamedHorrorLevel = nullptr;
         if (loadedState == ELoaded::BOTH)
             loadedState = ELoaded::CUTE;
-        else 
+        else
             loadedState = ELoaded::NONE;
         ApplyInterfaceEvents(ESwapEvent::HorrorUnloaded);
         OnHorrorMapUnload.Broadcast();
+        OnHorrorMapUnloaded.Broadcast();
     }
     else
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Horror level was not loaded"));
@@ -92,16 +101,23 @@ void ADualLevel::LoadCuteLevel()
     );
 
     if (bSuccess) {
-        if (loadedState == ELoaded::HORROR)
-            loadedState = ELoaded::BOTH;
-        else
-            loadedState = ELoaded::CUTE;
-
-        ApplyInterfaceEvents(ESwapEvent::CuteLoaded);
-        OnCuteMapLoaded.Broadcast();
-        if (loadedState == ELoaded::BOTH)
-            ApplyInterfaceEvents(ESwapEvent::BothLoaded);
+        OnCuteMapLoad.Broadcast();
+        streamedCuteLevel->OnLevelShown.AddDynamic(this, &ADualLevel::OnCuteMapLevelLoaded);
     }
+}
+
+void ADualLevel::OnCuteMapLevelLoaded()
+{
+    if (loadedState == ELoaded::HORROR)
+        loadedState = ELoaded::BOTH;
+    else
+        loadedState = ELoaded::CUTE;
+
+    ApplyInterfaceEvents(ESwapEvent::CuteLoaded);
+    OnCuteMapLoaded.Broadcast();
+
+    if (loadedState == ELoaded::BOTH)
+        ApplyInterfaceEvents(ESwapEvent::BothLoaded);
 }
 
 void ADualLevel::UnloadCuteLevel()
@@ -114,6 +130,7 @@ void ADualLevel::UnloadCuteLevel()
         else
             loadedState = ELoaded::NONE;
         ApplyInterfaceEvents(ESwapEvent::CuteUnloaded);
+        OnCuteMapUnload.Broadcast();
         OnCuteMapUnloaded.Broadcast();
     }
     else
@@ -145,9 +162,9 @@ void ADualLevel::SaveCollectable(int CollectableID)
 {
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Start saving"));
     UCutethulhuSaveGame* SaveGameInstance = nullptr;
-    if (UGameplayStatics::DoesSaveGameExist("player", 0)) 
-        SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::LoadGameFromSlot("player",0));
-    
+    if (UGameplayStatics::DoesSaveGameExist("player", 0))
+        SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
+
     if (!SaveGameInstance)
         SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::CreateSaveGameObject(UCutethulhuSaveGame::StaticClass()));
 
@@ -159,7 +176,7 @@ void ADualLevel::SaveCollectable(int CollectableID)
         SaveGameInstance->LevelsData.Add(newLevelData);
     }
     FLevelData& currentLevelData = SaveGameInstance->LevelsData[this->LevelID];
-    
+
     while (currentLevelData.pickedCollectables.Num() <= CollectableID)
         currentLevelData.pickedCollectables.Add(false);
 
@@ -174,31 +191,58 @@ bool ADualLevel::IsCollectablePickedUp(int CollectableID)
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Game save doesn't exist"));
         return false;
     }
-    
-    UCutethulhuSaveGame* SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
-    
-    if (!SaveGameInstance) {
 
+    UCutethulhuSaveGame* SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
+
+    if (!SaveGameInstance) {
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("SaveGameInstance is null"));
         return false;
     }
 
     if (this->LevelID >= SaveGameInstance->LevelsData.Num()) {
-
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Game save doesn't contain any level"));
         return false;
     }
 
     const FLevelData& levelData = SaveGameInstance->LevelsData[this->LevelID];
     if (CollectableID >= levelData.pickedCollectables.Num()) {
-
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Current level doesn't contain collectable data"));
         return false;
     }
 
-
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Checking collectableData"));
     return levelData.pickedCollectables[CollectableID];
+}
+
+TArray<bool> ADualLevel::GetPickedCollectables()
+{
+    TArray<bool> defaultArray;
+    defaultArray.Init(false, this->numOfCollectables);
+
+    if (!UGameplayStatics::DoesSaveGameExist("player", 0)) {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Game save doesn't exist"));
+        return defaultArray;
+    }
+
+    UCutethulhuSaveGame* SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
+
+    if (!SaveGameInstance) {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("SaveGameInstance is null"));
+        return defaultArray;
+    }
+
+    if (this->LevelID >= SaveGameInstance->LevelsData.Num()) {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Game save doesn't contain any level"));
+        return defaultArray;
+    }
+
+    const FLevelData& levelData = SaveGameInstance->LevelsData[this->LevelID];
+    if (0 >= levelData.pickedCollectables.Num()) {
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Current level doesn't contain collectable data"));
+        return defaultArray;
+    }
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Checking collectableData"));
+    return levelData.pickedCollectables;
 }
 
 void ADualLevel::BeginPlay() {
@@ -214,10 +258,9 @@ void ADualLevel::BeginPlay() {
 
 void ADualLevel::LoadlevelData()
 {
-    if (UGameplayStatics::DoesSaveGameExist("player",0)) {
-        UCutethulhuSaveGame* currentSaveGame = Cast<UCutethulhuSaveGame>(UGameplayStatics::LoadGameFromSlot("player",0));
+    if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
+        UCutethulhuSaveGame* currentSaveGame = Cast<UCutethulhuSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
         FLevelData currentLevelData = currentSaveGame->LevelsData[LevelID];
-
     }
 }
 
@@ -225,6 +268,7 @@ void ADualLevel::ApplyInterfaceEvents(ESwapEvent event)
 {
     TArray<AActor*> swappableActors;
     UGameplayStatics::GetAllActorsWithInterface(GetWorld(), USwappableInterface::StaticClass(), swappableActors);
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Finding Actors With Swappable interface"));
     for (AActor* currentSwappableActor : swappableActors) {
         switch (event)
         {

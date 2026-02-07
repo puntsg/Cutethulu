@@ -41,10 +41,14 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	int LevelID;
+
 	UPROPERTY(EditAnywhere)
 	FText LevelName;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Streaming",meta = (ToolTip = "Si al cargar el nivel principal se quiere que se aplique el estado definido en loadedState  (el valor de abajo creo)"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	int numOfCollectables;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Streaming", meta = (ToolTip = "Si al cargar el nivel principal se quiere que se aplique el estado definido en loadedState  (el valor de abajo creo)"))
 	bool overrideLoadedState;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Streaming", meta = (ToolTip = "Valor de que está cargado"))
@@ -61,15 +65,35 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
 	FOnMapChange OnMapChange;
 
+	// Horror - fires immediately when load starts
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
 	FOnHorrorMapLoad OnHorrorMapLoad;
 
+	// Horror - fires when level is fully loaded (actors ready)
+	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
+	FOnHorrorMapLoad OnHorrorMapLoaded;
+
+	// Horror - fires on unload start
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
 	FOnHorrorMapLoad OnHorrorMapUnload;
 
+	// Horror - fires when unload completes
+	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
+	FOnHorrorMapLoad OnHorrorMapUnloaded;
+
+	// Cute - fires immediately when load starts
+	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
+	FOnCuteMapLoaded OnCuteMapLoad;
+
+	// Cute - fires when level is fully loaded (actors ready)
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
 	FOnCuteMapLoaded OnCuteMapLoaded;
 
+	// Cute - fires on unload start
+	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
+	FOnCuteMapLoaded OnCuteMapUnload;
+
+	// Cute - fires when unload completes
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
 	FOnCuteMapLoaded OnCuteMapUnloaded;
 
@@ -97,10 +121,20 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
 	bool IsCollectablePickedUp(int CollectableID);
 
+	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
+	TArray<bool> GetPickedCollectables();
+
 protected:
 	virtual void BeginPlay() override;
 	void LoadlevelData();
 	void ApplyInterfaceEvents(ESwapEvent event);
+
+	UFUNCTION()
+	void OnHorrorLevelLoaded();
+
+	UFUNCTION()
+	void OnCuteMapLevelLoaded();
+
 	ULevelStreamingDynamic* streamedHorrorLevel;
 	ULevelStreamingDynamic* streamedCuteLevel;
 };
