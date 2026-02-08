@@ -17,110 +17,141 @@ enum class ELoaded : uint8 {
 
 UENUM()
 enum class ESwapEvent : uint8 {
+	//Any
+	AnyLoad,
+	AnyLoaded,
+	AnyUnload,
+	AnyUnloaded,
+	//Horror events
+	HorrorLoad,
 	HorrorLoaded,
+	HorrorUnload,
 	HorrorUnloaded,
+	//CuteEvents
+	CuteLoad,
 	CuteLoaded,
+	CuteUnload,
 	CuteUnloaded,
+	//BothEvents
+	BothLoad,
 	BothLoaded,
+	BothUnload,
 	BothUnloaded,
+	//Swap
+	Swap,
 	Swapped
 };
+//Any
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAnyLoad);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAnyLoaded);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAnyUnload);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAnyUnloaded);
+//Horror Events
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHorrorLoad);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHorrorLoaded);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHorrorUnload);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHorrorUnloaded);
+//Cute events
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCuteLoad);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCuteLoaded);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCuteUnload); 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCuteUnloaded);
+//Both Events
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBothLoad);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBothLoaded);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBothUnload);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBothUnloaded);
+//Swap
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwap);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwapped);
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLevelLoaded);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMapChange);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHorrorMapLoad);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHorrorMapUnload);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCuteMapLoaded);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCuteMapUnloaded);
 UCLASS()
 class CUTETHULU_API ADualLevel : public ALevelScriptActor
 {
 	GENERATED_BODY()
 
 public:
-
+	//map data
 	UPROPERTY(EditAnywhere)
 	int LevelID;
-
 	UPROPERTY(EditAnywhere)
 	FText LevelName;
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	int numOfCollectables;
 
+	//mapConfig
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Streaming", meta = (ToolTip = "Si al cargar el nivel principal se quiere que se aplique el estado definido en loadedState  (el valor de abajo creo)"))
 	bool overrideLoadedState;
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Streaming", meta = (ToolTip = "Valor de que está cargado"))
 	ELoaded loadedState;
-
 	UPROPERTY(EditAnywhere, Category = "Streaming")
 	TSoftObjectPtr<UWorld> horrorLevel;
 	UPROPERTY(EditAnywhere, Category = "Streaming")
 	TSoftObjectPtr<UWorld> cuteLevel;
 
+	// Level Load/Unload event
+	///Any
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
-	FOnLevelLoaded OnLevelLoaded;
-
+	FOnAnyLoad OnAnyLoad;
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
-	FOnMapChange OnMapChange;
-
-	// Horror - fires immediately when load starts
+	FOnAnyLoaded OnAnyLoaded;
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
-	FOnHorrorMapLoad OnHorrorMapLoad;
-
-	// Horror - fires when level is fully loaded (actors ready)
+	FOnAnyUnload OnAnyUnload;
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
-	FOnHorrorMapLoad OnHorrorMapLoaded;
-
-	// Horror - fires on unload start
+	FOnAnyUnloaded OnAnyUnloaded;
+	///Horror
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
-	FOnHorrorMapLoad OnHorrorMapUnload;
-
-	// Horror - fires when unload completes
+	FOnHorrorLoad OnHorrorLoad;
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
-	FOnHorrorMapLoad OnHorrorMapUnloaded;
-
-	// Cute - fires immediately when load starts
+	FOnHorrorLoaded OnHorrorLoaded;
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
-	FOnCuteMapLoaded OnCuteMapLoad;
-
-	// Cute - fires when level is fully loaded (actors ready)
+	FOnHorrorUnload OnHorrorUnload;
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
-	FOnCuteMapLoaded OnCuteMapLoaded;
-
-	// Cute - fires on unload start
+	FOnHorrorUnloaded OnHorrorUnloaded;
+	///Cute
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
-	FOnCuteMapLoaded OnCuteMapUnload;
-
-	// Cute - fires when unload completes
+	FOnCuteLoad OnCuteLoad;
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
-	FOnCuteMapLoaded OnCuteMapUnloaded;
+	FOnCuteLoaded OnCuteLoaded;
+	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
+	FOnCuteUnload OnCuteUnload;
+	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
+	FOnCuteUnloaded OnCuteUnloaded;
+	///Both
+	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
+	FOnBothLoad OnBothLoad;
+	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
+	FOnBothLoaded OnBothLoaded;
+	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
+	FOnBothUnload OnBothUnload;
+	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
+	FOnBothUnloaded OnBothUnloaded;
+	///Cute
+	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
+	FOnCuteLoad OnSwap;
+	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
+	FOnCuteLoaded OnSwapped;
 
+
+	//Level un/load functions
 	UFUNCTION(BlueprintCallable, Category = "LevelLoadFunctions")
 	void UnloadStreamedLevels();
-
 	UFUNCTION(BlueprintCallable, Category = "LevelLoadFunctions")
 	void LoadHorrorLevel();
-
 	UFUNCTION(BlueprintCallable, Category = "LevelLoadFunctions")
 	void UnloadHorrorLevel();
-
 	UFUNCTION(BlueprintCallable, Category = "LevelLoadFunctions")
 	void LoadCuteLevel();
-
 	UFUNCTION(BlueprintCallable, Category = "LevelLoadFunctions")
 	void UnloadCuteLevel();
-
 	UFUNCTION(BlueprintCallable, Category = "LevelLoadFunctions")
 	void SwapLevel();
 
+	//Level saving/loading data functions
 	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
 	void SaveCollectable(int CollectableID);
-
 	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
 	bool IsCollectablePickedUp(int CollectableID);
-
 	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
 	TArray<bool> GetPickedCollectables();
 
@@ -130,10 +161,9 @@ protected:
 	void ApplyInterfaceEvents(ESwapEvent event);
 
 	UFUNCTION()
-	void OnHorrorLevelLoaded();
-
+	void OnHorrorMapLoadedFunc();
 	UFUNCTION()
-	void OnCuteMapLevelLoaded();
+	void OnCuteMapLoadedFunc();
 
 	ULevelStreamingDynamic* streamedHorrorLevel;
 	ULevelStreamingDynamic* streamedCuteLevel;

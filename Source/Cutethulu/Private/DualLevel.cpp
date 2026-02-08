@@ -14,24 +14,30 @@ void ADualLevel::UnloadStreamedLevels()
     if (streamedHorrorLevel) {
         streamedHorrorLevel->SetIsRequestingUnloadAndRemoval(true);
         streamedHorrorLevel = nullptr;
-        ApplyInterfaceEvents(ESwapEvent::HorrorUnloaded);
-        OnHorrorMapUnload.Broadcast();
-        OnHorrorMapUnloaded.Broadcast();
+        ApplyInterfaceEvents(ESwapEvent::HorrorUnload);
+        OnHorrorUnload.Broadcast();
+        OnHorrorUnloaded.Broadcast();
+        OnAnyUnload.Broadcast();
+        OnAnyUnloaded.Broadcast();
         unloadedAny = true;
     }
 
     if (streamedCuteLevel) {
         streamedCuteLevel->SetIsRequestingUnloadAndRemoval(true);
         streamedCuteLevel = nullptr;
-        ApplyInterfaceEvents(ESwapEvent::CuteUnloaded);
-        OnCuteMapUnload.Broadcast();
-        OnCuteMapUnloaded.Broadcast();
+        ApplyInterfaceEvents(ESwapEvent::CuteUnload);
+        OnCuteUnload.Broadcast();
+        OnCuteUnloaded.Broadcast();
+        OnAnyUnload.Broadcast();
+        OnAnyUnloaded.Broadcast();
         unloadedAny = true;
     }
 
     if (unloadedAny) {
         loadedState = ELoaded::NONE;
         ApplyInterfaceEvents(ESwapEvent::BothUnloaded);
+        OnBothUnload.Broadcast();
+        OnBothUnloaded.Broadcast();
     }
     else
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("No levels were loaded"));
@@ -53,19 +59,25 @@ void ADualLevel::LoadHorrorLevel()
     );
 
     if (bSuccess) {
-        OnHorrorMapLoad.Broadcast();
-        streamedHorrorLevel->OnLevelShown.AddDynamic(this, &ADualLevel::OnHorrorLevelLoaded);
+        ApplyInterfaceEvents(ESwapEvent::HorrorLoad);
+        OnHorrorLoad.Broadcast();
+        OnAnyLoad.Broadcast();
+        streamedHorrorLevel->OnLevelShown.AddDynamic(this, &ADualLevel::OnHorrorMapLoadedFunc);
     }
 }
 
-void ADualLevel::OnHorrorLevelLoaded()
+void ADualLevel::OnHorrorMapLoadedFunc()
 {
     loadedState = (loadedState == ELoaded::CUTE) ? ELoaded::BOTH : ELoaded::HORROR;
-    ApplyInterfaceEvents(ESwapEvent::HorrorLoaded);
-    OnHorrorMapLoaded.Broadcast();
 
-    if (loadedState == ELoaded::BOTH)
+    ApplyInterfaceEvents(ESwapEvent::HorrorLoaded);
+    OnHorrorLoaded.Broadcast();
+    OnAnyLoaded.Broadcast();
+
+    if (loadedState == ELoaded::BOTH) {
         ApplyInterfaceEvents(ESwapEvent::BothLoaded);
+        OnBothLoaded.Broadcast();
+    }
 }
 
 void ADualLevel::UnloadHorrorLevel()
@@ -77,9 +89,12 @@ void ADualLevel::UnloadHorrorLevel()
             loadedState = ELoaded::CUTE;
         else
             loadedState = ELoaded::NONE;
-        ApplyInterfaceEvents(ESwapEvent::HorrorUnloaded);
-        OnHorrorMapUnload.Broadcast();
-        OnHorrorMapUnloaded.Broadcast();
+
+        ApplyInterfaceEvents(ESwapEvent::HorrorUnload);
+        OnHorrorUnload.Broadcast();
+        OnHorrorUnloaded.Broadcast();
+        OnAnyUnload.Broadcast();
+        OnAnyUnloaded.Broadcast();
     }
     else
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Horror level was not loaded"));
@@ -101,12 +116,14 @@ void ADualLevel::LoadCuteLevel()
     );
 
     if (bSuccess) {
-        OnCuteMapLoad.Broadcast();
-        streamedCuteLevel->OnLevelShown.AddDynamic(this, &ADualLevel::OnCuteMapLevelLoaded);
+        ApplyInterfaceEvents(ESwapEvent::CuteLoad);
+        OnCuteLoad.Broadcast();
+        OnAnyLoad.Broadcast();
+        streamedCuteLevel->OnLevelShown.AddDynamic(this, &ADualLevel::OnCuteMapLoadedFunc);
     }
 }
 
-void ADualLevel::OnCuteMapLevelLoaded()
+void ADualLevel::OnCuteMapLoadedFunc()
 {
     if (loadedState == ELoaded::HORROR)
         loadedState = ELoaded::BOTH;
@@ -114,10 +131,13 @@ void ADualLevel::OnCuteMapLevelLoaded()
         loadedState = ELoaded::CUTE;
 
     ApplyInterfaceEvents(ESwapEvent::CuteLoaded);
-    OnCuteMapLoaded.Broadcast();
+    OnCuteLoaded.Broadcast();
+    OnAnyLoaded.Broadcast();
 
-    if (loadedState == ELoaded::BOTH)
+    if (loadedState == ELoaded::BOTH) {
         ApplyInterfaceEvents(ESwapEvent::BothLoaded);
+        OnBothLoaded.Broadcast();
+    }
 }
 
 void ADualLevel::UnloadCuteLevel()
@@ -129,9 +149,12 @@ void ADualLevel::UnloadCuteLevel()
             loadedState = ELoaded::HORROR;
         else
             loadedState = ELoaded::NONE;
-        ApplyInterfaceEvents(ESwapEvent::CuteUnloaded);
-        OnCuteMapUnload.Broadcast();
-        OnCuteMapUnloaded.Broadcast();
+
+        ApplyInterfaceEvents(ESwapEvent::CuteUnload);
+        OnCuteUnload.Broadcast();
+        OnCuteUnloaded.Broadcast();
+        OnAnyUnload.Broadcast();
+        OnAnyUnloaded.Broadcast();
     }
     else
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Cute level was not loaded"));
@@ -145,6 +168,9 @@ void ADualLevel::SwapLevel()
         return;
     }
     else {
+        ApplyInterfaceEvents(ESwapEvent::Swap);
+        OnSwap.Broadcast();
+
         if (loadedState == ELoaded::CUTE) {
             UnloadCuteLevel();
             LoadHorrorLevel();
@@ -153,8 +179,9 @@ void ADualLevel::SwapLevel()
             UnloadHorrorLevel();
             LoadCuteLevel();
         }
+
         ApplyInterfaceEvents(ESwapEvent::Swapped);
-        OnMapChange.Broadcast();
+        OnSwapped.Broadcast();
     }
 }
 
@@ -272,26 +299,59 @@ void ADualLevel::ApplyInterfaceEvents(ESwapEvent event)
     for (AActor* currentSwappableActor : swappableActors) {
         switch (event)
         {
+        case ESwapEvent::AnyLoad:
+            ISwappableInterface::Execute_OnAnyLoad(currentSwappableActor);
+            break;
+        case ESwapEvent::AnyLoaded:
+            ISwappableInterface::Execute_OnAnyLoaded(currentSwappableActor);
+            break;
+        case ESwapEvent::AnyUnload:
+            ISwappableInterface::Execute_OnAnyUnload(currentSwappableActor);
+            break;
+        case ESwapEvent::AnyUnloaded:
+            ISwappableInterface::Execute_OnAnyUnloaded(currentSwappableActor);
+            break;
+        case ESwapEvent::HorrorLoad:
+            ISwappableInterface::Execute_OnHorrorLoad(currentSwappableActor);
+            break;
         case ESwapEvent::HorrorLoaded:
             ISwappableInterface::Execute_OnHorrorLoaded(currentSwappableActor);
+            break;
+        case ESwapEvent::HorrorUnload:
+            ISwappableInterface::Execute_OnHorrorUnload(currentSwappableActor);
             break;
         case ESwapEvent::HorrorUnloaded:
             ISwappableInterface::Execute_OnHorrorUnloaded(currentSwappableActor);
             break;
+        case ESwapEvent::CuteLoad:
+            ISwappableInterface::Execute_OnCuteLoad(currentSwappableActor);
+            break;
         case ESwapEvent::CuteLoaded:
             ISwappableInterface::Execute_OnCuteLoaded(currentSwappableActor);
+            break;
+        case ESwapEvent::CuteUnload:
+            ISwappableInterface::Execute_OnCuteUnload(currentSwappableActor);
             break;
         case ESwapEvent::CuteUnloaded:
             ISwappableInterface::Execute_OnCuteUnloaded(currentSwappableActor);
             break;
+        case ESwapEvent::BothLoad:
+            ISwappableInterface::Execute_OnBothLoad(currentSwappableActor);
+            break;
         case ESwapEvent::BothLoaded:
             ISwappableInterface::Execute_OnBothLoaded(currentSwappableActor);
+            break;
+        case ESwapEvent::BothUnload:
+            ISwappableInterface::Execute_OnBothUnload(currentSwappableActor);
             break;
         case ESwapEvent::BothUnloaded:
             ISwappableInterface::Execute_OnBothUnloaded(currentSwappableActor);
             break;
-        case ESwapEvent::Swapped:
+        case ESwapEvent::Swap:
             ISwappableInterface::Execute_OnSwap(currentSwappableActor);
+            break;
+        case ESwapEvent::Swapped:
+            ISwappableInterface::Execute_OnSwapped(currentSwappableActor);
             break;
         }
     }
