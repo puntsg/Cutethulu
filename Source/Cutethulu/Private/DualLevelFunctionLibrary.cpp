@@ -6,10 +6,16 @@
 
 ADualLevel* UDualLevelFunctionLibrary::GetDualLevel(const UObject* WorldContextObject)
 {
-	if (!WorldContextObject)
+	if (!WorldContextObject) {
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Purple, TEXT("No WorldContextObject assigned/found"));
 		return nullptr;
+	}
 	UWorld* World = WorldContextObject->GetWorld();
-	if (!World)
+	if (!World) {
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Purple, TEXT("World not found or assigned"));
 		return nullptr;
+	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Purple, TEXT("Returning ADualLevel"));
 	return Cast<ADualLevel>(World->GetLevelScriptActor());
 }
