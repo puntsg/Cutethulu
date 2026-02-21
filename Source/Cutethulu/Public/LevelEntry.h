@@ -25,4 +25,10 @@ struct CUTETHULU_API FLevelEntry : public FTableRowBase
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     FText HiddenName = FText::FromString("???");
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UTexture2D* levelThumbnail;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UTexture2D* completedLevelThumbnail;
 };
