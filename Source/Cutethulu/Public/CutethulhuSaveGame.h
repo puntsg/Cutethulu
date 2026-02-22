@@ -14,6 +14,9 @@ public:
 	FText LevelName;
 
 	UPROPERTY()
+	bool visited;
+
+	UPROPERTY()
 	bool completed;
 
 	UPROPERTY()
