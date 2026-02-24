@@ -43,4 +43,10 @@ public:
 
 	void SaveGame();
 	FLevelData* GetLevelData(int levelIndex);
+
+	UFUNCTION(BlueprintPure)
+	bool GetIfLevelCompleted(int levelIndex);
+
+	UFUNCTION(BlueprintPure)
+	bool GetIfCollectableIsPickedUp(int levelIndex, int collectableIndex);
 };
