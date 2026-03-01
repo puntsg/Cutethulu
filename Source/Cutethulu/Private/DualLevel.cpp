@@ -90,8 +90,10 @@ void ADualLevel::LoadHorrorLevel()
         ApplyInterfaceEvents(ESwapEvent::HorrorLoad);
         OnHorrorLoad.Broadcast();
         OnAnyLoad.Broadcast();
-        horrorAudioComponent = UGameplayStatics::SpawnSound2D(this, horrorBgMusicClip);
-        horrorAudioComponent->FadeIn(audioFadeDuration);
+        if (horrorBgMusicClip){
+            horrorAudioComponent = UGameplayStatics::SpawnSound2D(this, horrorBgMusicClip);
+            horrorAudioComponent->FadeIn(audioFadeDuration);
+        }
         streamedHorrorLevel->OnLevelShown.AddDynamic(this, &ADualLevel::OnHorrorMapLoadedFunc);
     }
 }
@@ -155,8 +157,10 @@ void ADualLevel::LoadCuteLevel()
         ApplyInterfaceEvents(ESwapEvent::CuteLoad);
         OnCuteLoad.Broadcast();
         OnAnyLoad.Broadcast();
-        cuteAudioComponent = UGameplayStatics::SpawnSound2D(this, cuteBgMusicClip);
-        cuteAudioComponent->FadeIn(audioFadeDuration);
+        if (cuteBgMusicClip) {
+            cuteAudioComponent = UGameplayStatics::SpawnSound2D(this, cuteBgMusicClip);
+            cuteAudioComponent->FadeIn(audioFadeDuration);
+        }
         streamedCuteLevel->OnLevelShown.AddDynamic(this, &ADualLevel::OnCuteMapLoadedFunc);
     }
 }
