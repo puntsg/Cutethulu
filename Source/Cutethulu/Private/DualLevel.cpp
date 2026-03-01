@@ -4,6 +4,7 @@
 #include "DualLevel.h"
 #include "SwappableInterface.h"
 #include "CutethulhuSaveGame.h"
+#include "Components/AudioComponent.h"
 #include <Engine/LevelStreamingDynamic.h>
 #include <Kismet/GameplayStatics.h>
 
@@ -19,6 +20,8 @@ void ADualLevel::UnloadStreamedLevels()
         OnHorrorUnloaded.Broadcast();
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
+        if (horrorAudioComponent != nullptr)
+            horrorAudioComponent->FadeOut(audioFadeDuration, 0.f);
         unloadedAny = true;
     }
 
@@ -30,6 +33,8 @@ void ADualLevel::UnloadStreamedLevels()
         OnCuteUnloaded.Broadcast();
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
+        if (cuteAudioComponent != nullptr)
+            cuteAudioComponent->FadeOut(audioFadeDuration, 0.f);
         unloadedAny = true;
     }
 
@@ -62,6 +67,8 @@ void ADualLevel::LoadHorrorLevel()
         ApplyInterfaceEvents(ESwapEvent::HorrorLoad);
         OnHorrorLoad.Broadcast();
         OnAnyLoad.Broadcast();
+        horrorAudioComponent = UGameplayStatics::SpawnSound2D(this, horrorBgMusicClip);
+        horrorAudioComponent->FadeIn(audioFadeDuration);
         streamedHorrorLevel->OnLevelShown.AddDynamic(this, &ADualLevel::OnHorrorMapLoadedFunc);
     }
 }
@@ -95,6 +102,9 @@ void ADualLevel::UnloadHorrorLevel()
         OnHorrorUnloaded.Broadcast();
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
+
+        if (horrorAudioComponent != nullptr)
+            horrorAudioComponent->FadeOut(audioFadeDuration, 0.f);
     }
     else
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Horror level was not loaded"));
@@ -119,6 +129,8 @@ void ADualLevel::LoadCuteLevel()
         ApplyInterfaceEvents(ESwapEvent::CuteLoad);
         OnCuteLoad.Broadcast();
         OnAnyLoad.Broadcast();
+        cuteAudioComponent = UGameplayStatics::SpawnSound2D(this, cuteBgMusicClip);
+        cuteAudioComponent->FadeIn(audioFadeDuration);
         streamedCuteLevel->OnLevelShown.AddDynamic(this, &ADualLevel::OnCuteMapLoadedFunc);
     }
 }
@@ -155,6 +167,9 @@ void ADualLevel::UnloadCuteLevel()
         OnCuteUnloaded.Broadcast();
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
+
+        if (cuteAudioComponent != nullptr)
+            cuteAudioComponent->FadeOut(audioFadeDuration, 0.f);
     }
     else
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Cute level was not loaded"));
@@ -167,22 +182,45 @@ void ADualLevel::SwapLevel()
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("No streamedLevels Loaded or both loaded"));
         return;
     }
-    else {
-        ApplyInterfaceEvents(ESwapEvent::Swap);
-        OnSwap.Broadcast();
 
-        if (loadedState == ELoaded::CUTE) {
-            UnloadCuteLevel();
-            LoadHorrorLevel();
-        }
-        else {
-            UnloadHorrorLevel();
-            LoadCuteLevel();
-        }
+    GetWorldTimerManager().ClearTimer(AudioSwapTimerHandle);
 
-        ApplyInterfaceEvents(ESwapEvent::Swapped);
-        OnSwapped.Broadcast();
+    ApplyInterfaceEvents(ESwapEvent::Swap);
+    OnSwap.Broadcast();
+
+    if (loadedState == ELoaded::CUTE) {
+        UnloadCuteLevel();
+        GetWorldTimerManager().SetTimer(
+            AudioSwapTimerHandle,
+            this,
+            &ADualLevel::DelayedLoadHorrorLevel,
+            audioFadeDuration,
+            false
+        );
     }
+    else {
+        UnloadHorrorLevel();
+        GetWorldTimerManager().SetTimer(
+            AudioSwapTimerHandle,
+            this,
+            &ADualLevel::DelayedLoadCuteLevel,
+            audioFadeDuration,
+            false
+        );
+    }
+
+    ApplyInterfaceEvents(ESwapEvent::Swapped);
+    OnSwapped.Broadcast();
+}
+
+void ADualLevel::DelayedLoadHorrorLevel()
+{
+    LoadHorrorLevel();
+}
+
+void ADualLevel::DelayedLoadCuteLevel()
+{
+    LoadCuteLevel();
 }
 
 void ADualLevel::SaveCollectable(int CollectableID)

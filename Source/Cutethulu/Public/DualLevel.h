@@ -54,7 +54,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHorrorUnloaded);
 //Cute events
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCuteLoad);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCuteLoaded);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCuteUnload); 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCuteUnload);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCuteUnloaded);
 //Both Events
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBothLoad);
@@ -84,12 +84,24 @@ public:
 	bool overrideLoadedState;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Streaming", meta = (ToolTip = "Valor de que está cargado"))
 	ELoaded loadedState;
-	UPROPERTY(EditAnywhere, Category = "Streaming")
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming")
+	USoundBase* mapSwappingSoundEffect;
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Horror")
 	TSoftObjectPtr<UWorld> horrorLevel;
-	UPROPERTY(EditAnywhere, Category = "Streaming")
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Horror")
+	TObjectPtr<UAudioComponent> horrorAudioComponent;
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Horror")
+	USoundBase* horrorBgMusicClip;
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
 	TSoftObjectPtr<UWorld> cuteLevel;
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
+	TObjectPtr<UAudioComponent> cuteAudioComponent;
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
+	USoundBase* cuteBgMusicClip;
 
-	// Level Load/Unload event
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming", meta = (ToolTip = "Duración del fade in/out del audio al hacer swap"))
+	float audioFadeDuration = 1.f;
+
 	///Any
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
 	FOnAnyLoad OnAnyLoad;
@@ -126,11 +138,11 @@ public:
 	FOnBothUnload OnBothUnload;
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
 	FOnBothUnloaded OnBothUnloaded;
-	///Cute
+	///Swap
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
-	FOnCuteLoad OnSwap;
+	FOnSwap OnSwap;
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
-	FOnCuteLoaded OnSwapped;
+	FOnSwapped OnSwapped;
 
 
 	//Level un/load functions
@@ -156,6 +168,7 @@ public:
 	TArray<bool> GetPickedCollectables();
 
 protected:
+	//ADualLevel();
 	virtual void BeginPlay() override;
 	void LoadlevelData();
 	void ApplyInterfaceEvents(ESwapEvent event);
@@ -164,6 +177,14 @@ protected:
 	void OnHorrorMapLoadedFunc();
 	UFUNCTION()
 	void OnCuteMapLoadedFunc();
+
+	// Callbacks retrasados para el swap con fade
+	UFUNCTION()
+	void DelayedLoadHorrorLevel();
+	UFUNCTION()
+	void DelayedLoadCuteLevel();
+
+	FTimerHandle AudioSwapTimerHandle;
 
 	ULevelStreamingDynamic* streamedHorrorLevel;
 	ULevelStreamingDynamic* streamedCuteLevel;
