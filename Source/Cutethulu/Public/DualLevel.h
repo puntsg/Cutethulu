@@ -4,8 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "Engine/LevelScriptActor.h"
+#include "Engine/DirectionalLight.h"
+#include "Engine/SkyLight.h"
 #include "Engine/LevelStreamingDynamic.h"
 #include "DualLevel.generated.h"
+
 
 UENUM(BlueprintType)
 enum class ELoaded : uint8 {
@@ -80,9 +83,9 @@ public:
 	int numOfCollectables;
 
 	//mapConfig
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Streaming", meta = (ToolTip = "Si al cargar el nivel principal se quiere que se aplique el estado definido en loadedState  (el valor de abajo creo)"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DualLevel|Streaming", meta = (ToolTip = "Si al cargar el nivel principal se quiere que se aplique el estado definido en loadedState  (el valor de abajo creo)"))
 	bool overrideLoadedState;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Streaming", meta = (ToolTip = "Valor de que está cargado"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DualLevel|Streaming", meta = (ToolTip = "Valor de que está cargado"))
 	ELoaded loadedState;
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming")
 	USoundBase* mapSwappingSoundEffect;
@@ -99,9 +102,17 @@ public:
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
 	USoundBase* cuteBgMusicClip;
 
-	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming", meta = (ToolTip = "Duración del fade in/out del audio al hacer swap"))
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming")
 	float audioFadeDuration = 1.f;
 
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Lighting")
+	TObjectPtr<ADirectionalLight> transitionDirectionalLight;
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Lighting")
+	TObjectPtr<ASkyLight> transitionSkyLight;
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Lighting")
+	float transitionLightIntensity = 5.f;
+
+	// Level Load/Unload event
 	///Any
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
 	FOnAnyLoad OnAnyLoad;
@@ -168,17 +179,18 @@ public:
 	TArray<bool> GetPickedCollectables();
 
 protected:
-	//ADualLevel();
 	virtual void BeginPlay() override;
 	void LoadlevelData();
 	void ApplyInterfaceEvents(ESwapEvent event);
+
+	void EnableTransitionLights();
+	void DisableTransitionLights();
 
 	UFUNCTION()
 	void OnHorrorMapLoadedFunc();
 	UFUNCTION()
 	void OnCuteMapLoadedFunc();
 
-	// Callbacks retrasados para el swap con fade
 	UFUNCTION()
 	void DelayedLoadHorrorLevel();
 	UFUNCTION()

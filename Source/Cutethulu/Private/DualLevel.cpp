@@ -5,8 +5,30 @@
 #include "SwappableInterface.h"
 #include "CutethulhuSaveGame.h"
 #include "Components/AudioComponent.h"
+#include "Components/LightComponent.h"
+#include "Components/SkyLightComponent.h"
+#include "Engine/DirectionalLight.h"
+#include "Engine/SkyLight.h"
 #include <Engine/LevelStreamingDynamic.h>
 #include <Kismet/GameplayStatics.h>
+
+
+void ADualLevel::EnableTransitionLights()
+{
+    if (transitionDirectionalLight)
+        transitionDirectionalLight->GetLightComponent()->SetIntensity(transitionLightIntensity);
+    if (transitionSkyLight)
+        transitionSkyLight->GetLightComponent()->SetIntensity(transitionLightIntensity);
+}
+
+void ADualLevel::DisableTransitionLights()
+{
+    if (transitionDirectionalLight)
+        transitionDirectionalLight->GetLightComponent()->SetIntensity(0.f);
+    if (transitionSkyLight)
+        transitionSkyLight->GetLightComponent()->SetIntensity(0.f);
+}
+
 
 void ADualLevel::UnloadStreamedLevels()
 {
@@ -48,6 +70,7 @@ void ADualLevel::UnloadStreamedLevels()
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("No levels were loaded"));
 }
 
+
 void ADualLevel::LoadHorrorLevel()
 {
     if (streamedHorrorLevel)
@@ -76,6 +99,8 @@ void ADualLevel::LoadHorrorLevel()
 void ADualLevel::OnHorrorMapLoadedFunc()
 {
     loadedState = (loadedState == ELoaded::CUTE) ? ELoaded::BOTH : ELoaded::HORROR;
+
+    DisableTransitionLights();
 
     ApplyInterfaceEvents(ESwapEvent::HorrorLoaded);
     OnHorrorLoaded.Broadcast();
@@ -110,6 +135,7 @@ void ADualLevel::UnloadHorrorLevel()
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Horror level was not loaded"));
 }
 
+
 void ADualLevel::LoadCuteLevel()
 {
     if (streamedCuteLevel)
@@ -141,6 +167,8 @@ void ADualLevel::OnCuteMapLoadedFunc()
         loadedState = ELoaded::BOTH;
     else
         loadedState = ELoaded::CUTE;
+
+    DisableTransitionLights();
 
     ApplyInterfaceEvents(ESwapEvent::CuteLoaded);
     OnCuteLoaded.Broadcast();
@@ -175,6 +203,7 @@ void ADualLevel::UnloadCuteLevel()
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Cute level was not loaded"));
 }
 
+
 void ADualLevel::SwapLevel()
 {
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class swapping"));
@@ -182,6 +211,8 @@ void ADualLevel::SwapLevel()
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("No streamedLevels Loaded or both loaded"));
         return;
     }
+
+    EnableTransitionLights();
 
     GetWorldTimerManager().ClearTimer(AudioSwapTimerHandle);
 
@@ -222,6 +253,7 @@ void ADualLevel::DelayedLoadCuteLevel()
 {
     LoadCuteLevel();
 }
+
 
 void ADualLevel::SaveCollectable(int CollectableID)
 {
@@ -310,9 +342,13 @@ TArray<bool> ADualLevel::GetPickedCollectables()
     return levelData.pickedCollectables;
 }
 
+
 void ADualLevel::BeginPlay() {
     Super::BeginPlay();
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class"));
+
+    DisableTransitionLights();
+
     if (overrideLoadedState) {
         if (loadedState == ELoaded::CUTE || loadedState == ELoaded::BOTH)
             LoadCuteLevel();
