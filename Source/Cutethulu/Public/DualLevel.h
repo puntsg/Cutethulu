@@ -75,11 +75,11 @@ class CUTETHULU_API ADualLevel : public ALevelScriptActor
 
 public:
 	//map data
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	int LevelID;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FText LevelName;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	int numOfCollectables;
 
 	//mapConfig
