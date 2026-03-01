@@ -173,6 +173,7 @@ public:
 	//Level saving/loading data functions
 	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
 	void SaveCollectable(int CollectableID);
+
 	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
 	bool IsCollectablePickedUp(int CollectableID);
 	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")

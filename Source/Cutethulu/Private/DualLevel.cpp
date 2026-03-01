@@ -282,6 +282,8 @@ void ADualLevel::SaveCollectable(int CollectableID)
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Game saved"));
 }
 
+
+
 bool ADualLevel::IsCollectablePickedUp(int CollectableID)
 {
     if (!UGameplayStatics::DoesSaveGameExist("player", 0)) {
