@@ -32,6 +32,18 @@ bool UCutethulhuSaveGame::GetIfLevelCompleted(int levelIndex)
 	return false;
 }
 
+void UCutethulhuSaveGame::SetLevelAsCompleted(int levelIndex, bool value)
+{
+	while (this->LevelsData.Num() <= levelIndex)
+	{
+		FLevelData newLevelData;
+		newLevelData.completed = false;
+		this->LevelsData.Add(newLevelData);
+	}
+	this->LevelsData[levelIndex].completed = true;
+	SaveGame();
+}
+
 bool UCutethulhuSaveGame::GetIfCollectableIsPickedUp(int levelIndex, int collectableIndex)
 {
 	if (levelIndex >= 0 && levelIndex < LevelsData.Num()) {
