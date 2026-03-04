@@ -361,6 +361,18 @@ void ADualLevel::BeginPlay() {
         if (loadedState == ELoaded::HORROR || loadedState == ELoaded::BOTH)
             LoadHorrorLevel();
     }
+    else {
+        bool bHasLevelBeenCompleted = false;
+        if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
+            UCutethulhuSaveGame* SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
+            if (SaveGameInstance)
+                bHasLevelBeenCompleted = SaveGameInstance->GetIfLevelCompleted(this->LevelID);
+        }
+        if (bHasLevelBeenCompleted)
+            LoadCuteLevel();
+        else
+            LoadHorrorLevel();
+    }
 }
 
 void ADualLevel::LoadlevelData()
