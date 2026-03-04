@@ -288,6 +288,17 @@ void ADualLevel::SaveCollectable(int CollectableID)
 
 
 
+bool ADualLevel::IsLevelCompleted()
+{
+    bool bHasLevelBeenCompleted = false;
+    if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
+        UCutethulhuSaveGame* SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
+        if (SaveGameInstance)
+            bHasLevelBeenCompleted = SaveGameInstance->GetIfLevelCompleted(this->LevelID);
+    }
+    return bHasLevelBeenCompleted;
+}
+
 bool ADualLevel::IsCollectablePickedUp(int CollectableID)
 {
     if (!UGameplayStatics::DoesSaveGameExist("player", 0)) {
@@ -362,13 +373,7 @@ void ADualLevel::BeginPlay() {
             LoadHorrorLevel();
     }
     else {
-        bool bHasLevelBeenCompleted = false;
-        if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
-            UCutethulhuSaveGame* SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
-            if (SaveGameInstance)
-                bHasLevelBeenCompleted = SaveGameInstance->GetIfLevelCompleted(this->LevelID);
-        }
-        if (bHasLevelBeenCompleted)
+        if (IsLevelCompleted())
             LoadCuteLevel();
         else
             LoadHorrorLevel();

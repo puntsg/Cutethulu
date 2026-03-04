@@ -175,6 +175,8 @@ public:
 	void SaveCollectable(int CollectableID);
 
 	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
+	bool IsLevelCompleted();
+	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
 	bool IsCollectablePickedUp(int CollectableID);
 	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
 	TArray<bool> GetPickedCollectables();
