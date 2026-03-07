@@ -15,19 +15,19 @@
 
 UENUM(BlueprintType)
 enum class EMovementType : uint8 {
-	NONE	UMETA(DisplayName = "None"),
-	ONCE UMETA(DisplayName = "Once"),
-	LOOP UMETA(DisplayName = "Loop"),
-	PINGPONG UMETA(DisplayName = "PingPong")
+	NONE		UMETA(DisplayName = "None"),
+	ONCE		UMETA(DisplayName = "Once"),
+	LOOP		UMETA(DisplayName = "Loop"),
+	PINGPONG	UMETA(DisplayName = "PingPong"),
+	SEQUENCE	UMETA(DisplayName = "Sequence")
 };
 
 UCLASS(Blueprintable, BlueprintType)
 class CUTETHULU_API ACPlatform : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
-	// Sets default values for this actor's properties
+
+public:
 	ACPlatform();
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
@@ -45,52 +45,93 @@ public:
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	TObjectPtr<UChildActorComponent> childActor;
 
-
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams")
 	EMovementType MovementType;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = (Units = "Km/h", ToolTip = "Velocidad actual de la plataforma"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams", meta = (ToolTip = "La plataforma espera a que el jugador la pise para activarse"))
+	bool activateWhenPlayerLands;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams|SpeedParams", meta = (ToolTip = "Velocidad actual de la plataforma"))
 	float currentSpeed;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = (Units = "Km/h", ToolTip = "Aceleración de la plataforma"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams|SpeedParams", meta = (ToolTip = "Aceleracion de la plataforma"))
 	float acceleration;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = (Units = "Km/h", ToolTip = "Velocidad de frenado de la plataforma"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams|SpeedParams", meta = (ToolTip = "Velocidad de frenado de la plataforma"))
 	float deceleration;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = (Units = "Km/h", ToolTip="Velocidad máxima de la plataforma, en caso de reversa, se invertirá el valor PE: 5 ->-5"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams|SpeedParams", meta = (ToolTip = "Velocidad maxima de la plataforma"))
 	float maxSpeed;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = (Units = "Km", ToolTip="Que tanto ha avanzado en el spline, ni caso"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams|SpeedParams", meta = (ToolTip = "Posicion actual en el spline"))
 	float splinePos;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = ( ToolTip = "Recorre en sentido inverso"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams|SpeedParams", meta = (ToolTip = "Recorre en sentido inverso"))
 	bool reverse;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = ( ToolTip = "Aplica freno y desaceleración a la plataforma"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams|SpeedParams", meta = (ToolTip = "Aplica freno a la plataforma"))
 	bool breaking;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = (ToolTip = "Al dar una vuelta, la velocidad se mantiene o pasa a 0"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams|SpeedParams", meta = (ToolTip = "Al completar un ciclo, la velocidad se reinicia a 0"))
 	bool ResetSpeedOnLoop;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/SpeedParams ", meta = (ToolTip = "Si al activar reverse la plataforma va desacelerando o fuerza su velocidad a 0"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams|SpeedParams", meta = (ToolTip = "Al cambiar de direccion, fuerza velocidad a 0 en vez de desacelerar"))
 	bool forceOnReverse;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/RotationParams ", meta = (ToolTip = "Bloquea la rotación en Pitch"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams|RotationParams", meta = (ToolTip = "Bloquea la rotacion en Pitch"))
 	bool lockPitch;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/RotationParams ", meta = (ToolTip = "Bloquea la rotación en Yaw"))
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams|RotationParams", meta = (ToolTip = "Bloquea la rotacion en Yaw"))
 	bool lockYaw;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams/RotationParams ", meta = (ToolTip = "Bloquea la rotación en Roll"))
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams|RotationParams", meta = (ToolTip = "Bloquea la rotacion en Roll"))
 	bool lockRoll;
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams|TimingParams", meta = (ToolTip = "La plataforma esta en espera"))
+	bool isWaiting;
 
-public:	
-	// Called every frame
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams|TimingParams", meta = (ToolTip = "Tiempo de espera entre recorridos (en segundos)"))
+	float waitingTime;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams|SequenceParams", meta = (ToolTip = "Siguiente plataforma en la secuencia"))
+	ACPlatform* nextPlatform;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams|SequenceParams", meta = (ToolTip = "Plataforma anterior en la secuencia"))
+	ACPlatform* previousPlatform;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams|SequenceParams", meta = (ToolTip = "Al acabar la secuencia sin siguiente/anterior, espera al jugador para invertir"))
+	bool waitForPlayerOnSequenceEnd;
+
+protected:
+	virtual void BeginPlay() override;
+	float remainingTimeToActivate;
+	bool bWaitingForPlayer;
+
+public:
 	virtual void Tick(float DeltaTime) override;
+
+	void SetRemainingTimeToActivate(float time) { remainingTimeToActivate = time; }
+	float GetRemainingTimeToActivate() const { return remainingTimeToActivate; }
+
+	void SetWaitingForPlayer(bool bWaiting) { bWaitingForPlayer = bWaiting; }
+	bool IsWaitingForPlayer() const { return bWaitingForPlayer; }
+
+	UFUNCTION(BlueprintCallable)
+	void ActivatePlatform();
+
+	UFUNCTION(BlueprintCallable)
+	void ResetPlatformPosition();
 
 private:
 	void CalculateSpeed(float DeltaTime);
+	void OnceMovement(float DeltaTime);
+	void LoopMovement(float DeltaTime);
+	void PingPongMovement(float DeltaTime);
+	void SequenceMovement(float DeltaTime);
+	void RestoreWaiting();
+	void UpdateTransform();
+
+	UFUNCTION()
+	void OnCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };
