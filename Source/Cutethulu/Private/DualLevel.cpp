@@ -4,8 +4,31 @@
 #include "DualLevel.h"
 #include "SwappableInterface.h"
 #include "CutethulhuSaveGame.h"
+#include "Components/AudioComponent.h"
+#include "Components/LightComponent.h"
+#include "Components/SkyLightComponent.h"
+#include "Engine/DirectionalLight.h"
+#include "Engine/SkyLight.h"
 #include <Engine/LevelStreamingDynamic.h>
 #include <Kismet/GameplayStatics.h>
+
+
+void ADualLevel::EnableTransitionLights()
+{
+    if (transitionDirectionalLight)
+        transitionDirectionalLight->GetLightComponent()->SetIntensity(transitionLightIntensity);
+    if (transitionSkyLight)
+        transitionSkyLight->GetLightComponent()->SetIntensity(transitionLightIntensity);
+}
+
+void ADualLevel::DisableTransitionLights()
+{
+    if (transitionDirectionalLight)
+        transitionDirectionalLight->GetLightComponent()->SetIntensity(0.f);
+    if (transitionSkyLight)
+        transitionSkyLight->GetLightComponent()->SetIntensity(0.f);
+}
+
 
 void ADualLevel::UnloadStreamedLevels()
 {
@@ -19,6 +42,8 @@ void ADualLevel::UnloadStreamedLevels()
         OnHorrorUnloaded.Broadcast();
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
+        if (horrorAudioComponent != nullptr)
+            horrorAudioComponent->FadeOut(audioFadeDuration, 0.f);
         unloadedAny = true;
     }
 
@@ -30,6 +55,8 @@ void ADualLevel::UnloadStreamedLevels()
         OnCuteUnloaded.Broadcast();
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
+        if (cuteAudioComponent != nullptr)
+            cuteAudioComponent->FadeOut(audioFadeDuration, 0.f);
         unloadedAny = true;
     }
 
@@ -42,6 +69,7 @@ void ADualLevel::UnloadStreamedLevels()
     else
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("No levels were loaded"));
 }
+
 
 void ADualLevel::LoadHorrorLevel()
 {
@@ -62,6 +90,10 @@ void ADualLevel::LoadHorrorLevel()
         ApplyInterfaceEvents(ESwapEvent::HorrorLoad);
         OnHorrorLoad.Broadcast();
         OnAnyLoad.Broadcast();
+        if (horrorBgMusicClip){
+            horrorAudioComponent = UGameplayStatics::SpawnSound2D(this, horrorBgMusicClip);
+            horrorAudioComponent->FadeIn(audioFadeDuration);
+        }
         streamedHorrorLevel->OnLevelShown.AddDynamic(this, &ADualLevel::OnHorrorMapLoadedFunc);
     }
 }
@@ -69,6 +101,8 @@ void ADualLevel::LoadHorrorLevel()
 void ADualLevel::OnHorrorMapLoadedFunc()
 {
     loadedState = (loadedState == ELoaded::CUTE) ? ELoaded::BOTH : ELoaded::HORROR;
+
+    DisableTransitionLights();
 
     ApplyInterfaceEvents(ESwapEvent::HorrorLoaded);
     OnHorrorLoaded.Broadcast();
@@ -95,10 +129,14 @@ void ADualLevel::UnloadHorrorLevel()
         OnHorrorUnloaded.Broadcast();
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
+
+        if (horrorAudioComponent != nullptr)
+            horrorAudioComponent->FadeOut(audioFadeDuration, 0.f);
     }
     else
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Horror level was not loaded"));
 }
+
 
 void ADualLevel::LoadCuteLevel()
 {
@@ -119,6 +157,10 @@ void ADualLevel::LoadCuteLevel()
         ApplyInterfaceEvents(ESwapEvent::CuteLoad);
         OnCuteLoad.Broadcast();
         OnAnyLoad.Broadcast();
+        if (cuteBgMusicClip) {
+            cuteAudioComponent = UGameplayStatics::SpawnSound2D(this, cuteBgMusicClip);
+            cuteAudioComponent->FadeIn(audioFadeDuration);
+        }
         streamedCuteLevel->OnLevelShown.AddDynamic(this, &ADualLevel::OnCuteMapLoadedFunc);
     }
 }
@@ -129,6 +171,8 @@ void ADualLevel::OnCuteMapLoadedFunc()
         loadedState = ELoaded::BOTH;
     else
         loadedState = ELoaded::CUTE;
+
+    DisableTransitionLights();
 
     ApplyInterfaceEvents(ESwapEvent::CuteLoaded);
     OnCuteLoaded.Broadcast();
@@ -155,10 +199,14 @@ void ADualLevel::UnloadCuteLevel()
         OnCuteUnloaded.Broadcast();
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
+
+        if (cuteAudioComponent != nullptr)
+            cuteAudioComponent->FadeOut(audioFadeDuration, 0.f);
     }
     else
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Cute level was not loaded"));
 }
+
 
 void ADualLevel::SwapLevel()
 {
@@ -167,23 +215,49 @@ void ADualLevel::SwapLevel()
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("No streamedLevels Loaded or both loaded"));
         return;
     }
-    else {
-        ApplyInterfaceEvents(ESwapEvent::Swap);
-        OnSwap.Broadcast();
 
-        if (loadedState == ELoaded::CUTE) {
-            UnloadCuteLevel();
-            LoadHorrorLevel();
-        }
-        else {
-            UnloadHorrorLevel();
-            LoadCuteLevel();
-        }
+    EnableTransitionLights();
 
-        ApplyInterfaceEvents(ESwapEvent::Swapped);
-        OnSwapped.Broadcast();
+    GetWorldTimerManager().ClearTimer(AudioSwapTimerHandle);
+
+    ApplyInterfaceEvents(ESwapEvent::Swap);
+    OnSwap.Broadcast();
+
+    if (loadedState == ELoaded::CUTE) {
+        UnloadCuteLevel();
+        GetWorldTimerManager().SetTimer(
+            AudioSwapTimerHandle,
+            this,
+            &ADualLevel::DelayedLoadHorrorLevel,
+            audioFadeDuration,
+            false
+        );
     }
+    else {
+        UnloadHorrorLevel();
+        GetWorldTimerManager().SetTimer(
+            AudioSwapTimerHandle,
+            this,
+            &ADualLevel::DelayedLoadCuteLevel,
+            audioFadeDuration,
+            false
+        );
+    }
+
+    ApplyInterfaceEvents(ESwapEvent::Swapped);
+    OnSwapped.Broadcast();
 }
+
+void ADualLevel::DelayedLoadHorrorLevel()
+{
+    LoadHorrorLevel();
+}
+
+void ADualLevel::DelayedLoadCuteLevel()
+{
+    LoadCuteLevel();
+}
+
 
 void ADualLevel::SaveCollectable(int CollectableID)
 {
@@ -210,6 +284,19 @@ void ADualLevel::SaveCollectable(int CollectableID)
     currentLevelData.pickedCollectables[CollectableID] = true;
     SaveGameInstance->SaveGame();
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Game saved"));
+}
+
+
+
+bool ADualLevel::IsLevelCompleted()
+{
+    bool bHasLevelBeenCompleted = false;
+    if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
+        UCutethulhuSaveGame* SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
+        if (SaveGameInstance)
+            bHasLevelBeenCompleted = SaveGameInstance->GetIfLevelCompleted(this->LevelID);
+    }
+    return bHasLevelBeenCompleted;
 }
 
 bool ADualLevel::IsCollectablePickedUp(int CollectableID)
@@ -272,13 +359,23 @@ TArray<bool> ADualLevel::GetPickedCollectables()
     return levelData.pickedCollectables;
 }
 
+
 void ADualLevel::BeginPlay() {
     Super::BeginPlay();
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class"));
+
+    DisableTransitionLights();
+
     if (overrideLoadedState) {
         if (loadedState == ELoaded::CUTE || loadedState == ELoaded::BOTH)
             LoadCuteLevel();
         if (loadedState == ELoaded::HORROR || loadedState == ELoaded::BOTH)
+            LoadHorrorLevel();
+    }
+    else {
+        if (IsLevelCompleted())
+            LoadCuteLevel();
+        else
             LoadHorrorLevel();
     }
 }

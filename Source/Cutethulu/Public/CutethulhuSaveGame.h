@@ -16,7 +16,7 @@ public:
 	UPROPERTY()
 	bool visited;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	bool completed;
 
 	UPROPERTY()
@@ -46,6 +46,9 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool GetIfLevelCompleted(int levelIndex);
+
+	UFUNCTION(BlueprintCallable)
+	void SetLevelAsCompleted(int levelIndex,bool value);
 
 	UFUNCTION(BlueprintPure)
 	bool GetIfCollectableIsPickedUp(int levelIndex, int collectableIndex);
