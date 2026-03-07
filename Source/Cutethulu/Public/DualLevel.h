@@ -6,6 +6,7 @@
 #include "Engine/LevelScriptActor.h"
 #include "Engine/DirectionalLight.h"
 #include "Engine/SkyLight.h"
+#include "GameFramework/PlayerStart.h"
 #include "Engine/LevelStreamingDynamic.h"
 #include "DualLevel.generated.h"
 
@@ -81,7 +82,12 @@ public:
 	FText LevelName;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	int numOfCollectables;
-
+	UPROPERTY(BlueprintReadOnly,EditAnywhere)
+	TObjectPtr<APlayerStart>DefaultPlayerStart;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TObjectPtr<APlayerStart>LevelCompletedPlayerStart;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ToolTip = "Borra los datos del nivel"))
+	bool deleteLevelSaveData;
 	//mapConfig
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DualLevel|Streaming", meta = (ToolTip = "Si al cargar el nivel principal se quiere que se aplique el estado definido en loadedState  (el valor de abajo creo)"))
 	bool overrideLoadedState;
@@ -194,10 +200,6 @@ protected:
 	UFUNCTION()
 	void OnCuteMapLoadedFunc();
 
-	UFUNCTION()
-	void DelayedLoadHorrorLevel();
-	UFUNCTION()
-	void DelayedLoadCuteLevel();
 
 	FTimerHandle AudioSwapTimerHandle;
 
