@@ -40,7 +40,21 @@ void UCutethulhuSaveGame::SetLevelAsCompleted(int levelIndex, bool value)
 		newLevelData.completed = false;
 		this->LevelsData.Add(newLevelData);
 	}
-	this->LevelsData[levelIndex].completed = true;
+	this->LevelsData[levelIndex].completed = value;
+	SaveGame();
+}
+
+void UCutethulhuSaveGame::DeleteLevelData(int levelIndex)
+{
+	while (this->LevelsData.Num() <= levelIndex)
+	{
+		FLevelData newLevelData;
+		newLevelData.completed = false;
+		this->LevelsData.Add(newLevelData);
+	}
+	this->LevelsData[levelIndex].pickedCollectables.Empty();
+	this->LevelsData[levelIndex].completed = false;
+	this->LevelsData[levelIndex].visited = false;
 	SaveGame();
 }
 

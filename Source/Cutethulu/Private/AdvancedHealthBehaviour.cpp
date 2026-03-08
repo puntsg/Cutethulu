@@ -122,7 +122,7 @@ void UAdvancedHealthBehaviour::SetMaxHealth(float ammount, bool addHealth, bool 
 }
 
 void UAdvancedHealthBehaviour::AddMaxHealth(float ammount, bool addHealth, bool fillHealth) {
-	this->SetMaxHealth(this->maxHealth + ammount, addHealth, fillHealth);
+	this->SetMaxHealth(ammount, addHealth, fillHealth);
 }
 
 void UAdvancedHealthBehaviour::Regenerate() {
