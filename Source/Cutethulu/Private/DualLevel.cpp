@@ -7,6 +7,7 @@
 #include "Components/AudioComponent.h"
 #include "Components/LightComponent.h"
 #include "Components/SkyLightComponent.h"
+#include "GameFramework/GameModeBase.h"
 #include "Engine/DirectionalLight.h"
 #include "Engine/SkyLight.h"
 #include <Engine/LevelStreamingDynamic.h>
@@ -225,38 +226,19 @@ void ADualLevel::SwapLevel()
 
     if (loadedState == ELoaded::CUTE) {
         UnloadCuteLevel();
-        GetWorldTimerManager().SetTimer(
-            AudioSwapTimerHandle,
-            this,
-            &ADualLevel::DelayedLoadHorrorLevel,
-            audioFadeDuration,
-            false
-        );
+        LoadHorrorLevel();
     }
     else {
         UnloadHorrorLevel();
-        GetWorldTimerManager().SetTimer(
-            AudioSwapTimerHandle,
-            this,
-            &ADualLevel::DelayedLoadCuteLevel,
-            audioFadeDuration,
-            false
-        );
+        LoadCuteLevel();
     }
 
     ApplyInterfaceEvents(ESwapEvent::Swapped);
     OnSwapped.Broadcast();
 }
 
-void ADualLevel::DelayedLoadHorrorLevel()
-{
-    LoadHorrorLevel();
-}
 
-void ADualLevel::DelayedLoadCuteLevel()
-{
-    LoadCuteLevel();
-}
+
 
 
 void ADualLevel::SaveCollectable(int CollectableID)
@@ -360,11 +342,20 @@ TArray<bool> ADualLevel::GetPickedCollectables()
 }
 
 
-void ADualLevel::BeginPlay() {
+void ADualLevel::BeginPlay()
+{
     Super::BeginPlay();
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class"));
-
     DisableTransitionLights();
+
+    if (deleteLevelSaveData) {
+        if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
+            UCutethulhuSaveGame* SaveGameInstance = Cast<UCutethulhuSaveGame>(
+                UGameplayStatics::LoadGameFromSlot("player", 0));
+            if (SaveGameInstance)
+                SaveGameInstance->DeleteLevelData(LevelID);
+        }
+    }
 
     if (overrideLoadedState) {
         if (loadedState == ELoaded::CUTE || loadedState == ELoaded::BOTH)
@@ -377,6 +368,21 @@ void ADualLevel::BeginPlay() {
             LoadCuteLevel();
         else
             LoadHorrorLevel();
+    }
+
+    if (DefaultPlayerStart) {
+        APlayerStart* TargetStart = DefaultPlayerStart;
+        if (IsLevelCompleted() && LevelCompletedPlayerStart)
+            TargetStart = LevelCompletedPlayerStart;
+
+        APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+        AGameModeBase* GameMode = UGameplayStatics::GetGameMode(this);
+        if (PC && GameMode) {
+            PC->GetPawn()->SetActorLocationAndRotation(
+                TargetStart->GetActorLocation(),
+                TargetStart->GetActorRotation()
+            );
+        }
     }
 }
 

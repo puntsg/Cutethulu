@@ -7,9 +7,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
-#include <Components/SplineComponent.h>
-#include <Components/ArrowComponent.h>
-#include <Components/BoxComponent.h>
+#include "Components/SplineComponent.h"
+#include "Components/ArrowComponent.h"
+#include "Components/BoxComponent.h"
 
 #include "CPlatform.generated.h"
 
