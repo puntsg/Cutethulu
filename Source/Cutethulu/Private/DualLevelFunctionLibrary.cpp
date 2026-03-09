@@ -17,5 +17,13 @@ ADualLevel* UDualLevelFunctionLibrary::GetDualLevel(const UObject* WorldContextO
 	}
 
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Purple, TEXT("Returning ADualLevel"));
-	return Cast<ADualLevel>(World->GetLevelScriptActor());
+	//return Cast<ADualLevel>(World->GetLevelScriptActor());
+	for (ULevel* Level : World->GetLevels()) {
+		if (!Level)
+			continue;
+		ADualLevel* DualLevel = Cast<ADualLevel>(Level->GetLevelScriptActor());
+		if (DualLevel)
+			return DualLevel;
+	}
+	return nullptr;
 }

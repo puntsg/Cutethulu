@@ -10,16 +10,16 @@ USTRUCT(BlueprintType)
 struct FLevelData {
 	GENERATED_BODY()
 public:
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	FText LevelName;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	bool visited;
 
 	UPROPERTY(BlueprintReadOnly)
 	bool completed;
 
-	UPROPERTY()
+	UPROPERTY(BlueprintReadOnly)
 	TArray<bool> pickedCollectables;
 };
 
@@ -50,6 +50,10 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetLevelAsCompleted(int levelIndex,bool value);
 
+	UFUNCTION(BlueprintCallable)
+	void DeleteLevelData(int levelIndex);
+
 	UFUNCTION(BlueprintPure)
 	bool GetIfCollectableIsPickedUp(int levelIndex, int collectableIndex);
+
 };
