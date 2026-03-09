@@ -32,7 +32,7 @@ void ACPlatformSpeedModifier::OnOverlap(UPrimitiveComponent* OverlappedComponent
 		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Overlapped actor is a platform"));
 		if (this->inverseReverseValue) {
 			overlappedPlatform->reverse = !overlappedPlatform->reverse;
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Reversing reverse value to %s"), overlappedPlatform->reverse);
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red,	FString::Printf(TEXT("Reversing reverse value to %s"),overlappedPlatform->reverse ? TEXT("true") : TEXT("false")));
 		}
 		else if (this->ReverseValue.applyValue) {
 			overlappedPlatform->reverse = this->ReverseValue.Value;
@@ -65,7 +65,7 @@ void ACPlatformSpeedModifier::OnOverlap(UPrimitiveComponent* OverlappedComponent
 				overlappedPlatform->breaking = this->setReverseBreakingValue.Value;
 				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Breaking"));
 			}
-			if (this->newCurrentSpeed.applyValue) {
+			if (this->newReverseCurrentSpeed.applyValue) {
 				overlappedPlatform->currentSpeed = this->newReverseCurrentSpeed.Value;
 				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Breaking"));
 			}

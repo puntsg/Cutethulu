@@ -2,5 +2,7 @@
 
 #pragma once
 
+#include "CutethulhuSaveGame.h"
+#include "Kismet/GameplayStatics.h"
 #include "CoreMinimal.h"
 
