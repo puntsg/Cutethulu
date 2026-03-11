@@ -129,7 +129,7 @@ private:
 	void PingPongMovement(float DeltaTime);
 	void SequenceMovement(float DeltaTime);
 	void RestoreWaiting();
-	void UpdateTransform();
+	void UpdateTransform(float DeltaTime);
 
 	UFUNCTION()
 	void OnCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
