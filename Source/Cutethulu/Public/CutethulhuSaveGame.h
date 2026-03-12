@@ -48,10 +48,14 @@ public:
 	bool GetIfLevelCompleted(int levelIndex);
 
 	UFUNCTION(BlueprintCallable)
+	int GetPickedCollectables(int levelIndex);
+
+	UFUNCTION(BlueprintCallable)
 	void SetLevelAsCompleted(int levelIndex,bool value);
 
 	UFUNCTION(BlueprintCallable)
 	void DeleteLevelData(int levelIndex);
+
 
 	UFUNCTION(BlueprintPure)
 	bool GetIfCollectableIsPickedUp(int levelIndex, int collectableIndex);
