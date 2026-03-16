@@ -4,6 +4,7 @@
 #include "DualLevel.h"
 #include "SwappableInterface.h"
 #include "CutethulhuSaveGame.h"
+#include "Blueprint/UserWidget.h"
 #include "Components/AudioComponent.h"
 #include "Components/LightComponent.h"
 #include "Components/SkyLightComponent.h"
@@ -396,65 +397,76 @@ void ADualLevel::LoadlevelData()
 
 void ADualLevel::ApplyInterfaceEvents(ESwapEvent event)
 {
+    TArray<UObject*> swappableObjects;
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Finding Actors With Swappable interface"));
     TArray<AActor*> swappableActors;
     UGameplayStatics::GetAllActorsWithInterface(GetWorld(), USwappableInterface::StaticClass(), swappableActors);
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Finding Actors With Swappable interface"));
+    
     for (AActor* currentSwappableActor : swappableActors) {
+        swappableObjects.Add(currentSwappableActor);
+        TArray<UActorComponent*> components;
+        currentSwappableActor->GetComponents(components);   
+        for (UActorComponent* comp : components)
+            if (comp->Implements<USwappableInterface>())
+                swappableObjects.Add(comp);
+        
+    }
+    for (UObject* currentSwappableObject : swappableObjects) {
         switch (event)
         {
         case ESwapEvent::AnyLoad:
-            ISwappableInterface::Execute_OnAnyLoad(currentSwappableActor);
+            ISwappableInterface::Execute_OnAnyLoad(currentSwappableObject);
             break;
         case ESwapEvent::AnyLoaded:
-            ISwappableInterface::Execute_OnAnyLoaded(currentSwappableActor);
+            ISwappableInterface::Execute_OnAnyLoaded(currentSwappableObject);
             break;
         case ESwapEvent::AnyUnload:
-            ISwappableInterface::Execute_OnAnyUnload(currentSwappableActor);
+            ISwappableInterface::Execute_OnAnyUnload(currentSwappableObject);
             break;
         case ESwapEvent::AnyUnloaded:
-            ISwappableInterface::Execute_OnAnyUnloaded(currentSwappableActor);
+            ISwappableInterface::Execute_OnAnyUnloaded(currentSwappableObject);
             break;
         case ESwapEvent::HorrorLoad:
-            ISwappableInterface::Execute_OnHorrorLoad(currentSwappableActor);
+            ISwappableInterface::Execute_OnHorrorLoad(currentSwappableObject);
             break;
         case ESwapEvent::HorrorLoaded:
-            ISwappableInterface::Execute_OnHorrorLoaded(currentSwappableActor);
+            ISwappableInterface::Execute_OnHorrorLoaded(currentSwappableObject);
             break;
         case ESwapEvent::HorrorUnload:
-            ISwappableInterface::Execute_OnHorrorUnload(currentSwappableActor);
+            ISwappableInterface::Execute_OnHorrorUnload(currentSwappableObject);
             break;
         case ESwapEvent::HorrorUnloaded:
-            ISwappableInterface::Execute_OnHorrorUnloaded(currentSwappableActor);
+            ISwappableInterface::Execute_OnHorrorUnloaded(currentSwappableObject);
             break;
         case ESwapEvent::CuteLoad:
-            ISwappableInterface::Execute_OnCuteLoad(currentSwappableActor);
+            ISwappableInterface::Execute_OnCuteLoad(currentSwappableObject);
             break;
         case ESwapEvent::CuteLoaded:
-            ISwappableInterface::Execute_OnCuteLoaded(currentSwappableActor);
+            ISwappableInterface::Execute_OnCuteLoaded(currentSwappableObject);
             break;
         case ESwapEvent::CuteUnload:
-            ISwappableInterface::Execute_OnCuteUnload(currentSwappableActor);
+            ISwappableInterface::Execute_OnCuteUnload(currentSwappableObject);
             break;
         case ESwapEvent::CuteUnloaded:
-            ISwappableInterface::Execute_OnCuteUnloaded(currentSwappableActor);
+            ISwappableInterface::Execute_OnCuteUnloaded(currentSwappableObject);
             break;
         case ESwapEvent::BothLoad:
-            ISwappableInterface::Execute_OnBothLoad(currentSwappableActor);
+            ISwappableInterface::Execute_OnBothLoad(currentSwappableObject);
             break;
         case ESwapEvent::BothLoaded:
-            ISwappableInterface::Execute_OnBothLoaded(currentSwappableActor);
+            ISwappableInterface::Execute_OnBothLoaded(currentSwappableObject);
             break;
         case ESwapEvent::BothUnload:
-            ISwappableInterface::Execute_OnBothUnload(currentSwappableActor);
+            ISwappableInterface::Execute_OnBothUnload(currentSwappableObject);
             break;
         case ESwapEvent::BothUnloaded:
-            ISwappableInterface::Execute_OnBothUnloaded(currentSwappableActor);
+            ISwappableInterface::Execute_OnBothUnloaded(currentSwappableObject);
             break;
         case ESwapEvent::Swap:
-            ISwappableInterface::Execute_OnSwap(currentSwappableActor);
+            ISwappableInterface::Execute_OnSwap(currentSwappableObject);
             break;
         case ESwapEvent::Swapped:
-            ISwappableInterface::Execute_OnSwapped(currentSwappableActor);
+            ISwappableInterface::Execute_OnSwapped(currentSwappableObject);
             break;
         }
     }
