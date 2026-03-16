@@ -76,7 +76,7 @@ void ACPlatform::ActivatePlatform()
 void ACPlatform::ResetPlatformPosition()
 {
 	splinePos = 0;
-	UpdateTransform();
+	UpdateTransform(0.0f);
 }
 
 // Called every frame
@@ -182,8 +182,10 @@ void ACPlatform::CalculateSpeed(float DeltaTime)
 	}
 }
 
-void ACPlatform::UpdateTransform()
+void ACPlatform::UpdateTransform(float DeltaTime)
 {
+	FVector OldWorldPos = PlatformOffset->GetComponentLocation();
+
 	FTransform targetTransform = Route->GetTransformAtDistanceAlongSpline(
 		splinePos,
 		ESplineCoordinateSpace::Local,
@@ -204,6 +206,16 @@ void ACPlatform::UpdateTransform()
 		targetTransform.GetLocation(),
 		SplineRot
 	);
+
+	if (DeltaTime > SMALL_NUMBER)
+	{
+		FVector NewWorldPos = PlatformOffset->GetComponentLocation();
+		GetRootComponent()->ComponentVelocity = (NewWorldPos - OldWorldPos) / DeltaTime;
+	}
+	else
+	{
+		GetRootComponent()->ComponentVelocity = FVector::ZeroVector;
+	}
 }
 
 void ACPlatform::OnceMovement(float DeltaTime)
@@ -218,7 +230,12 @@ void ACPlatform::OnceMovement(float DeltaTime)
 			splinePos += currentSpeed * DeltaTime;
 			if (splinePos > splineLength)
 				splinePos = splineLength;
-			UpdateTransform();
+			UpdateTransform(DeltaTime);
+		}
+		else
+		{
+			currentSpeed = 0.0f;
+			GetRootComponent()->ComponentVelocity = FVector::ZeroVector;
 		}
 	}
 	else
@@ -229,7 +246,12 @@ void ACPlatform::OnceMovement(float DeltaTime)
 			splinePos += currentSpeed * DeltaTime;
 			if (splinePos < 0)
 				splinePos = 0;
-			UpdateTransform();
+			UpdateTransform(DeltaTime);
+		}
+		else
+		{
+			currentSpeed = 0.0f;
+			GetRootComponent()->ComponentVelocity = FVector::ZeroVector;
 		}
 	}
 }
@@ -262,7 +284,7 @@ void ACPlatform::LoopMovement(float DeltaTime)
 		}
 	}
 
-	UpdateTransform();
+	UpdateTransform(DeltaTime);
 }
 
 void ACPlatform::PingPongMovement(float DeltaTime)
@@ -299,7 +321,7 @@ void ACPlatform::PingPongMovement(float DeltaTime)
 		RestoreWaiting();
 	}
 
-	UpdateTransform();
+	UpdateTransform(DeltaTime);
 }
 
 void ACPlatform::SequenceMovement(float DeltaTime)
@@ -313,6 +335,7 @@ void ACPlatform::SequenceMovement(float DeltaTime)
 	{
 		splinePos = splineLength;
 		currentSpeed = 0.0f;
+		GetRootComponent()->ComponentVelocity = FVector::ZeroVector;
 
 		if (nextPlatform != nullptr)
 		{
@@ -356,6 +379,7 @@ void ACPlatform::SequenceMovement(float DeltaTime)
 	{
 		splinePos = 0.0f;
 		currentSpeed = 0.0f;
+		GetRootComponent()->ComponentVelocity = FVector::ZeroVector;
 
 		if (previousPlatform != nullptr)
 		{
@@ -396,7 +420,7 @@ void ACPlatform::SequenceMovement(float DeltaTime)
 		}
 	}
 
-	UpdateTransform();
+	UpdateTransform(DeltaTime);
 }
 
 void ACPlatform::RestoreWaiting()

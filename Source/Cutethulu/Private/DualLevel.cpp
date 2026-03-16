@@ -4,8 +4,33 @@
 #include "DualLevel.h"
 #include "SwappableInterface.h"
 #include "CutethulhuSaveGame.h"
+#include "Blueprint/UserWidget.h"
+#include "Components/AudioComponent.h"
+#include "Components/LightComponent.h"
+#include "Components/SkyLightComponent.h"
+#include "GameFramework/GameModeBase.h"
+#include "Engine/DirectionalLight.h"
+#include "Engine/SkyLight.h"
 #include <Engine/LevelStreamingDynamic.h>
 #include <Kismet/GameplayStatics.h>
+
+
+void ADualLevel::EnableTransitionLights()
+{
+    if (transitionDirectionalLight)
+        transitionDirectionalLight->GetLightComponent()->SetIntensity(transitionLightIntensity);
+    if (transitionSkyLight)
+        transitionSkyLight->GetLightComponent()->SetIntensity(transitionLightIntensity);
+}
+
+void ADualLevel::DisableTransitionLights()
+{
+    if (transitionDirectionalLight)
+        transitionDirectionalLight->GetLightComponent()->SetIntensity(0.f);
+    if (transitionSkyLight)
+        transitionSkyLight->GetLightComponent()->SetIntensity(0.f);
+}
+
 
 void ADualLevel::UnloadStreamedLevels()
 {
@@ -19,6 +44,8 @@ void ADualLevel::UnloadStreamedLevels()
         OnHorrorUnloaded.Broadcast();
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
+        if (horrorAudioComponent != nullptr)
+            horrorAudioComponent->FadeOut(audioFadeDuration, 0.f);
         unloadedAny = true;
     }
 
@@ -30,6 +57,8 @@ void ADualLevel::UnloadStreamedLevels()
         OnCuteUnloaded.Broadcast();
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
+        if (cuteAudioComponent != nullptr)
+            cuteAudioComponent->FadeOut(audioFadeDuration, 0.f);
         unloadedAny = true;
     }
 
@@ -42,6 +71,7 @@ void ADualLevel::UnloadStreamedLevels()
     else
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("No levels were loaded"));
 }
+
 
 void ADualLevel::LoadHorrorLevel()
 {
@@ -62,6 +92,10 @@ void ADualLevel::LoadHorrorLevel()
         ApplyInterfaceEvents(ESwapEvent::HorrorLoad);
         OnHorrorLoad.Broadcast();
         OnAnyLoad.Broadcast();
+        if (horrorBgMusicClip){
+            horrorAudioComponent = UGameplayStatics::SpawnSound2D(this, horrorBgMusicClip);
+            horrorAudioComponent->FadeIn(audioFadeDuration);
+        }
         streamedHorrorLevel->OnLevelShown.AddDynamic(this, &ADualLevel::OnHorrorMapLoadedFunc);
     }
 }
@@ -69,6 +103,8 @@ void ADualLevel::LoadHorrorLevel()
 void ADualLevel::OnHorrorMapLoadedFunc()
 {
     loadedState = (loadedState == ELoaded::CUTE) ? ELoaded::BOTH : ELoaded::HORROR;
+
+    DisableTransitionLights();
 
     ApplyInterfaceEvents(ESwapEvent::HorrorLoaded);
     OnHorrorLoaded.Broadcast();
@@ -95,10 +131,14 @@ void ADualLevel::UnloadHorrorLevel()
         OnHorrorUnloaded.Broadcast();
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
+
+        if (horrorAudioComponent != nullptr)
+            horrorAudioComponent->FadeOut(audioFadeDuration, 0.f);
     }
     else
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Horror level was not loaded"));
 }
+
 
 void ADualLevel::LoadCuteLevel()
 {
@@ -119,6 +159,10 @@ void ADualLevel::LoadCuteLevel()
         ApplyInterfaceEvents(ESwapEvent::CuteLoad);
         OnCuteLoad.Broadcast();
         OnAnyLoad.Broadcast();
+        if (cuteBgMusicClip) {
+            cuteAudioComponent = UGameplayStatics::SpawnSound2D(this, cuteBgMusicClip);
+            cuteAudioComponent->FadeIn(audioFadeDuration);
+        }
         streamedCuteLevel->OnLevelShown.AddDynamic(this, &ADualLevel::OnCuteMapLoadedFunc);
     }
 }
@@ -129,6 +173,8 @@ void ADualLevel::OnCuteMapLoadedFunc()
         loadedState = ELoaded::BOTH;
     else
         loadedState = ELoaded::CUTE;
+
+    DisableTransitionLights();
 
     ApplyInterfaceEvents(ESwapEvent::CuteLoaded);
     OnCuteLoaded.Broadcast();
@@ -155,10 +201,14 @@ void ADualLevel::UnloadCuteLevel()
         OnCuteUnloaded.Broadcast();
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
+
+        if (cuteAudioComponent != nullptr)
+            cuteAudioComponent->FadeOut(audioFadeDuration, 0.f);
     }
     else
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Cute level was not loaded"));
 }
+
 
 void ADualLevel::SwapLevel()
 {
@@ -167,23 +217,30 @@ void ADualLevel::SwapLevel()
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("No streamedLevels Loaded or both loaded"));
         return;
     }
-    else {
-        ApplyInterfaceEvents(ESwapEvent::Swap);
-        OnSwap.Broadcast();
 
-        if (loadedState == ELoaded::CUTE) {
-            UnloadCuteLevel();
-            LoadHorrorLevel();
-        }
-        else {
-            UnloadHorrorLevel();
-            LoadCuteLevel();
-        }
+    EnableTransitionLights();
 
-        ApplyInterfaceEvents(ESwapEvent::Swapped);
-        OnSwapped.Broadcast();
+    GetWorldTimerManager().ClearTimer(AudioSwapTimerHandle);
+
+    ApplyInterfaceEvents(ESwapEvent::Swap);
+    OnSwap.Broadcast();
+
+    if (loadedState == ELoaded::CUTE) {
+        UnloadCuteLevel();
+        LoadHorrorLevel();
     }
+    else {
+        UnloadHorrorLevel();
+        LoadCuteLevel();
+    }
+
+    ApplyInterfaceEvents(ESwapEvent::Swapped);
+    OnSwapped.Broadcast();
 }
+
+
+
+
 
 void ADualLevel::SaveCollectable(int CollectableID)
 {
@@ -210,6 +267,19 @@ void ADualLevel::SaveCollectable(int CollectableID)
     currentLevelData.pickedCollectables[CollectableID] = true;
     SaveGameInstance->SaveGame();
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Game saved"));
+}
+
+
+
+bool ADualLevel::IsLevelCompleted()
+{
+    bool bHasLevelBeenCompleted = false;
+    if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
+        UCutethulhuSaveGame* SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
+        if (SaveGameInstance)
+            bHasLevelBeenCompleted = SaveGameInstance->GetIfLevelCompleted(this->LevelID);
+    }
+    return bHasLevelBeenCompleted;
 }
 
 bool ADualLevel::IsCollectablePickedUp(int CollectableID)
@@ -272,14 +342,48 @@ TArray<bool> ADualLevel::GetPickedCollectables()
     return levelData.pickedCollectables;
 }
 
-void ADualLevel::BeginPlay() {
+
+void ADualLevel::BeginPlay()
+{
     Super::BeginPlay();
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class"));
+    DisableTransitionLights();
+
+    if (deleteLevelSaveData) {
+        if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
+            UCutethulhuSaveGame* SaveGameInstance = Cast<UCutethulhuSaveGame>(
+                UGameplayStatics::LoadGameFromSlot("player", 0));
+            if (SaveGameInstance)
+                SaveGameInstance->DeleteLevelData(LevelID);
+        }
+    }
+
     if (overrideLoadedState) {
         if (loadedState == ELoaded::CUTE || loadedState == ELoaded::BOTH)
             LoadCuteLevel();
         if (loadedState == ELoaded::HORROR || loadedState == ELoaded::BOTH)
             LoadHorrorLevel();
+    }
+    else {
+        if (IsLevelCompleted())
+            LoadCuteLevel();
+        else
+            LoadHorrorLevel();
+    }
+
+    if (DefaultPlayerStart) {
+        APlayerStart* TargetStart = DefaultPlayerStart;
+        if (IsLevelCompleted() && LevelCompletedPlayerStart)
+            TargetStart = LevelCompletedPlayerStart;
+
+        APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+        AGameModeBase* GameMode = UGameplayStatics::GetGameMode(this);
+        if (PC && GameMode) {
+            PC->GetPawn()->SetActorLocationAndRotation(
+                TargetStart->GetActorLocation(),
+                TargetStart->GetActorRotation()
+            );
+        }
     }
 }
 
@@ -293,65 +397,76 @@ void ADualLevel::LoadlevelData()
 
 void ADualLevel::ApplyInterfaceEvents(ESwapEvent event)
 {
+    TArray<UObject*> swappableObjects;
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Finding Actors With Swappable interface"));
     TArray<AActor*> swappableActors;
     UGameplayStatics::GetAllActorsWithInterface(GetWorld(), USwappableInterface::StaticClass(), swappableActors);
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Finding Actors With Swappable interface"));
+    
     for (AActor* currentSwappableActor : swappableActors) {
+        swappableObjects.Add(currentSwappableActor);
+        TArray<UActorComponent*> components;
+        currentSwappableActor->GetComponents(components);   
+        for (UActorComponent* comp : components)
+            if (comp->Implements<USwappableInterface>())
+                swappableObjects.Add(comp);
+        
+    }
+    for (UObject* currentSwappableObject : swappableObjects) {
         switch (event)
         {
         case ESwapEvent::AnyLoad:
-            ISwappableInterface::Execute_OnAnyLoad(currentSwappableActor);
+            ISwappableInterface::Execute_OnAnyLoad(currentSwappableObject);
             break;
         case ESwapEvent::AnyLoaded:
-            ISwappableInterface::Execute_OnAnyLoaded(currentSwappableActor);
+            ISwappableInterface::Execute_OnAnyLoaded(currentSwappableObject);
             break;
         case ESwapEvent::AnyUnload:
-            ISwappableInterface::Execute_OnAnyUnload(currentSwappableActor);
+            ISwappableInterface::Execute_OnAnyUnload(currentSwappableObject);
             break;
         case ESwapEvent::AnyUnloaded:
-            ISwappableInterface::Execute_OnAnyUnloaded(currentSwappableActor);
+            ISwappableInterface::Execute_OnAnyUnloaded(currentSwappableObject);
             break;
         case ESwapEvent::HorrorLoad:
-            ISwappableInterface::Execute_OnHorrorLoad(currentSwappableActor);
+            ISwappableInterface::Execute_OnHorrorLoad(currentSwappableObject);
             break;
         case ESwapEvent::HorrorLoaded:
-            ISwappableInterface::Execute_OnHorrorLoaded(currentSwappableActor);
+            ISwappableInterface::Execute_OnHorrorLoaded(currentSwappableObject);
             break;
         case ESwapEvent::HorrorUnload:
-            ISwappableInterface::Execute_OnHorrorUnload(currentSwappableActor);
+            ISwappableInterface::Execute_OnHorrorUnload(currentSwappableObject);
             break;
         case ESwapEvent::HorrorUnloaded:
-            ISwappableInterface::Execute_OnHorrorUnloaded(currentSwappableActor);
+            ISwappableInterface::Execute_OnHorrorUnloaded(currentSwappableObject);
             break;
         case ESwapEvent::CuteLoad:
-            ISwappableInterface::Execute_OnCuteLoad(currentSwappableActor);
+            ISwappableInterface::Execute_OnCuteLoad(currentSwappableObject);
             break;
         case ESwapEvent::CuteLoaded:
-            ISwappableInterface::Execute_OnCuteLoaded(currentSwappableActor);
+            ISwappableInterface::Execute_OnCuteLoaded(currentSwappableObject);
             break;
         case ESwapEvent::CuteUnload:
-            ISwappableInterface::Execute_OnCuteUnload(currentSwappableActor);
+            ISwappableInterface::Execute_OnCuteUnload(currentSwappableObject);
             break;
         case ESwapEvent::CuteUnloaded:
-            ISwappableInterface::Execute_OnCuteUnloaded(currentSwappableActor);
+            ISwappableInterface::Execute_OnCuteUnloaded(currentSwappableObject);
             break;
         case ESwapEvent::BothLoad:
-            ISwappableInterface::Execute_OnBothLoad(currentSwappableActor);
+            ISwappableInterface::Execute_OnBothLoad(currentSwappableObject);
             break;
         case ESwapEvent::BothLoaded:
-            ISwappableInterface::Execute_OnBothLoaded(currentSwappableActor);
+            ISwappableInterface::Execute_OnBothLoaded(currentSwappableObject);
             break;
         case ESwapEvent::BothUnload:
-            ISwappableInterface::Execute_OnBothUnload(currentSwappableActor);
+            ISwappableInterface::Execute_OnBothUnload(currentSwappableObject);
             break;
         case ESwapEvent::BothUnloaded:
-            ISwappableInterface::Execute_OnBothUnloaded(currentSwappableActor);
+            ISwappableInterface::Execute_OnBothUnloaded(currentSwappableObject);
             break;
         case ESwapEvent::Swap:
-            ISwappableInterface::Execute_OnSwap(currentSwappableActor);
+            ISwappableInterface::Execute_OnSwap(currentSwappableObject);
             break;
         case ESwapEvent::Swapped:
-            ISwappableInterface::Execute_OnSwapped(currentSwappableActor);
+            ISwappableInterface::Execute_OnSwapped(currentSwappableObject);
             break;
         }
     }

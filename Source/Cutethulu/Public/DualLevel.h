@@ -4,8 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Engine/LevelScriptActor.h"
+#include "Engine/DirectionalLight.h"
+#include "Engine/SkyLight.h"
+#include "GameFramework/PlayerStart.h"
 #include "Engine/LevelStreamingDynamic.h"
 #include "DualLevel.generated.h"
+
 
 UENUM(BlueprintType)
 enum class ELoaded : uint8 {
@@ -54,7 +58,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHorrorUnloaded);
 //Cute events
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCuteLoad);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCuteLoaded);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCuteUnload); 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCuteUnload);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCuteUnloaded);
 //Both Events
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBothLoad);
@@ -72,22 +76,47 @@ class CUTETHULU_API ADualLevel : public ALevelScriptActor
 
 public:
 	//map data
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	int LevelID;
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FText LevelName;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	int numOfCollectables;
-
+	UPROPERTY(BlueprintReadOnly,EditAnywhere)
+	TObjectPtr<APlayerStart>DefaultPlayerStart;
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TObjectPtr<APlayerStart>LevelCompletedPlayerStart;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ToolTip = "Borra los datos del nivel"))
+	bool deleteLevelSaveData;
 	//mapConfig
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Streaming", meta = (ToolTip = "Si al cargar el nivel principal se quiere que se aplique el estado definido en loadedState  (el valor de abajo creo)"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DualLevel|Streaming", meta = (ToolTip = "Si al cargar el nivel principal se quiere que se aplique el estado definido en loadedState  (el valor de abajo creo)"))
 	bool overrideLoadedState;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "Streaming", meta = (ToolTip = "Valor de que está cargado"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DualLevel|Streaming", meta = (ToolTip = "Valor de que está cargado"))
 	ELoaded loadedState;
-	UPROPERTY(EditAnywhere, Category = "Streaming")
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming")
+	USoundBase* mapSwappingSoundEffect;
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Horror")
 	TSoftObjectPtr<UWorld> horrorLevel;
-	UPROPERTY(EditAnywhere, Category = "Streaming")
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Horror")
+	TObjectPtr<UAudioComponent> horrorAudioComponent;
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Horror")
+	USoundBase* horrorBgMusicClip;
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
 	TSoftObjectPtr<UWorld> cuteLevel;
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
+	TObjectPtr<UAudioComponent> cuteAudioComponent;
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
+	USoundBase* cuteBgMusicClip;
+
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming")
+	float audioFadeDuration = 1.f;
+
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Lighting")
+	TObjectPtr<ADirectionalLight> transitionDirectionalLight;
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Lighting")
+	TObjectPtr<ASkyLight> transitionSkyLight;
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Lighting")
+	float transitionLightIntensity = 5.f;
 
 	// Level Load/Unload event
 	///Any
@@ -126,11 +155,11 @@ public:
 	FOnBothUnload OnBothUnload;
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
 	FOnBothUnloaded OnBothUnloaded;
-	///Cute
+	///Swap
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
-	FOnCuteLoad OnSwap;
+	FOnSwap OnSwap;
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
-	FOnCuteLoaded OnSwapped;
+	FOnSwapped OnSwapped;
 
 
 	//Level un/load functions
@@ -150,6 +179,9 @@ public:
 	//Level saving/loading data functions
 	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
 	void SaveCollectable(int CollectableID);
+
+	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
+	bool IsLevelCompleted();
 	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
 	bool IsCollectablePickedUp(int CollectableID);
 	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
@@ -160,10 +192,16 @@ protected:
 	void LoadlevelData();
 	void ApplyInterfaceEvents(ESwapEvent event);
 
+	void EnableTransitionLights();
+	void DisableTransitionLights();
+
 	UFUNCTION()
 	void OnHorrorMapLoadedFunc();
 	UFUNCTION()
 	void OnCuteMapLoadedFunc();
+
+
+	FTimerHandle AudioSwapTimerHandle;
 
 	ULevelStreamingDynamic* streamedHorrorLevel;
 	ULevelStreamingDynamic* streamedCuteLevel;

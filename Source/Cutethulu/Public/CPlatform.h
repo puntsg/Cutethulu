@@ -7,9 +7,9 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
 
-#include <Components/SplineComponent.h>
-#include <Components/ArrowComponent.h>
-#include <Components/BoxComponent.h>
+#include "Components/SplineComponent.h"
+#include "Components/ArrowComponent.h"
+#include "Components/BoxComponent.h"
 
 #include "CPlatform.generated.h"
 
@@ -129,7 +129,7 @@ private:
 	void PingPongMovement(float DeltaTime);
 	void SequenceMovement(float DeltaTime);
 	void RestoreWaiting();
-	void UpdateTransform();
+	void UpdateTransform(float DeltaTime);
 
 	UFUNCTION()
 	void OnCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
