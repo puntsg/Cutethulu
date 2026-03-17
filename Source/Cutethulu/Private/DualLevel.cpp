@@ -383,6 +383,7 @@ void ADualLevel::BeginPlay()
                 TargetStart->GetActorLocation(),
                 TargetStart->GetActorRotation()
             );
+            PC->SetControlRotation(TargetStart->GetActorRotation());
         }
     }
 }
