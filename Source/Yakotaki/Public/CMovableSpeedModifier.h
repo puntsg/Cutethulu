@@ -6,7 +6,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "CPlatformSpeedModifier.generated.h"
+#include "CMovableSpeedModifier.generated.h"
 
 USTRUCT(BlueprintType)
 struct FValueSetter {
@@ -33,13 +33,13 @@ public:
 };
 
 UCLASS()
-class CUTETHULU_API ACPlatformSpeedModifier : public AActor
+class YAKOTAKI_API ACMovableSpeedModifier : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ACPlatformSpeedModifier();
+	ACMovableSpeedModifier();
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
 	TObjectPtr<USceneComponent> DefaultSceneRoot;

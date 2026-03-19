@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Cutethulu.h"
+#include "Yakotaki.h"
 #include "Modules/ModuleManager.h"
 
-IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, Cutethulu, "Cutethulu" );
+IMPLEMENT_PRIMARY_GAME_MODULE( FDefaultGameModuleImpl, Yakotaki, "Yakotaki" );

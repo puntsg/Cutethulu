@@ -3,13 +3,13 @@
 using UnrealBuildTool;
 using System.Collections.Generic;
 
-public class CutethuluTarget : TargetRules
+public class YakotakiTarget : TargetRules
 {
-	public CutethuluTarget(TargetInfo Target) : base(Target)
+	public YakotakiTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Game;
 		DefaultBuildSettings = BuildSettingsVersion.V5;
 
-		ExtraModuleNames.AddRange( new string[] { "Cutethulu" } );
+		ExtraModuleNames.AddRange( new string[] { "Yakotaki" } );
 	}
 }

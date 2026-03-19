@@ -11,7 +11,7 @@
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
 
-#include "CPlatform.generated.h"
+#include "CMovable.generated.h"
 
 UENUM(BlueprintType)
 enum class EMovementType : uint8 {
@@ -23,12 +23,12 @@ enum class EMovementType : uint8 {
 };
 
 UCLASS(Blueprintable, BlueprintType)
-class CUTETHULU_API ACPlatform : public AActor
+class YAKOTAKI_API ACMovable : public AActor
 {
 	GENERATED_BODY()
 
 public:
-	ACPlatform();
+	ACMovable();
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	TObjectPtr<USceneComponent> DefaultSceneRoot;
@@ -94,10 +94,10 @@ public:
 	float waitingTime;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams|SequenceParams", meta = (ToolTip = "Siguiente plataforma en la secuencia"))
-	ACPlatform* nextPlatform;
+	ACMovable* nextPlatform;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams|SequenceParams", meta = (ToolTip = "Plataforma anterior en la secuencia"))
-	ACPlatform* previousPlatform;
+	ACMovable* previousPlatform;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams|SequenceParams", meta = (ToolTip = "Al acabar la secuencia sin siguiente/anterior, espera al jugador para invertir"))
 	bool waitForPlayerOnSequenceEnd;

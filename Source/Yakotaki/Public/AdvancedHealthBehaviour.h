@@ -15,7 +15,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnHeal,float, prevHealth,float,he
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FourParams(FOnMaxHealthAlter,float, prevHealth,float, prevMaxHealth, float, newHealth, float, newMaxHealth);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent), Blueprintable, BlueprintType)
-class CUTETHULU_API UAdvancedHealthBehaviour : public UActorComponent
+class YAKOTAKI_API UAdvancedHealthBehaviour : public UActorComponent
 {
 	GENERATED_BODY()
 
