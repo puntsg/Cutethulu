@@ -11,7 +11,7 @@
  * 
  */
 UCLASS()
-class CUTETHULU_API UDualLevelFunctionLibrary : public UBlueprintFunctionLibrary
+class YAKOTAKI_API UDualLevelFunctionLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 

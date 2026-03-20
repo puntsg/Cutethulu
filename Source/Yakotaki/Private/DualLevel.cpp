@@ -3,7 +3,7 @@
 
 #include "DualLevel.h"
 #include "SwappableInterface.h"
-#include "CutethulhuSaveGame.h"
+#include "YakotakiSaveGame.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/AudioComponent.h"
 #include "Components/LightComponent.h"
@@ -245,12 +245,12 @@ void ADualLevel::SwapLevel()
 void ADualLevel::SaveCollectable(int CollectableID)
 {
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Start saving"));
-    UCutethulhuSaveGame* SaveGameInstance = nullptr;
+    UYakotakiSaveGame* SaveGameInstance = nullptr;
     if (UGameplayStatics::DoesSaveGameExist("player", 0))
-        SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
+        SaveGameInstance = Cast<UYakotakiSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
 
     if (!SaveGameInstance)
-        SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::CreateSaveGameObject(UCutethulhuSaveGame::StaticClass()));
+        SaveGameInstance = Cast<UYakotakiSaveGame>(UGameplayStatics::CreateSaveGameObject(UYakotakiSaveGame::StaticClass()));
 
     while (SaveGameInstance->LevelsData.Num() <= this->LevelID)
     {
@@ -275,7 +275,7 @@ bool ADualLevel::IsLevelCompleted()
 {
     bool bHasLevelBeenCompleted = false;
     if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
-        UCutethulhuSaveGame* SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
+        UYakotakiSaveGame* SaveGameInstance = Cast<UYakotakiSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
         if (SaveGameInstance)
             bHasLevelBeenCompleted = SaveGameInstance->GetIfLevelCompleted(this->LevelID);
     }
@@ -289,7 +289,7 @@ bool ADualLevel::IsCollectablePickedUp(int CollectableID)
         return false;
     }
 
-    UCutethulhuSaveGame* SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
+    UYakotakiSaveGame* SaveGameInstance = Cast<UYakotakiSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
 
     if (!SaveGameInstance) {
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("SaveGameInstance is null"));
@@ -321,7 +321,7 @@ TArray<bool> ADualLevel::GetPickedCollectables()
         return defaultArray;
     }
 
-    UCutethulhuSaveGame* SaveGameInstance = Cast<UCutethulhuSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
+    UYakotakiSaveGame* SaveGameInstance = Cast<UYakotakiSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
 
     if (!SaveGameInstance) {
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("SaveGameInstance is null"));
@@ -351,7 +351,7 @@ void ADualLevel::BeginPlay()
 
     if (deleteLevelSaveData) {
         if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
-            UCutethulhuSaveGame* SaveGameInstance = Cast<UCutethulhuSaveGame>(
+            UYakotakiSaveGame* SaveGameInstance = Cast<UYakotakiSaveGame>(
                 UGameplayStatics::LoadGameFromSlot("player", 0));
             if (SaveGameInstance)
                 SaveGameInstance->DeleteLevelData(LevelID);
@@ -391,7 +391,7 @@ void ADualLevel::BeginPlay()
 void ADualLevel::LoadlevelData()
 {
     if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
-        UCutethulhuSaveGame* currentSaveGame = Cast<UCutethulhuSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
+        UYakotakiSaveGame* currentSaveGame = Cast<UYakotakiSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
         FLevelData currentLevelData = currentSaveGame->LevelsData[LevelID];
     }
 }

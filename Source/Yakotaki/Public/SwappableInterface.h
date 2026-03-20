@@ -12,7 +12,7 @@ class USwappableInterface : public UInterface
 	GENERATED_BODY()
 };
 
-class CUTETHULU_API ISwappableInterface
+class YAKOTAKI_API ISwappableInterface
 {
 	GENERATED_BODY()
 

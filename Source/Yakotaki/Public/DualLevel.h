@@ -70,7 +70,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwap);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwapped);
 
 UCLASS()
-class CUTETHULU_API ADualLevel : public ALevelScriptActor
+class YAKOTAKI_API ADualLevel : public ALevelScriptActor
 {
 	GENERATED_BODY()
 
