@@ -2,9 +2,9 @@
 
 using UnrealBuildTool;
 
-public class Cutethulu : ModuleRules
+public class Yakotaki : ModuleRules
 {
-	public Cutethulu(ReadOnlyTargetRules Target) : base(Target)
+	public Yakotaki(ReadOnlyTargetRules Target) : base(Target)
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 	

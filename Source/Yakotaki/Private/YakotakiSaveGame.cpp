@@ -1,21 +1,21 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CutethulhuSaveGame.h"
+#include "YakotakiSaveGame.h"
 #include <Kismet/GameplayStatics.h>
 
-UCutethulhuSaveGame::UCutethulhuSaveGame()
+UYakotakiSaveGame::UYakotakiSaveGame()
 {
 	SaveSlotName = TEXT("player");
 	UserIndex = 0;
 }
 
-void UCutethulhuSaveGame::SaveGame()
+void UYakotakiSaveGame::SaveGame()
 {
 	UGameplayStatics::SaveGameToSlot(this, SaveSlotName, UserIndex);
 }
 
-FLevelData* UCutethulhuSaveGame::GetLevelData(int levelIndex)
+FLevelData* UYakotakiSaveGame::GetLevelData(int levelIndex)
 {
 	if(levelIndex >= 0 && levelIndex < LevelsData.Num())
 		return &LevelsData[levelIndex];
@@ -23,7 +23,7 @@ FLevelData* UCutethulhuSaveGame::GetLevelData(int levelIndex)
 	
 }
 
-bool UCutethulhuSaveGame::GetIfLevelCompleted(int levelIndex)
+bool UYakotakiSaveGame::GetIfLevelCompleted(int levelIndex)
 {
 	if (levelIndex >= 0 && levelIndex < LevelsData.Num()) {
 		FLevelData* selectedLevelData = &LevelsData[levelIndex];
@@ -32,7 +32,7 @@ bool UCutethulhuSaveGame::GetIfLevelCompleted(int levelIndex)
 	return false;
 }
 
-int UCutethulhuSaveGame::GetPickedCollectables(int levelIndex)
+int UYakotakiSaveGame::GetPickedCollectables(int levelIndex)
 {
 	int picked = 0;
 	if (levelIndex >= 0 && levelIndex < LevelsData.Num()) {
@@ -44,7 +44,7 @@ int UCutethulhuSaveGame::GetPickedCollectables(int levelIndex)
 	return picked;
 }
 
-void UCutethulhuSaveGame::SetLevelAsCompleted(int levelIndex, bool value)
+void UYakotakiSaveGame::SetLevelAsCompleted(int levelIndex, bool value)
 {
 	while (this->LevelsData.Num() <= levelIndex)
 	{
@@ -56,7 +56,7 @@ void UCutethulhuSaveGame::SetLevelAsCompleted(int levelIndex, bool value)
 	SaveGame();
 }
 
-void UCutethulhuSaveGame::DeleteLevelData(int levelIndex)
+void UYakotakiSaveGame::DeleteLevelData(int levelIndex)
 {
 	while (this->LevelsData.Num() <= levelIndex)
 	{
@@ -70,7 +70,7 @@ void UCutethulhuSaveGame::DeleteLevelData(int levelIndex)
 	SaveGame();
 }
 
-bool UCutethulhuSaveGame::GetIfCollectableIsPickedUp(int levelIndex, int collectableIndex)
+bool UYakotakiSaveGame::GetIfCollectableIsPickedUp(int levelIndex, int collectableIndex)
 {
 	if (levelIndex >= 0 && levelIndex < LevelsData.Num()) {
 		FLevelData* selectedLevelData = &LevelsData[levelIndex];

@@ -10,7 +10,7 @@
  * 
  */
 USTRUCT(BlueprintType)
-struct CUTETHULU_API FLevelEntry : public FTableRowBase
+struct YAKOTAKI_API FLevelEntry : public FTableRowBase
 {
 	GENERATED_BODY()
 
