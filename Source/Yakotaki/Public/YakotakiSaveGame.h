@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/SaveGame.h"
-#include "CutethulhuSaveGame.generated.h"
+#include "YakotakiSaveGame.generated.h"
 
 USTRUCT(BlueprintType)
 struct FLevelData {
@@ -27,7 +27,7 @@ public:
  * 
  */
 UCLASS()
-class CUTETHULU_API UCutethulhuSaveGame : public USaveGame
+class YAKOTAKI_API UYakotakiSaveGame : public USaveGame
 {
 	GENERATED_BODY()
 public:
@@ -39,7 +39,7 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Basic)
 	TArray<FLevelData> LevelsData;
 
-	UCutethulhuSaveGame();
+	UYakotakiSaveGame();
 
 	void SaveGame();
 	FLevelData* GetLevelData(int levelIndex);

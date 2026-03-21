@@ -1,11 +1,11 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "CPlatform.h"
+#include "CMovable.h"
 #include "GameFramework/Character.h"
 
 // Sets default values
-ACPlatform::ACPlatform()
+ACMovable::ACMovable()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -31,7 +31,7 @@ ACPlatform::ACPlatform()
 	bWaitingForPlayer = false;
 }
 
-void ACPlatform::BeginPlay()
+void ACMovable::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -51,10 +51,10 @@ void ACPlatform::BeginPlay()
 		remainingTimeToActivate = -1.0f;
 	}
 
-	Collision->OnComponentBeginOverlap.AddDynamic(this, &ACPlatform::OnCollisionBeginOverlap);
+	Collision->OnComponentBeginOverlap.AddDynamic(this, &ACMovable::OnCollisionBeginOverlap);
 }
 
-void ACPlatform::OnCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
+void ACMovable::OnCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	if (!OtherActor || !OtherActor->IsA<ACharacter>())
@@ -66,21 +66,21 @@ void ACPlatform::OnCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponen
 	}
 }
 
-void ACPlatform::ActivatePlatform()
+void ACMovable::ActivatePlatform()
 {
 	isWaiting = false;
 	bWaitingForPlayer = false;
 	remainingTimeToActivate = 0.0f;
 }
 
-void ACPlatform::ResetPlatformPosition()
+void ACMovable::ResetPlatformPosition()
 {
 	splinePos = 0;
 	UpdateTransform(0.0f);
 }
 
 // Called every frame
-void ACPlatform::Tick(float DeltaTime)
+void ACMovable::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
@@ -120,7 +120,7 @@ void ACPlatform::Tick(float DeltaTime)
 	}
 }
 
-void ACPlatform::CalculateSpeed(float DeltaTime)
+void ACMovable::CalculateSpeed(float DeltaTime)
 {
 	if (!reverse)
 	{
@@ -182,7 +182,7 @@ void ACPlatform::CalculateSpeed(float DeltaTime)
 	}
 }
 
-void ACPlatform::UpdateTransform(float DeltaTime)
+void ACMovable::UpdateTransform(float DeltaTime)
 {
 	FVector OldWorldPos = PlatformOffset->GetComponentLocation();
 
@@ -218,7 +218,7 @@ void ACPlatform::UpdateTransform(float DeltaTime)
 	}
 }
 
-void ACPlatform::OnceMovement(float DeltaTime)
+void ACMovable::OnceMovement(float DeltaTime)
 {
 	const float splineLength = Route->GetSplineLength();
 
@@ -256,7 +256,7 @@ void ACPlatform::OnceMovement(float DeltaTime)
 	}
 }
 
-void ACPlatform::LoopMovement(float DeltaTime)
+void ACMovable::LoopMovement(float DeltaTime)
 {
 	const float splineLength = Route->GetSplineLength();
 
@@ -287,7 +287,7 @@ void ACPlatform::LoopMovement(float DeltaTime)
 	UpdateTransform(DeltaTime);
 }
 
-void ACPlatform::PingPongMovement(float DeltaTime)
+void ACMovable::PingPongMovement(float DeltaTime)
 {
 	const float splineLength = Route->GetSplineLength();
 
@@ -324,7 +324,7 @@ void ACPlatform::PingPongMovement(float DeltaTime)
 	UpdateTransform(DeltaTime);
 }
 
-void ACPlatform::SequenceMovement(float DeltaTime)
+void ACMovable::SequenceMovement(float DeltaTime)
 {
 	const float splineLength = Route->GetSplineLength();
 
@@ -423,7 +423,7 @@ void ACPlatform::SequenceMovement(float DeltaTime)
 	UpdateTransform(DeltaTime);
 }
 
-void ACPlatform::RestoreWaiting()
+void ACMovable::RestoreWaiting()
 {
 	if (waitingTime > 0)
 	{
