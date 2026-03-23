@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+ï»¿// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -6,6 +6,8 @@
 #include "Engine/LevelScriptActor.h"
 #include "Engine/DirectionalLight.h"
 #include "Engine/SkyLight.h"
+#include "Components/DirectionalLightComponent.h"
+#include "Components/SkyLightComponent.h"
 #include "GameFramework/PlayerStart.h"
 #include "Engine/LevelStreamingDynamic.h"
 #include "FMODEvent.h"
@@ -83,7 +85,7 @@ public:
 	FText LevelName;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	int numOfCollectables;
-	UPROPERTY(BlueprintReadOnly,EditAnywhere)
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TObjectPtr<APlayerStart>DefaultPlayerStart;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TObjectPtr<APlayerStart>LevelCompletedPlayerStart;
@@ -92,7 +94,7 @@ public:
 	//mapConfig
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DualLevel|Streaming", meta = (ToolTip = "Si al cargar el nivel principal se quiere que se aplique el estado definido en loadedState  (el valor de abajo creo)"))
 	bool overrideLoadedState;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DualLevel|Streaming", meta = (ToolTip = "Valor de que está cargado"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DualLevel|Streaming", meta = (ToolTip = "Valor de que estï¿½ cargado"))
 	ELoaded loadedState;
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming")
 	USoundBase* mapSwappingSoundEffect;
@@ -100,20 +102,20 @@ public:
 	TSoftObjectPtr<UWorld> horrorLevel;
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Horror")
 	TObjectPtr<UAudioComponent> horrorAudioComponent;
-	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Horror")
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Horror|Audio")
 	USoundBase* horrorBgMusicClip;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Audio")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DualLevel|Streaming|Horror|Audio")
 	UFMODEvent* horrorEvent = LoadObject<UFMODEvent>(nullptr, TEXT("FMODEvent'/Game/FMOD/Events/Play_OneShot.Play_OneShot'"));
-	
+
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
 	TSoftObjectPtr<UWorld> cuteLevel;
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
 	TObjectPtr<UAudioComponent> cuteAudioComponent;
-	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute|Audio")
 	USoundBase* cuteBgMusicClip;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Audio")
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DualLevel|Streaming|Cute|Audio")
 	UFMODEvent* cuteEvent = LoadObject<UFMODEvent>(nullptr, TEXT("FMODEvent'/Game/FMOD/Events/Play_OneShot.Play_OneShot'"));
 
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming")
@@ -208,6 +210,11 @@ protected:
 	UFUNCTION()
 	void OnCuteMapLoadedFunc();
 
+	TObjectPtr<UDirectionalLightComponent> SublevelDirectionalLight;
+	TObjectPtr<USkyLightComponent> SublevelSkyLight;
+	void GetLoadedLevelLights(ULevelStreamingDynamic* streamedLevel);
+	void InterpLights();
+	FTimerHandle LightsInterpolationTimer;
 
 	FTimerHandle AudioSwapTimerHandle;
 

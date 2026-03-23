@@ -92,7 +92,7 @@ void ADualLevel::LoadHorrorLevel()
         ApplyInterfaceEvents(ESwapEvent::HorrorLoad);
         OnHorrorLoad.Broadcast();
         OnAnyLoad.Broadcast();
-        if (horrorBgMusicClip){
+        if (horrorBgMusicClip) {
             horrorAudioComponent = UGameplayStatics::SpawnSound2D(this, horrorBgMusicClip);
             horrorAudioComponent->FadeIn(audioFadeDuration);
         }
@@ -104,6 +104,7 @@ void ADualLevel::OnHorrorMapLoadedFunc()
 {
     loadedState = (loadedState == ELoaded::CUTE) ? ELoaded::BOTH : ELoaded::HORROR;
 
+    GetLoadedLevelLights(streamedHorrorLevel);
     DisableTransitionLights();
 
     ApplyInterfaceEvents(ESwapEvent::HorrorLoaded);
@@ -121,10 +122,8 @@ void ADualLevel::UnloadHorrorLevel()
     if (streamedHorrorLevel) {
         streamedHorrorLevel->SetIsRequestingUnloadAndRemoval(true);
         streamedHorrorLevel = nullptr;
-        if (loadedState == ELoaded::BOTH)
-            loadedState = ELoaded::CUTE;
-        else
-            loadedState = ELoaded::NONE;
+
+        loadedState = (loadedState == ELoaded::BOTH) ? ELoaded::CUTE : ELoaded::NONE;
 
         ApplyInterfaceEvents(ESwapEvent::HorrorUnload);
         OnHorrorUnload.Broadcast();
@@ -169,11 +168,9 @@ void ADualLevel::LoadCuteLevel()
 
 void ADualLevel::OnCuteMapLoadedFunc()
 {
-    if (loadedState == ELoaded::HORROR)
-        loadedState = ELoaded::BOTH;
-    else
-        loadedState = ELoaded::CUTE;
+    loadedState = (loadedState == ELoaded::HORROR) ? ELoaded::BOTH : loadedState = ELoaded::CUTE;
 
+    GetLoadedLevelLights(streamedCuteLevel);
     DisableTransitionLights();
 
     ApplyInterfaceEvents(ESwapEvent::CuteLoaded);
@@ -184,6 +181,45 @@ void ADualLevel::OnCuteMapLoadedFunc()
         ApplyInterfaceEvents(ESwapEvent::BothLoaded);
         OnBothLoaded.Broadcast();
     }
+}
+
+void ADualLevel::GetLoadedLevelLights(ULevelStreamingDynamic* streamedLevel)
+{
+    SublevelSkyLight = nullptr;
+    SublevelDirectionalLight = nullptr;
+
+    if (!streamedLevel) return;
+    ULevel* LoadedLevel = streamedLevel->GetLoadedLevel();
+    if (!LoadedLevel) return;
+
+    for (AActor* Actor : LoadedLevel->Actors)
+    {
+        if (!Actor) continue;
+        if (!SublevelDirectionalLight)
+            if (ADirectionalLight* DirLight = Cast<ADirectionalLight>(Actor))
+                SublevelDirectionalLight = Cast<UDirectionalLightComponent>(DirLight->GetLightComponent());
+        if (!SublevelSkyLight)
+            if (ASkyLight* SkyLight = Cast<ASkyLight>(Actor))
+                SublevelSkyLight = Cast<USkyLightComponent>(SkyLight->GetLightComponent());
+        if (SublevelDirectionalLight && SublevelSkyLight)
+            break;
+    }
+
+    
+    GetWorldTimerManager().ClearTimer(LightsInterpolationTimer);
+    GetWorldTimerManager().SetTimer(LightsInterpolationTimer, this, &ADualLevel::InterpLights, 0.016f, true);
+}
+
+void ADualLevel::InterpLights()
+{
+    if (!GetWorld()) return;
+    float DeltaTime = GetWorld()->GetDeltaSeconds();
+    bool bDirDone = true;
+    bool bSkyDone = true;
+
+
+    if (bDirDone && bSkyDone)
+        GetWorldTimerManager().ClearTimer(LightsInterpolationTimer);
 }
 
 void ADualLevel::UnloadCuteLevel()
@@ -208,7 +244,6 @@ void ADualLevel::UnloadCuteLevel()
     else
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Cute level was not loaded"));
 }
-
 
 void ADualLevel::SwapLevel()
 {
@@ -237,10 +272,6 @@ void ADualLevel::SwapLevel()
     ApplyInterfaceEvents(ESwapEvent::Swapped);
     OnSwapped.Broadcast();
 }
-
-
-
-
 
 void ADualLevel::SaveCollectable(int CollectableID)
 {
@@ -402,15 +433,15 @@ void ADualLevel::ApplyInterfaceEvents(ESwapEvent event)
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Finding Actors With Swappable interface"));
     TArray<AActor*> swappableActors;
     UGameplayStatics::GetAllActorsWithInterface(GetWorld(), USwappableInterface::StaticClass(), swappableActors);
-    
+
     for (AActor* currentSwappableActor : swappableActors) {
         swappableObjects.Add(currentSwappableActor);
         TArray<UActorComponent*> components;
-        currentSwappableActor->GetComponents(components);   
+        currentSwappableActor->GetComponents(components);
         for (UActorComponent* comp : components)
             if (comp->Implements<USwappableInterface>())
                 swappableObjects.Add(comp);
-        
+
     }
     for (UObject* currentSwappableObject : swappableObjects) {
         switch (event)
