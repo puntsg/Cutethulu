@@ -8,6 +8,7 @@
 #include "Engine/SkyLight.h"
 #include "GameFramework/PlayerStart.h"
 #include "Engine/LevelStreamingDynamic.h"
+#include "FMODEvent.h"
 #include "DualLevel.generated.h"
 
 
@@ -101,12 +102,19 @@ public:
 	TObjectPtr<UAudioComponent> horrorAudioComponent;
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Horror")
 	USoundBase* horrorBgMusicClip;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Audio")
+	UFMODEvent* horrorEvent = LoadObject<UFMODEvent>(nullptr, TEXT("FMODEvent'/Game/FMOD/Events/Play_OneShot.Play_OneShot'"));
+	
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
 	TSoftObjectPtr<UWorld> cuteLevel;
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
 	TObjectPtr<UAudioComponent> cuteAudioComponent;
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
 	USoundBase* cuteBgMusicClip;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Audio")
+	UFMODEvent* cuteEvent = LoadObject<UFMODEvent>(nullptr, TEXT("FMODEvent'/Game/FMOD/Events/Play_OneShot.Play_OneShot'"));
 
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming")
 	float audioFadeDuration = 1.f;
