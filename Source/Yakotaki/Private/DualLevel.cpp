@@ -105,8 +105,10 @@ void ADualLevel::OnHorrorMapLoadedFunc()
     OnHorrorLoaded.Broadcast();
     OnAnyLoaded.Broadcast();
 
-    if (loadingScreen)
+    if (loadingScreen) {
         loadingScreen->RemoveFromParent();
+        UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
+    }
 
     if (loadedState == ELoaded::BOTH) {
         ApplyInterfaceEvents(ESwapEvent::BothLoaded);
@@ -168,8 +170,10 @@ void ADualLevel::OnCuteMapLoadedFunc()
     ApplyInterfaceEvents(ESwapEvent::CuteLoaded);
     OnCuteLoaded.Broadcast();
     OnAnyLoaded.Broadcast();
-    if (loadingScreen)
+    if (loadingScreen) {
         loadingScreen->RemoveFromParent();
+        UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
+    }
     if (loadedState == ELoaded::BOTH) {
         ApplyInterfaceEvents(ESwapEvent::BothLoaded);
         OnBothLoaded.Broadcast();
@@ -371,6 +375,7 @@ void ADualLevel::BeginPlay()
     UFMODBlueprintStatics::PlayEvent2D(this, musicEvent, true);
     loadingScreen = CreateWidget(GetWorld(), loadingScreenClass);
     loadingScreen->AddToViewport();
+    UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeUIOnly());
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class"));
     DisableTransitionLights();
     if (deleteLevelSaveData) {
