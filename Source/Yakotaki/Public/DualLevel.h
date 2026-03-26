@@ -11,6 +11,7 @@
 #include "GameFramework/PlayerStart.h"
 #include "Engine/LevelStreamingDynamic.h"
 #include "FMODEvent.h"
+#include "FMODBlueprintStatics.h"
 #include "DualLevel.generated.h"
 
 
@@ -91,6 +92,9 @@ public:
 	TObjectPtr<APlayerStart>LevelCompletedPlayerStart;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ToolTip = "Borra los datos del nivel"))
 	bool deleteLevelSaveData;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TObjectPtr<AActor> initialLookatActor;
 	//mapConfig
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DualLevel|Streaming", meta = (ToolTip = "Si al cargar el nivel principal se quiere que se aplique el estado definido en loadedState  (el valor de abajo creo)"))
 	bool overrideLoadedState;
@@ -105,8 +109,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Horror|Audio")
 	USoundBase* horrorBgMusicClip;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DualLevel|Streaming|Horror|Audio")
-	UFMODEvent* horrorEvent = LoadObject<UFMODEvent>(nullptr, TEXT("FMODEvent'/Game/FMOD/Events/Play_OneShot.Play_OneShot'"));
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DualLevel|Streaming|Audio")
+	UFMODEvent* musicEvent = LoadObject<UFMODEvent>(nullptr, TEXT("FMODEvent'/Game/FMOD/Events/Play_OneShot.Play_OneShot'"));
 
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
 	TSoftObjectPtr<UWorld> cuteLevel;
@@ -115,17 +119,15 @@ public:
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute|Audio")
 	USoundBase* cuteBgMusicClip;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DualLevel|Streaming|Cute|Audio")
-	UFMODEvent* cuteEvent = LoadObject<UFMODEvent>(nullptr, TEXT("FMODEvent'/Game/FMOD/Events/Play_OneShot.Play_OneShot'"));
-
+	
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming")
 	float audioFadeDuration = 1.f;
 
-	UPROPERTY(EditAnywhere, Category = "DualLevel|Lighting")
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Lighting(Not in use)")
 	TObjectPtr<ADirectionalLight> transitionDirectionalLight;
-	UPROPERTY(EditAnywhere, Category = "DualLevel|Lighting")
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Lighting(Not in use)")
 	TObjectPtr<ASkyLight> transitionSkyLight;
-	UPROPERTY(EditAnywhere, Category = "DualLevel|Lighting")
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Lighting(Not in use)")
 	float transitionLightIntensity = 5.f;
 
 	// Level Load/Unload event

@@ -13,6 +13,7 @@
 #include "Engine/SkyLight.h"
 #include <Engine/LevelStreamingDynamic.h>
 #include <Kismet/GameplayStatics.h>
+#include "FMODBlueprintStatics.h"
 
 
 void ADualLevel::EnableTransitionLights()
@@ -377,6 +378,7 @@ TArray<bool> ADualLevel::GetPickedCollectables()
 void ADualLevel::BeginPlay()
 {
     Super::BeginPlay();
+    UFMODBlueprintStatics::PlayEvent2D(this, musicEvent, true);
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class"));
     DisableTransitionLights();
 
@@ -403,18 +405,23 @@ void ADualLevel::BeginPlay()
     }
 
     if (DefaultPlayerStart) {
+        APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+        AGameModeBase* GameMode = UGameplayStatics::GetGameMode(this);
+        
         APlayerStart* TargetStart = DefaultPlayerStart;
         if (IsLevelCompleted() && LevelCompletedPlayerStart)
             TargetStart = LevelCompletedPlayerStart;
 
-        APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
-        AGameModeBase* GameMode = UGameplayStatics::GetGameMode(this);
         if (PC && GameMode) {
             PC->GetPawn()->SetActorLocationAndRotation(
                 TargetStart->GetActorLocation(),
                 TargetStart->GetActorRotation()
             );
             PC->SetControlRotation(TargetStart->GetActorRotation());
+            if (initialLookatActor) {
+                FVector lookDir = (initialLookatActor->GetActorLocation() - PC->GetPawn()->GetActorLocation()).GetSafeNormal();
+                PC->SetControlRotation(lookDir.Rotation());
+            }
         }
     }
 }
@@ -429,6 +436,8 @@ void ADualLevel::LoadlevelData()
 
 void ADualLevel::ApplyInterfaceEvents(ESwapEvent event)
 {
+
+    UFMODBlueprintStatics::SetGlobalParameterByName("Name",0);
     TArray<UObject*> swappableObjects;
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Finding Actors With Swappable interface"));
     TArray<AActor*> swappableActors;
