@@ -105,6 +105,9 @@ void ADualLevel::OnHorrorMapLoadedFunc()
     OnHorrorLoaded.Broadcast();
     OnAnyLoaded.Broadcast();
 
+    if (loadingScreen)
+        loadingScreen->RemoveFromParent();
+
     if (loadedState == ELoaded::BOTH) {
         ApplyInterfaceEvents(ESwapEvent::BothLoaded);
         OnBothLoaded.Broadcast();
@@ -165,7 +168,8 @@ void ADualLevel::OnCuteMapLoadedFunc()
     ApplyInterfaceEvents(ESwapEvent::CuteLoaded);
     OnCuteLoaded.Broadcast();
     OnAnyLoaded.Broadcast();
-
+    if (loadingScreen)
+        loadingScreen->RemoveFromParent();
     if (loadedState == ELoaded::BOTH) {
         ApplyInterfaceEvents(ESwapEvent::BothLoaded);
         OnBothLoaded.Broadcast();
@@ -365,9 +369,10 @@ void ADualLevel::BeginPlay()
 {
     Super::BeginPlay();
     UFMODBlueprintStatics::PlayEvent2D(this, musicEvent, true);
+    loadingScreen = CreateWidget(GetWorld(), loadingScreenClass);
+    loadingScreen->AddToViewport();
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class"));
     DisableTransitionLights();
-
     if (deleteLevelSaveData) {
         if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
             UYakotakiSaveGame* SaveGameInstance = Cast<UYakotakiSaveGame>(

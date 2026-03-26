@@ -12,6 +12,7 @@
 #include "Engine/LevelStreamingDynamic.h"
 #include "FMODEvent.h"
 #include "FMODBlueprintStatics.h"
+#include "Blueprint/UserWidget.h"
 #include "DualLevel.generated.h"
 
 
@@ -98,10 +99,15 @@ public:
 	//mapConfig
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DualLevel|Streaming", meta = (ToolTip = "Si al cargar el nivel principal se quiere que se aplique el estado definido en loadedState  (el valor de abajo creo)"))
 	bool overrideLoadedState;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DualLevel|Streaming", meta = (ToolTip = "Valor de que est� cargado"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DualLevel|Streaming", meta = (ToolTip = "Valor de que esta cargado"))
 	ELoaded loadedState;
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming")
 	USoundBase* mapSwappingSoundEffect;
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming")
+	TSubclassOf<class UUserWidget> loadingScreenClass = LoadClass<UUserWidget>(nullptr,TEXT("/Game/Project/00_Generic/Blueprints/UI_HUD/WBP_LoadingScreen.WBP_LoadingScreen_C"));
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming")
+	TSoftObjectPtr<UUserWidget> loadingScreen;
+
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Horror")
 	TSoftObjectPtr<UWorld> horrorLevel;
 
@@ -110,6 +116,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
 	TSoftObjectPtr<UWorld> cuteLevel;
+	
 	
 
 	
