@@ -45,8 +45,6 @@ void ADualLevel::UnloadStreamedLevels()
         OnHorrorUnloaded.Broadcast();
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
-        if (horrorAudioComponent != nullptr)
-            horrorAudioComponent->FadeOut(audioFadeDuration, 0.f);
         unloadedAny = true;
     }
 
@@ -58,8 +56,6 @@ void ADualLevel::UnloadStreamedLevels()
         OnCuteUnloaded.Broadcast();
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
-        if (cuteAudioComponent != nullptr)
-            cuteAudioComponent->FadeOut(audioFadeDuration, 0.f);
         unloadedAny = true;
     }
 
@@ -93,10 +89,7 @@ void ADualLevel::LoadHorrorLevel()
         ApplyInterfaceEvents(ESwapEvent::HorrorLoad);
         OnHorrorLoad.Broadcast();
         OnAnyLoad.Broadcast();
-        if (horrorBgMusicClip) {
-            horrorAudioComponent = UGameplayStatics::SpawnSound2D(this, horrorBgMusicClip);
-            horrorAudioComponent->FadeIn(audioFadeDuration);
-        }
+     
         streamedHorrorLevel->OnLevelShown.AddDynamic(this, &ADualLevel::OnHorrorMapLoadedFunc);
     }
 }
@@ -104,7 +97,7 @@ void ADualLevel::LoadHorrorLevel()
 void ADualLevel::OnHorrorMapLoadedFunc()
 {
     loadedState = (loadedState == ELoaded::CUTE) ? ELoaded::BOTH : ELoaded::HORROR;
-
+    UFMODBlueprintStatics::SetGlobalParameterByName("LoadedState", 1);
     GetLoadedLevelLights(streamedHorrorLevel);
     DisableTransitionLights();
 
@@ -132,8 +125,6 @@ void ADualLevel::UnloadHorrorLevel()
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
 
-        if (horrorAudioComponent != nullptr)
-            horrorAudioComponent->FadeOut(audioFadeDuration, 0.f);
     }
     else
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Horror level was not loaded"));
@@ -159,10 +150,6 @@ void ADualLevel::LoadCuteLevel()
         ApplyInterfaceEvents(ESwapEvent::CuteLoad);
         OnCuteLoad.Broadcast();
         OnAnyLoad.Broadcast();
-        if (cuteBgMusicClip) {
-            cuteAudioComponent = UGameplayStatics::SpawnSound2D(this, cuteBgMusicClip);
-            cuteAudioComponent->FadeIn(audioFadeDuration);
-        }
         streamedCuteLevel->OnLevelShown.AddDynamic(this, &ADualLevel::OnCuteMapLoadedFunc);
     }
 }
@@ -170,6 +157,7 @@ void ADualLevel::LoadCuteLevel()
 void ADualLevel::OnCuteMapLoadedFunc()
 {
     loadedState = (loadedState == ELoaded::HORROR) ? ELoaded::BOTH : loadedState = ELoaded::CUTE;
+    UFMODBlueprintStatics::SetGlobalParameterByName("LoadedState", 0);
 
     GetLoadedLevelLights(streamedCuteLevel);
     DisableTransitionLights();
@@ -239,8 +227,6 @@ void ADualLevel::UnloadCuteLevel()
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
 
-        if (cuteAudioComponent != nullptr)
-            cuteAudioComponent->FadeOut(audioFadeDuration, 0.f);
     }
     else
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Cute level was not loaded"));
@@ -437,7 +423,6 @@ void ADualLevel::LoadlevelData()
 void ADualLevel::ApplyInterfaceEvents(ESwapEvent event)
 {
 
-    UFMODBlueprintStatics::SetGlobalParameterByName("Name",0);
     TArray<UObject*> swappableObjects;
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Finding Actors With Swappable interface"));
     TArray<AActor*> swappableActors;

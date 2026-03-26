@@ -104,20 +104,13 @@ public:
 	USoundBase* mapSwappingSoundEffect;
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Horror")
 	TSoftObjectPtr<UWorld> horrorLevel;
-	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Horror")
-	TObjectPtr<UAudioComponent> horrorAudioComponent;
-	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Horror|Audio")
-	USoundBase* horrorBgMusicClip;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DualLevel|Streaming|Audio")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DualLevel|Streaming|Audio")
 	UFMODEvent* musicEvent = LoadObject<UFMODEvent>(nullptr, TEXT("FMODEvent'/Game/FMOD/Events/Play_OneShot.Play_OneShot'"));
 
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
 	TSoftObjectPtr<UWorld> cuteLevel;
-	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
-	TObjectPtr<UAudioComponent> cuteAudioComponent;
-	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute|Audio")
-	USoundBase* cuteBgMusicClip;
+	
 
 	
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming")
