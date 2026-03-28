@@ -1,19 +1,21 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "DualLevel.h"
-#include "SwappableInterface.h"
-#include "YakotakiSaveGame.h"
+#include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
 #include "Components/AudioComponent.h"
 #include "Components/LightComponent.h"
 #include "Components/SkyLightComponent.h"
-#include "GameFramework/GameModeBase.h"
+
 #include "Engine/DirectionalLight.h"
 #include "Engine/SkyLight.h"
+#include "FMODBlueprintStatics.h"
+#include "GameFramework/GameModeBase.h"
+#include "SwappableInterface.h"
+#include "YakotakiSaveGame.h"
+#include "MovieSceneSequencePlayer.h"
 #include <Engine/LevelStreamingDynamic.h>
 #include <Kismet/GameplayStatics.h>
-#include "FMODBlueprintStatics.h"
 
 
 void ADualLevel::EnableTransitionLights()
@@ -368,13 +370,21 @@ TArray<bool> ADualLevel::GetPickedCollectables()
     return levelData.pickedCollectables;
 }
 
-
+void ADualLevel::NotifySequenceEnd()
+{
+    OnInitialSequenceComplete.Broadcast();
+}
 void ADualLevel::BeginPlay()
 {
     Super::BeginPlay();
     UFMODBlueprintStatics::PlayEvent2D(this, musicEvent, true);
     loadingScreen = CreateWidget(GetWorld(), loadingScreenClass);
     loadingScreen->AddToViewport();
+
+    if (initialSequence && initialSequence->SequencePlayer) {
+        initialSequence->SequencePlayer->OnFinished.AddDynamic(this, &ADualLevel::NotifySequenceEnd);
+        initialSequence->SequencePlayer->Play();
+    }
     UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeUIOnly());
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class"));
     DisableTransitionLights();

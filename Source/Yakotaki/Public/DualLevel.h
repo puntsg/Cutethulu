@@ -10,6 +10,8 @@
 #include "Components/SkyLightComponent.h"
 #include "GameFramework/PlayerStart.h"
 #include "Engine/LevelStreamingDynamic.h"
+#include "LevelSequenceActor.h"
+#include "LevelSequencePlayer.h"
 #include "FMODEvent.h"
 #include "FMODBlueprintStatics.h"
 #include "Blueprint/UserWidget.h"
@@ -74,6 +76,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBothUnloaded);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwap);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwapped);
 
+//InitialSequence
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInitialSequenceComplete);
+
 UCLASS()
 class YAKOTAKI_API ADualLevel : public ALevelScriptActor
 {
@@ -96,6 +101,10 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TObjectPtr<AActor> initialLookatActor;
+
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<ALevelSequenceActor> initialSequence;
+
 	//mapConfig
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DualLevel|Streaming", meta = (ToolTip = "Si al cargar el nivel principal se quiere que se aplique el estado definido en loadedState  (el valor de abajo creo)"))
 	bool overrideLoadedState;
@@ -173,6 +182,11 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
 	FOnSwapped OnSwapped;
 
+	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
+	FOnInitialSequenceComplete OnInitialSequenceComplete;
+	
+	UFUNCTION()
+	void NotifySequenceEnd();
 
 	//Level un/load functions
 	UFUNCTION(BlueprintCallable, Category = "LevelLoadFunctions")
