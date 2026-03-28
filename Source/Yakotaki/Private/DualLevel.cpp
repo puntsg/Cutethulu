@@ -109,7 +109,12 @@ void ADualLevel::OnHorrorMapLoadedFunc()
 
     if (loadingScreen) {
         loadingScreen->RemoveFromParent();
-        UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
+        if (initialSequence && initialSequence->SequencePlayer) {
+            initialSequence->SequencePlayer->OnFinished.AddDynamic(this, &ADualLevel::NotifySequenceEnd);
+            initialSequence->SequencePlayer->Play();
+        }
+        else
+            UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
     }
 
     if (loadedState == ELoaded::BOTH) {
@@ -372,6 +377,7 @@ TArray<bool> ADualLevel::GetPickedCollectables()
 
 void ADualLevel::NotifySequenceEnd()
 {
+    UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
     OnInitialSequenceComplete.Broadcast();
 }
 void ADualLevel::BeginPlay()
@@ -380,11 +386,6 @@ void ADualLevel::BeginPlay()
     UFMODBlueprintStatics::PlayEvent2D(this, musicEvent, true);
     loadingScreen = CreateWidget(GetWorld(), loadingScreenClass);
     loadingScreen->AddToViewport();
-
-    if (initialSequence && initialSequence->SequencePlayer) {
-        initialSequence->SequencePlayer->OnFinished.AddDynamic(this, &ADualLevel::NotifySequenceEnd);
-        initialSequence->SequencePlayer->Play();
-    }
     UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeUIOnly());
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class"));
     DisableTransitionLights();
