@@ -383,7 +383,7 @@ void ADualLevel::NotifySequenceEnd()
 void ADualLevel::BeginPlay()
 {
     Super::BeginPlay();
-    UFMODBlueprintStatics::PlayEvent2D(this, musicEvent, true);
+    musicEventInstance = UFMODBlueprintStatics::PlayEvent2D(this, musicEvent, true);
     loadingScreen = CreateWidget(GetWorld(), loadingScreenClass);
     loadingScreen->AddToViewport();
     UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeUIOnly());
@@ -431,6 +431,11 @@ void ADualLevel::BeginPlay()
             }
         }
     }
+}
+
+void ADualLevel::EndPlay(const EEndPlayReason::Type EndPlayReason)
+{
+    musicEventInstance.Instance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
 }
 
 void ADualLevel::LoadlevelData()

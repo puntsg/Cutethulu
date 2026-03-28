@@ -122,6 +122,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DualLevel|Streaming|Audio")
 	UFMODEvent* musicEvent = LoadObject<UFMODEvent>(nullptr, TEXT("FMODEvent'/Game/FMOD/Events/Play_OneShot.Play_OneShot'"));
+	
+	FFMODEventInstance musicEventInstance;
+
 
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
 	TSoftObjectPtr<UWorld> cuteLevel;
@@ -188,6 +191,9 @@ public:
 	UFUNCTION()
 	void NotifySequenceEnd();
 
+
+
+
 	//Level un/load functions
 	UFUNCTION(BlueprintCallable, Category = "LevelLoadFunctions")
 	void UnloadStreamedLevels();
@@ -215,6 +221,7 @@ public:
 
 protected:
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	void LoadlevelData();
 	void ApplyInterfaceEvents(ESwapEvent event);
 
