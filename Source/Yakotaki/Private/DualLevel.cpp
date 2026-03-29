@@ -18,22 +18,165 @@
 #include <Kismet/GameplayStatics.h>
 
 
-void ADualLevel::EnableTransitionLights()
+#pragma region Lifecycle
+
+void ADualLevel::BeginPlay()
 {
-    if (transitionDirectionalLight)
-        transitionDirectionalLight->GetLightComponent()->SetIntensity(transitionLightIntensity);
-    if (transitionSkyLight)
-        transitionSkyLight->GetLightComponent()->SetIntensity(transitionLightIntensity);
+    Super::BeginPlay();
+    musicEventInstance = UFMODBlueprintStatics::PlayEvent2D(this, musicEvent, true);
+    loadingScreen = CreateWidget(GetWorld(), loadingScreenClass);
+    loadingScreen->AddToViewport();
+    UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeUIOnly());
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class"));
+    DisableTransitionLights();
+    if (deleteLevelSaveData) {
+        if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
+            UYakotakiSaveGame* SaveGameInstance = Cast<UYakotakiSaveGame>(
+                UGameplayStatics::LoadGameFromSlot("player", 0));
+            if (SaveGameInstance)
+                SaveGameInstance->DeleteLevelData(LevelID);
+        }
+    }
+
+    if (overrideLoadedState) {
+        if (loadedState == ELoaded::CUTE || loadedState == ELoaded::BOTH)
+            LoadCuteLevel();
+        if (loadedState == ELoaded::HORROR || loadedState == ELoaded::BOTH)
+            LoadHorrorLevel();
+    }
+    else {
+        if (IsLevelCompleted())
+            LoadCuteLevel();
+        else
+            LoadHorrorLevel();
+    }
+
+    if (DefaultPlayerStart) {
+        APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
+        AGameModeBase* GameMode = UGameplayStatics::GetGameMode(this);
+
+        APlayerStart* TargetStart = DefaultPlayerStart;
+        if (IsLevelCompleted() && LevelCompletedPlayerStart)
+            TargetStart = LevelCompletedPlayerStart;
+
+        if (PC && GameMode) {
+            PC->GetPawn()->SetActorLocationAndRotation(
+                TargetStart->GetActorLocation(),
+                TargetStart->GetActorRotation()
+            );
+            PC->SetControlRotation(TargetStart->GetActorRotation());
+            if (initialLookatActor) {
+                FVector lookDir = (initialLookatActor->GetActorLocation() - PC->GetPawn()->GetActorLocation()).GetSafeNormal();
+                PC->SetControlRotation(lookDir.Rotation());
+            }
+        }
+    }
 }
 
-void ADualLevel::DisableTransitionLights()
+void ADualLevel::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-    if (transitionDirectionalLight)
-        transitionDirectionalLight->GetLightComponent()->SetIntensity(0.f);
-    if (transitionSkyLight)
-        transitionSkyLight->GetLightComponent()->SetIntensity(0.f);
+    musicEventInstance.Instance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
 }
 
+void ADualLevel::LoadlevelData()
+{
+    if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
+        UYakotakiSaveGame* currentSaveGame = Cast<UYakotakiSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
+        FLevelData currentLevelData = currentSaveGame->LevelsData[LevelID];
+    }
+}
+
+#pragma endregion
+
+
+#pragma region Level Streaming
+
+void ADualLevel::LoadHorrorLevel()
+{
+    if (streamedHorrorLevel)
+        return;
+
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LoadingHorrorLevel"));
+    bool bSuccess = false;
+    streamedHorrorLevel = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
+        this,
+        horrorLevel,
+        FVector::ZeroVector,
+        FRotator::ZeroRotator,
+        bSuccess
+    );
+
+    if (bSuccess) {
+        ApplyInterfaceEvents(ESwapEvent::HorrorLoad);
+        OnHorrorLoad.Broadcast();
+        OnAnyLoad.Broadcast();
+
+        streamedHorrorLevel->OnLevelShown.AddDynamic(this, &ADualLevel::OnHorrorMapLoadedFunc);
+    }
+}
+
+void ADualLevel::UnloadHorrorLevel()
+{
+    if (streamedHorrorLevel) {
+        streamedHorrorLevel->SetIsRequestingUnloadAndRemoval(true);
+        streamedHorrorLevel = nullptr;
+
+        loadedState = (loadedState == ELoaded::BOTH) ? ELoaded::CUTE : ELoaded::NONE;
+
+        ApplyInterfaceEvents(ESwapEvent::HorrorUnload);
+        OnHorrorUnload.Broadcast();
+        OnHorrorUnloaded.Broadcast();
+        OnAnyUnload.Broadcast();
+        OnAnyUnloaded.Broadcast();
+
+    }
+    else
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Horror level was not loaded"));
+}
+
+void ADualLevel::LoadCuteLevel()
+{
+    if (streamedCuteLevel)
+        return;
+
+    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LoadingCuteLevel"));
+    bool bSuccess = false;
+    streamedCuteLevel = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
+        this,
+        cuteLevel,
+        FVector::ZeroVector,
+        FRotator::ZeroRotator,
+        bSuccess
+    );
+
+    if (bSuccess) {
+        ApplyInterfaceEvents(ESwapEvent::CuteLoad);
+        OnCuteLoad.Broadcast();
+        OnAnyLoad.Broadcast();
+        streamedCuteLevel->OnLevelShown.AddDynamic(this, &ADualLevel::OnCuteMapLoadedFunc);
+    }
+}
+
+void ADualLevel::UnloadCuteLevel()
+{
+    if (streamedCuteLevel) {
+        streamedCuteLevel->SetIsRequestingUnloadAndRemoval(true);
+        streamedCuteLevel = nullptr;
+        if (loadedState == ELoaded::BOTH)
+            loadedState = ELoaded::HORROR;
+        else
+            loadedState = ELoaded::NONE;
+
+        ApplyInterfaceEvents(ESwapEvent::CuteUnload);
+        OnCuteUnload.Broadcast();
+        OnCuteUnloaded.Broadcast();
+        OnAnyUnload.Broadcast();
+        OnAnyUnloaded.Broadcast();
+
+    }
+    else
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Cute level was not loaded"));
+}
 
 void ADualLevel::UnloadStreamedLevels()
 {
@@ -71,182 +214,6 @@ void ADualLevel::UnloadStreamedLevels()
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("No levels were loaded"));
 }
 
-
-void ADualLevel::LoadHorrorLevel()
-{
-    if (streamedHorrorLevel)
-        return;
-
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LoadingHorrorLevel"));
-    bool bSuccess = false;
-    streamedHorrorLevel = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
-        this,
-        horrorLevel,
-        FVector::ZeroVector,
-        FRotator::ZeroRotator,
-        bSuccess
-    );
-
-    if (bSuccess) {
-        ApplyInterfaceEvents(ESwapEvent::HorrorLoad);
-        OnHorrorLoad.Broadcast();
-        OnAnyLoad.Broadcast();
-     
-        streamedHorrorLevel->OnLevelShown.AddDynamic(this, &ADualLevel::OnHorrorMapLoadedFunc);
-    }
-}
-
-void ADualLevel::OnHorrorMapLoadedFunc()
-{
-    loadedState = (loadedState == ELoaded::CUTE) ? ELoaded::BOTH : ELoaded::HORROR;
-    UFMODBlueprintStatics::SetGlobalParameterByName("LoadedState", 1);
-    GetLoadedLevelLights(streamedHorrorLevel);
-    DisableTransitionLights();
-
-    ApplyInterfaceEvents(ESwapEvent::HorrorLoaded);
-    OnHorrorLoaded.Broadcast();
-    OnAnyLoaded.Broadcast();
-
-    if (loadingScreen) {
-        loadingScreen->RemoveFromParent();
-        if (initialSequence && initialSequence->SequencePlayer) {
-            initialSequence->SequencePlayer->OnFinished.AddDynamic(this, &ADualLevel::NotifySequenceEnd);
-            initialSequence->SequencePlayer->Play();
-        }
-        else
-            UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
-    }
-
-    if (loadedState == ELoaded::BOTH) {
-        ApplyInterfaceEvents(ESwapEvent::BothLoaded);
-        OnBothLoaded.Broadcast();
-    }
-}
-
-void ADualLevel::UnloadHorrorLevel()
-{
-    if (streamedHorrorLevel) {
-        streamedHorrorLevel->SetIsRequestingUnloadAndRemoval(true);
-        streamedHorrorLevel = nullptr;
-
-        loadedState = (loadedState == ELoaded::BOTH) ? ELoaded::CUTE : ELoaded::NONE;
-
-        ApplyInterfaceEvents(ESwapEvent::HorrorUnload);
-        OnHorrorUnload.Broadcast();
-        OnHorrorUnloaded.Broadcast();
-        OnAnyUnload.Broadcast();
-        OnAnyUnloaded.Broadcast();
-
-    }
-    else
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Horror level was not loaded"));
-}
-
-
-void ADualLevel::LoadCuteLevel()
-{
-    if (streamedCuteLevel)
-        return;
-
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LoadingCuteLevel"));
-    bool bSuccess = false;
-    streamedCuteLevel = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
-        this,
-        cuteLevel,
-        FVector::ZeroVector,
-        FRotator::ZeroRotator,
-        bSuccess
-    );
-
-    if (bSuccess) {
-        ApplyInterfaceEvents(ESwapEvent::CuteLoad);
-        OnCuteLoad.Broadcast();
-        OnAnyLoad.Broadcast();
-        streamedCuteLevel->OnLevelShown.AddDynamic(this, &ADualLevel::OnCuteMapLoadedFunc);
-    }
-}
-
-void ADualLevel::OnCuteMapLoadedFunc()
-{
-    loadedState = (loadedState == ELoaded::HORROR) ? ELoaded::BOTH : loadedState = ELoaded::CUTE;
-    UFMODBlueprintStatics::SetGlobalParameterByName("LoadedState", 0);
-
-    GetLoadedLevelLights(streamedCuteLevel);
-    DisableTransitionLights();
-
-    ApplyInterfaceEvents(ESwapEvent::CuteLoaded);
-    OnCuteLoaded.Broadcast();
-    OnAnyLoaded.Broadcast();
-    if (loadingScreen) {
-        loadingScreen->RemoveFromParent();
-        UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
-    }
-    if (loadedState == ELoaded::BOTH) {
-        ApplyInterfaceEvents(ESwapEvent::BothLoaded);
-        OnBothLoaded.Broadcast();
-    }
-}
-
-void ADualLevel::GetLoadedLevelLights(ULevelStreamingDynamic* streamedLevel)
-{
-    SublevelSkyLight = nullptr;
-    SublevelDirectionalLight = nullptr;
-
-    if (!streamedLevel) return;
-    ULevel* LoadedLevel = streamedLevel->GetLoadedLevel();
-    if (!LoadedLevel) return;
-
-    for (AActor* Actor : LoadedLevel->Actors)
-    {
-        if (!Actor) continue;
-        if (!SublevelDirectionalLight)
-            if (ADirectionalLight* DirLight = Cast<ADirectionalLight>(Actor))
-                SublevelDirectionalLight = Cast<UDirectionalLightComponent>(DirLight->GetLightComponent());
-        if (!SublevelSkyLight)
-            if (ASkyLight* SkyLight = Cast<ASkyLight>(Actor))
-                SublevelSkyLight = Cast<USkyLightComponent>(SkyLight->GetLightComponent());
-        if (SublevelDirectionalLight && SublevelSkyLight)
-            break;
-    }
-
-    
-    GetWorldTimerManager().ClearTimer(LightsInterpolationTimer);
-    GetWorldTimerManager().SetTimer(LightsInterpolationTimer, this, &ADualLevel::InterpLights, 0.016f, true);
-}
-
-void ADualLevel::InterpLights()
-{
-    if (!GetWorld()) return;
-    float DeltaTime = GetWorld()->GetDeltaSeconds();
-    bool bDirDone = true;
-    bool bSkyDone = true;
-
-
-    if (bDirDone && bSkyDone)
-        GetWorldTimerManager().ClearTimer(LightsInterpolationTimer);
-}
-
-void ADualLevel::UnloadCuteLevel()
-{
-    if (streamedCuteLevel) {
-        streamedCuteLevel->SetIsRequestingUnloadAndRemoval(true);
-        streamedCuteLevel = nullptr;
-        if (loadedState == ELoaded::BOTH)
-            loadedState = ELoaded::HORROR;
-        else
-            loadedState = ELoaded::NONE;
-
-        ApplyInterfaceEvents(ESwapEvent::CuteUnload);
-        OnCuteUnload.Broadcast();
-        OnCuteUnloaded.Broadcast();
-        OnAnyUnload.Broadcast();
-        OnAnyUnloaded.Broadcast();
-
-    }
-    else
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Cute level was not loaded"));
-}
-
 void ADualLevel::SwapLevel()
 {
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class swapping"));
@@ -275,6 +242,70 @@ void ADualLevel::SwapLevel()
     OnSwapped.Broadcast();
 }
 
+#pragma endregion
+
+
+#pragma region Level Callbacks
+
+void ADualLevel::OnHorrorMapLoadedFunc()
+{
+    loadedState = (loadedState == ELoaded::CUTE) ? ELoaded::BOTH : ELoaded::HORROR;
+    UFMODBlueprintStatics::SetGlobalParameterByName("LoadedState", 1);
+    GetLoadedLevelLights(streamedHorrorLevel);
+    DisableTransitionLights();
+
+    ApplyInterfaceEvents(ESwapEvent::HorrorLoaded);
+    OnHorrorLoaded.Broadcast();
+    OnAnyLoaded.Broadcast();
+
+    if (loadingScreen) {
+        if (initialSequence && initialSequence->SequencePlayer) {
+            initialSequence->SequencePlayer->OnFinished.AddDynamic(this, &ADualLevel::NotifySequenceEnd);
+            initialSequence->SequencePlayer->Play();
+        }
+        else
+            UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
+        loadingScreen->RemoveFromParent();
+    }
+
+    if (loadedState == ELoaded::BOTH) {
+        ApplyInterfaceEvents(ESwapEvent::BothLoaded);
+        OnBothLoaded.Broadcast();
+    }
+}
+
+void ADualLevel::OnCuteMapLoadedFunc()
+{
+    loadedState = (loadedState == ELoaded::HORROR) ? ELoaded::BOTH : loadedState = ELoaded::CUTE;
+    UFMODBlueprintStatics::SetGlobalParameterByName("LoadedState", 0);
+
+    GetLoadedLevelLights(streamedCuteLevel);
+    DisableTransitionLights();
+
+    ApplyInterfaceEvents(ESwapEvent::CuteLoaded);
+    OnCuteLoaded.Broadcast();
+    OnAnyLoaded.Broadcast();
+    if (loadingScreen) {
+        loadingScreen->RemoveFromParent();
+        UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
+    }
+    if (loadedState == ELoaded::BOTH) {
+        ApplyInterfaceEvents(ESwapEvent::BothLoaded);
+        OnBothLoaded.Broadcast();
+    }
+}
+
+void ADualLevel::NotifySequenceEnd()
+{
+    UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
+    OnInitialSequenceComplete.Broadcast();
+}
+
+#pragma endregion
+
+
+#pragma region Save Functions
+
 void ADualLevel::SaveCollectable(int CollectableID)
 {
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Start saving"));
@@ -301,8 +332,6 @@ void ADualLevel::SaveCollectable(int CollectableID)
     SaveGameInstance->SaveGame();
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Game saved"));
 }
-
-
 
 bool ADualLevel::IsLevelCompleted()
 {
@@ -375,76 +404,70 @@ TArray<bool> ADualLevel::GetPickedCollectables()
     return levelData.pickedCollectables;
 }
 
-void ADualLevel::NotifySequenceEnd()
+#pragma endregion
+
+
+#pragma region Lighting
+
+void ADualLevel::EnableTransitionLights()
 {
-    UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
-    OnInitialSequenceComplete.Broadcast();
-}
-void ADualLevel::BeginPlay()
-{
-    Super::BeginPlay();
-    musicEventInstance = UFMODBlueprintStatics::PlayEvent2D(this, musicEvent, true);
-    loadingScreen = CreateWidget(GetWorld(), loadingScreenClass);
-    loadingScreen->AddToViewport();
-    UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeUIOnly());
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class"));
-    DisableTransitionLights();
-    if (deleteLevelSaveData) {
-        if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
-            UYakotakiSaveGame* SaveGameInstance = Cast<UYakotakiSaveGame>(
-                UGameplayStatics::LoadGameFromSlot("player", 0));
-            if (SaveGameInstance)
-                SaveGameInstance->DeleteLevelData(LevelID);
-        }
-    }
-
-    if (overrideLoadedState) {
-        if (loadedState == ELoaded::CUTE || loadedState == ELoaded::BOTH)
-            LoadCuteLevel();
-        if (loadedState == ELoaded::HORROR || loadedState == ELoaded::BOTH)
-            LoadHorrorLevel();
-    }
-    else {
-        if (IsLevelCompleted())
-            LoadCuteLevel();
-        else
-            LoadHorrorLevel();
-    }
-
-    if (DefaultPlayerStart) {
-        APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
-        AGameModeBase* GameMode = UGameplayStatics::GetGameMode(this);
-        
-        APlayerStart* TargetStart = DefaultPlayerStart;
-        if (IsLevelCompleted() && LevelCompletedPlayerStart)
-            TargetStart = LevelCompletedPlayerStart;
-
-        if (PC && GameMode) {
-            PC->GetPawn()->SetActorLocationAndRotation(
-                TargetStart->GetActorLocation(),
-                TargetStart->GetActorRotation()
-            );
-            PC->SetControlRotation(TargetStart->GetActorRotation());
-            if (initialLookatActor) {
-                FVector lookDir = (initialLookatActor->GetActorLocation() - PC->GetPawn()->GetActorLocation()).GetSafeNormal();
-                PC->SetControlRotation(lookDir.Rotation());
-            }
-        }
-    }
+    if (transitionDirectionalLight)
+        transitionDirectionalLight->GetLightComponent()->SetIntensity(transitionLightIntensity);
+    if (transitionSkyLight)
+        transitionSkyLight->GetLightComponent()->SetIntensity(transitionLightIntensity);
 }
 
-void ADualLevel::EndPlay(const EEndPlayReason::Type EndPlayReason)
+void ADualLevel::DisableTransitionLights()
 {
-    musicEventInstance.Instance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
+    if (transitionDirectionalLight)
+        transitionDirectionalLight->GetLightComponent()->SetIntensity(0.f);
+    if (transitionSkyLight)
+        transitionSkyLight->GetLightComponent()->SetIntensity(0.f);
 }
 
-void ADualLevel::LoadlevelData()
+void ADualLevel::GetLoadedLevelLights(ULevelStreamingDynamic* streamedLevel)
 {
-    if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
-        UYakotakiSaveGame* currentSaveGame = Cast<UYakotakiSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
-        FLevelData currentLevelData = currentSaveGame->LevelsData[LevelID];
+    SublevelSkyLight = nullptr;
+    SublevelDirectionalLight = nullptr;
+
+    if (!streamedLevel) return;
+    ULevel* LoadedLevel = streamedLevel->GetLoadedLevel();
+    if (!LoadedLevel) return;
+
+    for (AActor* Actor : LoadedLevel->Actors)
+    {
+        if (!Actor) continue;
+        if (!SublevelDirectionalLight)
+            if (ADirectionalLight* DirLight = Cast<ADirectionalLight>(Actor))
+                SublevelDirectionalLight = Cast<UDirectionalLightComponent>(DirLight->GetLightComponent());
+        if (!SublevelSkyLight)
+            if (ASkyLight* SkyLight = Cast<ASkyLight>(Actor))
+                SublevelSkyLight = Cast<USkyLightComponent>(SkyLight->GetLightComponent());
+        if (SublevelDirectionalLight && SublevelSkyLight)
+            break;
     }
+
+
+    GetWorldTimerManager().ClearTimer(LightsInterpolationTimer);
+    GetWorldTimerManager().SetTimer(LightsInterpolationTimer, this, &ADualLevel::InterpLights, 0.016f, true);
 }
+
+void ADualLevel::InterpLights()
+{
+    if (!GetWorld()) return;
+    float DeltaTime = GetWorld()->GetDeltaSeconds();
+    bool bDirDone = true;
+    bool bSkyDone = true;
+
+
+    if (bDirDone && bSkyDone)
+        GetWorldTimerManager().ClearTimer(LightsInterpolationTimer);
+}
+
+#pragma endregion
+
+
+#pragma region Interface Events
 
 void ADualLevel::ApplyInterfaceEvents(ESwapEvent event)
 {
@@ -523,3 +546,5 @@ void ADualLevel::ApplyInterfaceEvents(ESwapEvent event)
         }
     }
 }
+
+#pragma endregion
