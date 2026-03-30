@@ -8,7 +8,7 @@ public class Yakotaki : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG", "FMODStudio"});
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG","LevelSequence", "MovieScene", "FMODStudio"});
 
         PrivateDependencyModuleNames.AddRange(new string[] {  });
 

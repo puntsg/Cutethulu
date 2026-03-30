@@ -1,4 +1,4 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
@@ -10,9 +10,12 @@
 #include "Components/SkyLightComponent.h"
 #include "GameFramework/PlayerStart.h"
 #include "Engine/LevelStreamingDynamic.h"
+#include "LevelSequenceActor.h"
+#include "LevelSequencePlayer.h"
 #include "FMODEvent.h"
+#include "FMODBlueprintStatics.h"
+#include "Blueprint/UserWidget.h"
 #include "DualLevel.generated.h"
-
 
 UENUM(BlueprintType)
 enum class ELoaded : uint8 {
@@ -48,6 +51,8 @@ enum class ESwapEvent : uint8 {
 	Swap,
 	Swapped
 };
+
+#pragma region EventsDefinition
 //Any
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAnyLoad);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAnyLoaded);
@@ -72,13 +77,18 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBothUnloaded);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwap);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSwapped);
 
+//InitialSequence
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInitialSequenceComplete);
+#pragma endregion
+
 UCLASS()
 class YAKOTAKI_API ADualLevel : public ALevelScriptActor
 {
 	GENERATED_BODY()
 
 public:
-	//map data
+
+	#pragma region Map Data
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	int LevelID;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
@@ -86,49 +96,52 @@ public:
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	int numOfCollectables;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	TObjectPtr<APlayerStart>DefaultPlayerStart;
+	TObjectPtr<APlayerStart> DefaultPlayerStart;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	TObjectPtr<APlayerStart>LevelCompletedPlayerStart;
+	TObjectPtr<APlayerStart> LevelCompletedPlayerStart;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (ToolTip = "Borra los datos del nivel"))
 	bool deleteLevelSaveData;
-	//mapConfig
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	TObjectPtr<AActor> initialLookatActor;
+	UPROPERTY(EditAnywhere)
+	TObjectPtr<ALevelSequenceActor> initialSequence;
+	#pragma endregion
+
+	#pragma region Streaming Config
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DualLevel|Streaming", meta = (ToolTip = "Si al cargar el nivel principal se quiere que se aplique el estado definido en loadedState  (el valor de abajo creo)"))
 	bool overrideLoadedState;
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DualLevel|Streaming", meta = (ToolTip = "Valor de que est� cargado"))
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DualLevel|Streaming", meta = (ToolTip = "Valor de que esta cargado"))
 	ELoaded loadedState;
-	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming")
-	USoundBase* mapSwappingSoundEffect;
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Horror")
 	TSoftObjectPtr<UWorld> horrorLevel;
-	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Horror")
-	TObjectPtr<UAudioComponent> horrorAudioComponent;
-	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Horror|Audio")
-	USoundBase* horrorBgMusicClip;
-
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DualLevel|Streaming|Horror|Audio")
-	UFMODEvent* horrorEvent = LoadObject<UFMODEvent>(nullptr, TEXT("FMODEvent'/Game/FMOD/Events/Play_OneShot.Play_OneShot'"));
-
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
 	TSoftObjectPtr<UWorld> cuteLevel;
-	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
-	TObjectPtr<UAudioComponent> cuteAudioComponent;
-	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute|Audio")
-	USoundBase* cuteBgMusicClip;
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming")
+	TSubclassOf<class UUserWidget> loadingScreenClass = LoadClass<UUserWidget>(nullptr,TEXT("/Game/Project/00_Generic/Blueprints/UI_HUD/WBP_LoadingScreen.WBP_LoadingScreen_C"));
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming")
+	TSoftObjectPtr<UUserWidget> loadingScreen;
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming")
+	USoundBase* mapSwappingSoundEffect;
+	#pragma endregion
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "DualLevel|Streaming|Cute|Audio")
-	UFMODEvent* cuteEvent = LoadObject<UFMODEvent>(nullptr, TEXT("FMODEvent'/Game/FMOD/Events/Play_OneShot.Play_OneShot'"));
-
+	#pragma region Audio
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DualLevel|Streaming|Audio")
+	UFMODEvent* musicEvent = LoadObject<UFMODEvent>(nullptr, TEXT("FMODEvent'/Game/FMOD/Events/Play_OneShot.Play_OneShot'"));
+	FFMODEventInstance musicEventInstance;
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming")
 	float audioFadeDuration = 1.f;
+	#pragma endregion
 
-	UPROPERTY(EditAnywhere, Category = "DualLevel|Lighting")
+	#pragma region Lighting
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Lighting(Not in use)")
 	TObjectPtr<ADirectionalLight> transitionDirectionalLight;
-	UPROPERTY(EditAnywhere, Category = "DualLevel|Lighting")
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Lighting(Not in use)")
 	TObjectPtr<ASkyLight> transitionSkyLight;
-	UPROPERTY(EditAnywhere, Category = "DualLevel|Lighting")
+	UPROPERTY(EditAnywhere, Category = "DualLevel|Lighting(Not in use)")
 	float transitionLightIntensity = 5.f;
+	#pragma endregion
 
-	// Level Load/Unload event
+	#pragma region Events
 	///Any
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
 	FOnAnyLoad OnAnyLoad;
@@ -170,11 +183,14 @@ public:
 	FOnSwap OnSwap;
 	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
 	FOnSwapped OnSwapped;
+	///InitialSequence
+	UPROPERTY(BlueprintAssignable, Category = "LevelLoadEvents")
+	FOnInitialSequenceComplete OnInitialSequenceComplete;
+	#pragma endregion
 
-
-	//Level un/load functions
-	UFUNCTION(BlueprintCallable, Category = "LevelLoadFunctions")
-	void UnloadStreamedLevels();
+	#pragma region Level Streaming Functions
+	UFUNCTION()
+	void NotifySequenceEnd();
 	UFUNCTION(BlueprintCallable, Category = "LevelLoadFunctions")
 	void LoadHorrorLevel();
 	UFUNCTION(BlueprintCallable, Category = "LevelLoadFunctions")
@@ -184,40 +200,54 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "LevelLoadFunctions")
 	void UnloadCuteLevel();
 	UFUNCTION(BlueprintCallable, Category = "LevelLoadFunctions")
+	void UnloadStreamedLevels();
+	UFUNCTION(BlueprintCallable, Category = "LevelLoadFunctions")
 	void SwapLevel();
+	#pragma endregion
 
-	//Level saving/loading data functions
+	#pragma region Save Functions
 	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
 	void SaveCollectable(int CollectableID);
-
 	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
 	bool IsLevelCompleted();
 	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
 	bool IsCollectablePickedUp(int CollectableID);
 	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
 	TArray<bool> GetPickedCollectables();
+	#pragma endregion
 
 protected:
+
+	#pragma region Lifecycle
 	virtual void BeginPlay() override;
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason) override;
 	void LoadlevelData();
-	void ApplyInterfaceEvents(ESwapEvent event);
+	#pragma endregion
 
-	void EnableTransitionLights();
-	void DisableTransitionLights();
-
+	#pragma region Level Callbacks
 	UFUNCTION()
 	void OnHorrorMapLoadedFunc();
 	UFUNCTION()
 	void OnCuteMapLoadedFunc();
+	#pragma endregion
 
-	TObjectPtr<UDirectionalLightComponent> SublevelDirectionalLight;
-	TObjectPtr<USkyLightComponent> SublevelSkyLight;
+	#pragma region Lighting Internals
+	void EnableTransitionLights();
+	void DisableTransitionLights();
 	void GetLoadedLevelLights(ULevelStreamingDynamic* streamedLevel);
 	void InterpLights();
+	TObjectPtr<UDirectionalLightComponent> SublevelDirectionalLight;
+	TObjectPtr<USkyLightComponent> SublevelSkyLight;
 	FTimerHandle LightsInterpolationTimer;
+	#pragma endregion
 
-	FTimerHandle AudioSwapTimerHandle;
+	#pragma region Interface Events
+	void ApplyInterfaceEvents(ESwapEvent event);
+	#pragma endregion
 
+	#pragma region State
 	ULevelStreamingDynamic* streamedHorrorLevel;
 	ULevelStreamingDynamic* streamedCuteLevel;
+	FTimerHandle AudioSwapTimerHandle;
+	#pragma endregion
 };
