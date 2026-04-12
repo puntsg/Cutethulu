@@ -21,6 +21,12 @@ struct YAKOTAKI_API FLevelEntry : public FTableRowBase
     FText LevelName;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    FText LevelDesc;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    int32 NumOfCollectables;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TSoftObjectPtr<UWorld> LevelToLoad;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
