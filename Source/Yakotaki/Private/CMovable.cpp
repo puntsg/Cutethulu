@@ -15,6 +15,10 @@ ACMovable::ACMovable()
 	Route = CreateDefaultSubobject<USplineComponent>(TEXT("Route"));
 	Route->SetupAttachment(DefaultSceneRoot);
 
+	Niagara = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Niagara"));
+	Niagara->SetupAttachment(Route);
+
+
 	PlatformOffset = CreateDefaultSubobject<USceneComponent>(TEXT("PlatformOffset"));
 	PlatformOffset->SetupAttachment(DefaultSceneRoot);
 
@@ -34,8 +38,6 @@ ACMovable::ACMovable()
 void ACMovable::BeginPlay()
 {
 	Super::BeginPlay();
-
-	
 
 	remainingTimeToActivate = 0.0f;
 	bWaitingForPlayer = false;
