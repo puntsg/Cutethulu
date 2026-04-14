@@ -263,8 +263,10 @@ void ADualLevel::OnHorrorMapLoadedFunc()
             initialSequence->SequencePlayer->OnFinished.AddDynamic(this, &ADualLevel::NotifySequenceEnd);
             initialSequence->SequencePlayer->Play();
         }
-        else
+        else {
+            NotifySequenceEnd();
             UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
+        }
         loadingScreen->RemoveFromParent();
     }
 
