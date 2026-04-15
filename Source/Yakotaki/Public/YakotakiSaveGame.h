@@ -21,6 +21,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<bool> pickedCollectables;
+
+	UPROPERTY(BlueprintReadOnly)
+	TArray<bool> hasCollectableBeenChecked;
 };
 
 /**
@@ -42,6 +45,7 @@ public:
 	UYakotakiSaveGame();
 
 	void SaveGame();
+
 	FLevelData* GetLevelData(int levelIndex);
 
 	UFUNCTION(BlueprintPure)
@@ -59,5 +63,12 @@ public:
 
 	UFUNCTION(BlueprintPure)
 	bool GetIfCollectableIsPickedUp(int levelIndex, int collectableIndex);
+
+	UFUNCTION(BlueprintPure)
+	bool GetIfPickedUpCollectableChecked(int levelIndex, int collectableIndex);
+
+	UFUNCTION(BlueprintCallable)
+	void MarkCollectableAsChecked(int levelIndex, int collectableIndex);
+
 
 };

@@ -327,8 +327,10 @@ void ADualLevel::SaveCollectable(int CollectableID)
     }
     FLevelData& currentLevelData = SaveGameInstance->LevelsData[this->LevelID];
 
-    while (currentLevelData.pickedCollectables.Num() <= CollectableID)
+    while (currentLevelData.pickedCollectables.Num() <= CollectableID) {
         currentLevelData.pickedCollectables.Add(false);
+        currentLevelData.hasCollectableBeenChecked.Add(false);
+    }
 
     currentLevelData.pickedCollectables[CollectableID] = true;
     SaveGameInstance->SaveGame();
