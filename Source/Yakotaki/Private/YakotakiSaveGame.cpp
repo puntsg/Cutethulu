@@ -65,6 +65,7 @@ void UYakotakiSaveGame::DeleteLevelData(int levelIndex)
 		this->LevelsData.Add(newLevelData);
 	}
 	this->LevelsData[levelIndex].pickedCollectables.Empty();
+	this->LevelsData[levelIndex].hasCollectableBeenChecked.Empty();
 	this->LevelsData[levelIndex].completed = false;
 	this->LevelsData[levelIndex].visited = false;
 	SaveGame();
@@ -79,5 +80,26 @@ bool UYakotakiSaveGame::GetIfCollectableIsPickedUp(int levelIndex, int collectab
 		}
 	}
 	return false;
+}
+
+bool UYakotakiSaveGame::GetIfPickedUpCollectableChecked(int levelIndex, int collectableIndex)
+{
+	if (levelIndex >= 0 && levelIndex < LevelsData.Num()) {
+		FLevelData* selectedLevelData = &LevelsData[levelIndex];
+		if (collectableIndex >= 0 && collectableIndex < selectedLevelData->hasCollectableBeenChecked.Num()) {
+			return selectedLevelData->hasCollectableBeenChecked[collectableIndex];
+		}
+	}
+	return false;
+}
+
+void UYakotakiSaveGame::MarkCollectableAsChecked(int levelIndex, int collectableIndex)
+{
+	if (levelIndex >= 0 && levelIndex < LevelsData.Num()) {
+		FLevelData* selectedLevelData = &LevelsData[levelIndex];
+		if (collectableIndex >= 0 && collectableIndex < selectedLevelData->hasCollectableBeenChecked.Num()) {
+			selectedLevelData->hasCollectableBeenChecked[collectableIndex] = true;
+		}
+	}
 }
 	
