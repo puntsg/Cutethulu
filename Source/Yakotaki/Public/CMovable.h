@@ -10,6 +10,10 @@
 #include "Components/SplineComponent.h"
 #include "Components/ArrowComponent.h"
 #include "Components/BoxComponent.h"
+#include "NiagaraFunctionLibrary.h"
+#include "NiagaraComponent.h"
+#include "RestorationInterface.h"
+
 
 #include "CMovable.generated.h"
 
@@ -23,7 +27,7 @@ enum class EMovementType : uint8 {
 };
 
 UCLASS(Blueprintable, BlueprintType)
-class YAKOTAKI_API ACMovable : public AActor
+class YAKOTAKI_API ACMovable : public AActor, public IRestorationInterface
 {
 	GENERATED_BODY()
 
@@ -37,6 +41,9 @@ public:
 	TObjectPtr<USplineComponent> Route;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
+	TObjectPtr<UNiagaraComponent>  Niagara;
+
+	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	TObjectPtr<USceneComponent> PlatformOffset;
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
@@ -44,6 +51,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, VisibleAnywhere, Category = "Components")
 	TObjectPtr<UChildActorComponent> childActor;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "ActorParams", meta = (ToolTip = "La plataforma espera a que el jugador la pise para activarse"))
+	bool bCanBeRestored;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "PlatformParams")
 	EMovementType MovementType;
@@ -110,6 +120,8 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
+	virtual void RestoreObject_Implementation();
+
 	void SetRemainingTimeToActivate(float time) { remainingTimeToActivate = time; }
 	float GetRemainingTimeToActivate() const { return remainingTimeToActivate; }
 
@@ -134,4 +146,13 @@ private:
 	UFUNCTION()
 	void OnCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+
+	//Restoration
+	float initialSplinePos;
+	float initialCurrentSpeed;
+	bool initialIsBreaking;
+	bool initialReverse;
+	bool initialIsWaiting;
+	bool initialWaitingForPlayer;
 };

@@ -15,6 +15,10 @@ ACMovable::ACMovable()
 	Route = CreateDefaultSubobject<USplineComponent>(TEXT("Route"));
 	Route->SetupAttachment(DefaultSceneRoot);
 
+	Niagara = CreateDefaultSubobject<UNiagaraComponent>(TEXT("Niagara"));
+	Niagara->SetupAttachment(Route);
+
+
 	PlatformOffset = CreateDefaultSubobject<USceneComponent>(TEXT("PlatformOffset"));
 	PlatformOffset->SetupAttachment(DefaultSceneRoot);
 
@@ -52,6 +56,13 @@ void ACMovable::BeginPlay()
 	}
 
 	Collision->OnComponentBeginOverlap.AddDynamic(this, &ACMovable::OnCollisionBeginOverlap);
+
+	initialSplinePos = splinePos;
+	initialCurrentSpeed = currentSpeed;
+	initialReverse = reverse;
+	initialIsBreaking = breaking;
+	initialIsWaiting = isWaiting;
+	initialWaitingForPlayer = bWaitingForPlayer;
 }
 
 void ACMovable::OnCollisionBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
@@ -118,6 +129,19 @@ void ACMovable::Tick(float DeltaTime)
 	default:
 		break;
 	}
+}
+
+void ACMovable::RestoreObject_Implementation()
+{
+	splinePos = initialSplinePos;
+	currentSpeed = initialCurrentSpeed;
+	reverse = initialReverse;
+	breaking = initialIsBreaking;
+	isWaiting = initialIsWaiting;
+	bWaitingForPlayer = initialWaitingForPlayer;
+	remainingTimeToActivate = 0.0f;
+	GetRootComponent()->ComponentVelocity = FVector::ZeroVector;
+	UpdateTransform(0.0f);
 }
 
 void ACMovable::CalculateSpeed(float DeltaTime)
@@ -432,7 +456,7 @@ void ACMovable::RestoreWaiting()
 		bWaitingForPlayer = false;
 	}
 
-	if (activateWhenPlayerLands)
+	if (activateWhenPlayerLands && !reverse )
 	{
 		isWaiting = true;
 		bWaitingForPlayer = true;
