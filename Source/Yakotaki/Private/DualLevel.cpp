@@ -29,6 +29,7 @@ void ADualLevel::BeginPlay()
     UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeUIOnly());
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class"));
     DisableTransitionLights();
+    loadingState = ELoadingState::LOADED;
     if (deleteLevelSaveData) {
         if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
             UYakotakiSaveGame* SaveGameInstance = Cast<UYakotakiSaveGame>(
@@ -107,6 +108,7 @@ void ADualLevel::LoadHorrorLevel()
     );
 
     if (bSuccess) {
+        loadingState = ELoadingState::LOADING;
         ApplyInterfaceEvents(ESwapEvent::HorrorLoad);
         OnHorrorLoad.Broadcast();
         OnAnyLoad.Broadcast();
@@ -120,7 +122,7 @@ void ADualLevel::UnloadHorrorLevel()
     if (streamedHorrorLevel) {
         streamedHorrorLevel->SetIsRequestingUnloadAndRemoval(true);
         streamedHorrorLevel = nullptr;
-
+        loadingState = ELoadingState::UNLOADING;
         loadedState = (loadedState == ELoaded::BOTH) ? ELoaded::CUTE : ELoaded::NONE;
 
         ApplyInterfaceEvents(ESwapEvent::HorrorUnload);
@@ -128,7 +130,7 @@ void ADualLevel::UnloadHorrorLevel()
         OnHorrorUnloaded.Broadcast();
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
-
+        loadingState = ELoadingState::LOADED;
     }
     else
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Horror level was not loaded"));
@@ -150,6 +152,7 @@ void ADualLevel::LoadCuteLevel()
     );
 
     if (bSuccess) {
+        loadingState = ELoadingState::LOADING;
         ApplyInterfaceEvents(ESwapEvent::CuteLoad);
         OnCuteLoad.Broadcast();
         OnAnyLoad.Broadcast();
@@ -167,12 +170,13 @@ void ADualLevel::UnloadCuteLevel()
         else
             loadedState = ELoaded::NONE;
 
+        loadingState = ELoadingState::UNLOADING;
         ApplyInterfaceEvents(ESwapEvent::CuteUnload);
         OnCuteUnload.Broadcast();
         OnCuteUnloaded.Broadcast();
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
-
+        loadingState = ELoadingState::LOADED;
     }
     else
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Cute level was not loaded"));
@@ -186,10 +190,12 @@ void ADualLevel::UnloadStreamedLevels()
         streamedHorrorLevel->SetIsRequestingUnloadAndRemoval(true);
         streamedHorrorLevel = nullptr;
         ApplyInterfaceEvents(ESwapEvent::HorrorUnload);
+        loadingState = ELoadingState::UNLOADING;
         OnHorrorUnload.Broadcast();
         OnHorrorUnloaded.Broadcast();
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
+        loadingState = ELoadingState::LOADED;
         unloadedAny = true;
     }
 
@@ -197,10 +203,12 @@ void ADualLevel::UnloadStreamedLevels()
         streamedCuteLevel->SetIsRequestingUnloadAndRemoval(true);
         streamedCuteLevel = nullptr;
         ApplyInterfaceEvents(ESwapEvent::CuteUnload);
+        loadingState = ELoadingState::UNLOADING;
         OnCuteUnload.Broadcast();
         OnCuteUnloaded.Broadcast();
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
+        loadingState = ELoadingState::LOADED;
         unloadedAny = true;
     }
 
@@ -257,7 +265,7 @@ void ADualLevel::OnHorrorMapLoadedFunc()
     ApplyInterfaceEvents(ESwapEvent::HorrorLoaded);
     OnHorrorLoaded.Broadcast();
     OnAnyLoaded.Broadcast();
-
+    loadingState = ELoadingState::LOADED;
     if (loadingScreen) {
         if (initialSequence && initialSequence->SequencePlayer) {
             initialSequence->SequencePlayer->OnFinished.AddDynamic(this, &ADualLevel::NotifySequenceEnd);
@@ -287,6 +295,7 @@ void ADualLevel::OnCuteMapLoadedFunc()
     ApplyInterfaceEvents(ESwapEvent::CuteLoaded);
     OnCuteLoaded.Broadcast();
     OnAnyLoaded.Broadcast();
+    loadingState = ELoadingState::LOADED;
     if (loadingScreen) {
         loadingScreen->RemoveFromParent();
         UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
