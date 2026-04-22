@@ -25,6 +25,14 @@ enum class ELoaded : uint8 {
 	BOTH UMETA(DisplayName = "Both")
 };
 
+UENUM(BlueprintType)
+enum class EStreamingState : uint8 {
+	NORMAL	UMETA(DisplayName = "Normal"),
+	LOADING UMETA(DisplayName = "Loading"),
+	UNLOADING UMETA(DisplayName = "Unloading"),
+	SWAPPING UMETA(DisplayName = "Swapping")
+};
+
 UENUM()
 enum class ESwapEvent : uint8 {
 	//Any
