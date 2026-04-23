@@ -272,7 +272,8 @@ void ADualLevel::OnHorrorMapLoadedFunc()
             initialSequence->SequencePlayer->Play();
         }
         else {
-            NotifySequenceEnd();
+            if(notifySequenceEndEvenIfNull)
+                NotifySequenceEnd();
             UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
         }
         loadingScreen->RemoveFromParent();

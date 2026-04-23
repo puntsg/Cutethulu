@@ -110,6 +110,9 @@ public:
 	bool deleteLevelSaveData;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TObjectPtr<AActor> initialLookatActor;
+
+	UPROPERTY(EditAnywhere)
+	bool notifySequenceEndEvenIfNull; 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<ALevelSequenceActor> initialSequence;
 	#pragma endregion
