@@ -24,6 +24,9 @@ public:
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<bool> hasCollectableBeenChecked;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool hasImageBeenChecked;
 };
 
 USTRUCT(BlueprintType)
@@ -72,6 +75,10 @@ public:
 	bool GetIfPickedUpCollectableChecked(int levelIndex, int collectableIndex);
 	UFUNCTION(BlueprintCallable)
 	void MarkCollectableAsChecked(int levelIndex, int collectableIndex);
+	UFUNCTION(BlueprintPure)
+	bool GetIfCollectablesImageChecked(int levelIndex);
+	UFUNCTION(BlueprintCallable)
+	void MarkCollectablesImageAsChecked(int levelIndex);
 
 	UFUNCTION(BlueprintCallable)
 	bool GetIfTutorialCompleted(FString tutorialID);
