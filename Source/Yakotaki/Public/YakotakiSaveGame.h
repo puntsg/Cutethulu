@@ -26,7 +26,7 @@ public:
 	TArray<bool> hasCollectableBeenChecked;
 
 	UPROPERTY(BlueprintReadOnly)
-	bool hasImageBeenChecked;
+	bool hasImageBeenChecked = false;
 };
 
 USTRUCT(BlueprintType)
