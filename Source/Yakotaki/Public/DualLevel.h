@@ -26,11 +26,10 @@ enum class ELoaded : uint8 {
 };
 
 UENUM(BlueprintType)
-enum class EStreamingState : uint8 {
-	NORMAL	UMETA(DisplayName = "Normal"),
+enum class ELoadingState : uint8 {
+	LOADED	UMETA(DisplayName = "Loaded"),
 	LOADING UMETA(DisplayName = "Loading"),
-	UNLOADING UMETA(DisplayName = "Unloading"),
-	SWAPPING UMETA(DisplayName = "Swapping")
+	UNLOADING UMETA(DisplayName = "Unloading")
 };
 
 UENUM()
@@ -111,6 +110,9 @@ public:
 	bool deleteLevelSaveData;
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TObjectPtr<AActor> initialLookatActor;
+
+	UPROPERTY(EditAnywhere)
+	bool notifySequenceEndEvenIfNull; 
 	UPROPERTY(EditAnywhere)
 	TObjectPtr<ALevelSequenceActor> initialSequence;
 	#pragma endregion
@@ -120,6 +122,8 @@ public:
 	bool overrideLoadedState;
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "DualLevel|Streaming", meta = (ToolTip = "Valor de que esta cargado"))
 	ELoaded loadedState;
+	UPROPERTY(BlueprintReadOnly)
+	ELoadingState loadingState;
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Horror")
 	TSoftObjectPtr<UWorld> horrorLevel;
 	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming|Cute")
