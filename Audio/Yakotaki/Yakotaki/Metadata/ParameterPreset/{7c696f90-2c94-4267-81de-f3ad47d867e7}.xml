@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{7c696f90-2c94-4267-81de-f3ad47d867e7}">
+		<property name="name">
+			<value>Mouse</value>
+		</property>
+		<relationship name="folder">
+			<destination>{91e7f53b-08a6-4ac5-8452-61bdc6da6ed9}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{807a6942-d1e7-41d3-880e-7193e5d0a698}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{807a6942-d1e7-41d3-880e-7193e5d0a698}">
+		<property name="parameterType">
+			<value>2</value>
+		</property>
+		<property name="maximum">
+			<value>2</value>
+		</property>
+		<property name="enumerationLabels">
+			<value>Hovered</value>
+			<value>Clicked</value>
+		</property>
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+	</object>
+</objects>

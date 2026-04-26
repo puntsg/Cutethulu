@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{ce9c77b9-c7e2-4db9-b21c-45d88a9662c9}">
+		<property name="assetPath">
+			<value>Music/Desert/Soundtrack_Desert_ Cute .wav</value>
+		</property>
+		<property name="isStreaming">
+			<value>true</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>44.0999985</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>72</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{cc521d23-506a-4a70-8eaf-ca2887ef6337}</destination>
+		</relationship>
+	</object>
+</objects>
