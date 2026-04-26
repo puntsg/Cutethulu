@@ -2,7 +2,7 @@
 <objects serializationModel="Studio.02.03.00">
 	<object class="Event" id="{17368895-9b64-41d8-876f-93abc63b096e}">
 		<property name="name">
-			<value>VolumeSliderCliked</value>
+			<value>VolumeSliderClickedGeneral</value>
 		</property>
 		<property name="outputFormat">
 			<value>1</value>
