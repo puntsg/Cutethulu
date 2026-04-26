@@ -106,6 +106,23 @@ void UYakotakiSaveGame::MarkCollectableAsChecked(int levelIndex, int collectable
 	}
 }
 
+bool UYakotakiSaveGame::GetIfCollectablesImageChecked(int levelIndex)
+{
+	if (levelIndex >= 0 && levelIndex < LevelsData.Num()) {
+		FLevelData* selectedLevelData = &LevelsData[levelIndex];
+		return selectedLevelData->hasImageBeenChecked;
+	}
+	return false;
+}
+
+void UYakotakiSaveGame::MarkCollectablesImageAsChecked(int levelIndex)
+{
+	if (levelIndex >= 0 && levelIndex < LevelsData.Num()) {
+		FLevelData* selectedLevelData = &LevelsData[levelIndex];
+		selectedLevelData->hasImageBeenChecked = true;
+	}
+}
+
 bool UYakotakiSaveGame::GetIfTutorialCompleted(FString tutorialID)
 { 
 	for (int i = 0; i < TutorialsData.Num(); i++)
