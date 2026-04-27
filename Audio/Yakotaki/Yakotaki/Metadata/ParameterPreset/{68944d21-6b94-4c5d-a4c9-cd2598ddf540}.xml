@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="ParameterPreset" id="{68944d21-6b94-4c5d-a4c9-cd2598ddf540}">
+		<property name="name">
+			<value>Interaction</value>
+		</property>
+		<relationship name="folder">
+			<destination>{91e7f53b-08a6-4ac5-8452-61bdc6da6ed9}</destination>
+		</relationship>
+		<relationship name="parameter">
+			<destination>{c0f6cf94-a565-4d56-95ab-d516ac02fdb3}</destination>
+		</relationship>
+	</object>
+	<object class="GameParameter" id="{c0f6cf94-a565-4d56-95ab-d516ac02fdb3}">
+		<property name="parameterType">
+			<value>2</value>
+		</property>
+		<property name="maximum">
+			<value>4</value>
+		</property>
+		<property name="enumerationLabels">
+			<value>Talk</value>
+			<value>Happy</value>
+			<value>Fear</value>
+			<value>Surprise</value>
+		</property>
+		<property name="isHeld">
+			<value>true</value>
+		</property>
+		<property name="initialValue">
+			<value>0</value>
+		</property>
+	</object>
+</objects>
