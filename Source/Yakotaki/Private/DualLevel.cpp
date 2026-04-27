@@ -29,6 +29,7 @@ void ADualLevel::BeginPlay()
     UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeUIOnly());
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class"));
     DisableTransitionLights();
+    loadingState = ELoadingState::NONE;
     if (deleteLevelSaveData) {
         if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
             UYakotakiSaveGame* SaveGameInstance = Cast<UYakotakiSaveGame>(
@@ -120,7 +121,6 @@ void ADualLevel::UnloadHorrorLevel()
     if (streamedHorrorLevel) {
         streamedHorrorLevel->SetIsRequestingUnloadAndRemoval(true);
         streamedHorrorLevel = nullptr;
-
         loadedState = (loadedState == ELoaded::BOTH) ? ELoaded::CUTE : ELoaded::NONE;
 
         ApplyInterfaceEvents(ESwapEvent::HorrorUnload);
@@ -128,7 +128,6 @@ void ADualLevel::UnloadHorrorLevel()
         OnHorrorUnloaded.Broadcast();
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
-
     }
     else
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Horror level was not loaded"));
@@ -172,7 +171,6 @@ void ADualLevel::UnloadCuteLevel()
         OnCuteUnloaded.Broadcast();
         OnAnyUnload.Broadcast();
         OnAnyUnloaded.Broadcast();
-
     }
     else
         GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Cute level was not loaded"));
@@ -228,6 +226,7 @@ void ADualLevel::SwapLevel()
 
     ApplyInterfaceEvents(ESwapEvent::Swap);
     OnSwap.Broadcast();
+    loadingState = ELoadingState::SWAPPING;
 
     if (loadedState == ELoaded::CUTE) {
         UnloadCuteLevel();
@@ -257,14 +256,14 @@ void ADualLevel::OnHorrorMapLoadedFunc()
     ApplyInterfaceEvents(ESwapEvent::HorrorLoaded);
     OnHorrorLoaded.Broadcast();
     OnAnyLoaded.Broadcast();
-
     if (loadingScreen) {
         if (initialSequence && initialSequence->SequencePlayer) {
             initialSequence->SequencePlayer->OnFinished.AddDynamic(this, &ADualLevel::NotifySequenceEnd);
             initialSequence->SequencePlayer->Play();
         }
         else {
-            NotifySequenceEnd();
+            if(notifySequenceEndEvenIfNull)
+                NotifySequenceEnd();
             UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
         }
         loadingScreen->RemoveFromParent();
@@ -274,6 +273,9 @@ void ADualLevel::OnHorrorMapLoadedFunc()
         ApplyInterfaceEvents(ESwapEvent::BothLoaded);
         OnBothLoaded.Broadcast();
     }
+
+    if(loadingState == ELoadingState::SWAPPING)
+        loadingState = ELoadingState::NONE;
 }
 
 void ADualLevel::OnCuteMapLoadedFunc()
@@ -295,6 +297,9 @@ void ADualLevel::OnCuteMapLoadedFunc()
         ApplyInterfaceEvents(ESwapEvent::BothLoaded);
         OnBothLoaded.Broadcast();
     }
+
+    if (loadingState == ELoadingState::SWAPPING)
+        loadingState = ELoadingState::NONE;
 }
 
 void ADualLevel::NotifySequenceEnd()
