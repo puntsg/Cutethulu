@@ -2,7 +2,7 @@
 <objects serializationModel="Studio.02.03.00">
 	<object class="AudioFile" id="{cc057785-1783-4130-8f53-a6bccd7144af}">
 		<property name="assetPath">
-			<value>Music/Desert/Soundtrack_Desert_ Horror .wav</value>
+			<value>Music/Levels/Desert/Soundtrack_Desert_ Horror .wav</value>
 		</property>
 		<property name="isStreaming">
 			<value>true</value>

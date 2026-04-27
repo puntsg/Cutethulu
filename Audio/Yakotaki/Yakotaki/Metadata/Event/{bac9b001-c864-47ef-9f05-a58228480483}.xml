@@ -31,6 +31,9 @@
 		<relationship name="timeline">
 			<destination>{b513ab18-ddc7-4168-92d9-3bf3c8ecf614}</destination>
 		</relationship>
+		<relationship name="banks">
+			<destination>{92d3734b-2b86-4929-8c5b-4eef615c2043}</destination>
+		</relationship>
 	</object>
 	<object class="EventMixer" id="{92fc2d34-0dee-472b-b791-e1f95885b249}">
 		<relationship name="masterBus">
@@ -50,7 +53,7 @@
 			<destination>{3d3e87c0-2a7b-485f-9630-a25c35eb395c}</destination>
 		</relationship>
 		<relationship name="output">
-			<destination>{f66f9753-72bf-432b-b331-d30ac326f7c2}</destination>
+			<destination>{77a66b15-b4f4-43b2-a224-84efc36d59a9}</destination>
 		</relationship>
 	</object>
 	<object class="EventAutomatableProperties" id="{cf5f1d38-625e-4a18-8886-a2cf99fd02ca}" />

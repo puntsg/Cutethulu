@@ -2,7 +2,7 @@
 <objects serializationModel="Studio.02.03.00">
 	<object class="AudioFile" id="{8ba7d7dc-1205-49f6-824b-16b4f755056c}">
 		<property name="assetPath">
-			<value>Music/UI/UI_MainMenu_Background.wav</value>
+			<value>Music/Others/UI/UI_MainMenu_Background.wav</value>
 		</property>
 		<property name="isStreaming">
 			<value>true</value>
