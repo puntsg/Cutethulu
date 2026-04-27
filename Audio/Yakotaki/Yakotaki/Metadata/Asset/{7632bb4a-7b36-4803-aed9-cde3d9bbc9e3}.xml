@@ -2,7 +2,7 @@
 <objects serializationModel="Studio.02.03.00">
 	<object class="EncodableAsset" id="{7632bb4a-7b36-4803-aed9-cde3d9bbc9e3}">
 		<property name="assetPath">
-			<value>Music/HUB/</value>
+			<value>Music/Others/HUB/</value>
 		</property>
 		<relationship name="masterAssetFolder">
 			<destination>{cc521d23-506a-4a70-8eaf-ca2887ef6337}</destination>
