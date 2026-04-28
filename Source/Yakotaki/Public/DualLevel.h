@@ -27,9 +27,10 @@ enum class ELoaded : uint8 {
 
 UENUM(BlueprintType)
 enum class ELoadingState : uint8 {
-	LOADED	UMETA(DisplayName = "Loaded"),
+	NONE	UMETA(DisplayName = "None"),
 	LOADING UMETA(DisplayName = "Loading"),
-	UNLOADING UMETA(DisplayName = "Unloading")
+	UNLOADING UMETA(DisplayName = "Unloading"),
+	SWAPPING UMETA(DisplayName = "Swapping")
 };
 
 UENUM()

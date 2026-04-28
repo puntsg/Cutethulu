@@ -1,9 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <objects serializationModel="Studio.02.03.00">
 	<object class="MixerMaster" id="{f66f9753-72bf-432b-b331-d30ac326f7c2}">
-		<property name="volume">
-			<value>-5</value>
-		</property>
 		<property name="name">
 			<value>Master Bus</value>
 		</property>
@@ -19,10 +16,9 @@
 	</object>
 	<object class="MixerBusEffectChain" id="{6c048285-d346-4851-84c9-ba8eba2a143a}">
 		<relationship name="effects">
-			<destination>{207638a3-650f-4895-8dca-acc95b5bae2c}</destination>
 			<destination>{237ae4a7-ec01-4691-bd4d-f6c06c39f4e8}</destination>
-			<destination>{64f537e7-d8d2-4867-bfd5-414fa8182da9}</destination>
-			<destination>{3c2ba347-0b9e-45ce-aa46-b15adaaae72f}</destination>
+			<destination>{5d2efe00-5d46-401b-bcb9-972cd87f1948}</destination>
+			<destination>{afffcab2-8d43-4d53-bcbc-e12a702f8fe8}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{9926ac84-114b-46f3-b7e6-98926391f4ac}">
@@ -30,12 +26,11 @@
 			<value>2</value>
 		</property>
 	</object>
-	<object class="CompressorEffect" id="{207638a3-650f-4895-8dca-acc95b5bae2c}">
-		<property name="threshold">
-			<value>-10</value>
+	<object class="MixerBusFader" id="{237ae4a7-ec01-4691-bd4d-f6c06c39f4e8}" />
+	<object class="LimiterEffect" id="{5d2efe00-5d46-401b-bcb9-972cd87f1948}">
+		<property name="ceiling">
+			<value>-0.100000001</value>
 		</property>
 	</object>
-	<object class="MixerBusFader" id="{237ae4a7-ec01-4691-bd4d-f6c06c39f4e8}" />
-	<object class="LimiterEffect" id="{64f537e7-d8d2-4867-bfd5-414fa8182da9}" />
-	<object class="LoudnessMeter" id="{3c2ba347-0b9e-45ce-aa46-b15adaaae72f}" />
+	<object class="LoudnessMeter" id="{afffcab2-8d43-4d53-bcbc-e12a702f8fe8}" />
 </objects>
