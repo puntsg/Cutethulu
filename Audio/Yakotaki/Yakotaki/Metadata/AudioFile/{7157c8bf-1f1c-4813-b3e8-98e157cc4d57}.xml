@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="AudioFile" id="{7157c8bf-1f1c-4813-b3e8-98e157cc4d57}">
+		<property name="assetPath">
+			<value>SFX/Player/Landing/SFX_Player_Landing-001.wav</value>
+		</property>
+		<property name="frequencyInKHz">
+			<value>48</value>
+		</property>
+		<property name="channelCount">
+			<value>2</value>
+		</property>
+		<property name="length">
+			<value>0.41054166666666669</value>
+		</property>
+		<relationship name="masterAssetFolder">
+			<destination>{cc521d23-506a-4a70-8eaf-ca2887ef6337}</destination>
+		</relationship>
+	</object>
+</objects>
