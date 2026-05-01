@@ -119,8 +119,14 @@
 	</object>
 	<object class="SingleSound" id="{89bdb951-0b80-46d3-aecf-f3a90695b10e}">
 		<property name="length">
-			<value>1.5625</value>
+			<value>1.4217657342657342</value>
 		</property>
+		<property name="timelockedOffset">
+			<value>0.056545017482517466</value>
+		</property>
+		<relationship name="fadeOutCurve">
+			<destination>{0c1f8375-16ea-458f-b53b-0d0533455fac}</destination>
+		</relationship>
 		<relationship name="audioFile">
 			<destination>{adc241b8-c2dd-4b62-9e35-1bbbf73763a6}</destination>
 		</relationship>
@@ -149,8 +155,14 @@
 	</object>
 	<object class="SingleSound" id="{248182b8-763b-4198-9ff8-65caa921907a}">
 		<property name="length">
-			<value>0.78187499999999999</value>
+			<value>0.71560533216783218</value>
 		</property>
+		<property name="timelockedOffset">
+			<value>0.066269667832167825</value>
+		</property>
+		<relationship name="fadeOutCurve">
+			<destination>{aac0f8a3-b183-426b-9130-e95438afff73}</destination>
+		</relationship>
 		<relationship name="audioFile">
 			<destination>{e1491dc4-1711-459f-92a9-ddf512a3b3c5}</destination>
 		</relationship>
@@ -179,6 +191,14 @@
 	</object>
 	<object class="MixerBusPanner" id="{e404d631-4090-4c4c-8307-5dd90d804057}" />
 	<object class="MixerBusFader" id="{555127c6-a0a5-4b73-be3c-e82b63488abc}" />
+	<object class="FadeCurve" id="{0c1f8375-16ea-458f-b53b-0d0533455fac}">
+		<relationship name="startPoint">
+			<destination>{ead798cd-6849-4f57-9a88-067e9448f82a}</destination>
+		</relationship>
+		<relationship name="endPoint">
+			<destination>{7aa838f5-ecd5-40b4-ad46-03dab1591f0b}</destination>
+		</relationship>
+	</object>
 	<object class="Automator" id="{09c93745-8dcd-4d75-925e-09c3f409bcd0}">
 		<property name="nameOfPropertyBeingAutomated">
 			<value>volume</value>
@@ -193,6 +213,14 @@
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{c5a44a60-c379-48dd-a9c9-750a5bbdbdff}" />
+	<object class="FadeCurve" id="{aac0f8a3-b183-426b-9130-e95438afff73}">
+		<relationship name="startPoint">
+			<destination>{4d637d64-867e-4ac4-9b5d-28802e40680d}</destination>
+		</relationship>
+		<relationship name="endPoint">
+			<destination>{a3c51946-8aa1-466b-9f2b-96225feab04c}</destination>
+		</relationship>
+	</object>
 	<object class="Automator" id="{609ed85e-72dd-46a4-8344-5f06163d8a31}">
 		<property name="nameOfPropertyBeingAutomated">
 			<value>volume</value>
@@ -208,6 +236,25 @@
 	</object>
 	<object class="MixerBusPanner" id="{e601c3fb-75f4-4f55-a906-5c9f0f1aa7cb}" />
 	<object class="MixerBusFader" id="{d54c5402-b982-4850-8fbd-39ab9f2ce861}" />
+	<object class="AutomationPoint" id="{ead798cd-6849-4f57-9a88-067e9448f82a}">
+		<property name="position">
+			<value>1.3845607517482517</value>
+		</property>
+		<property name="value">
+			<value>1</value>
+		</property>
+		<property name="curveShape">
+			<value>0.25471893</value>
+		</property>
+	</object>
+	<object class="AutomationPoint" id="{7aa838f5-ecd5-40b4-ad46-03dab1591f0b}">
+		<property name="position">
+			<value>1.4217657342657342</value>
+		</property>
+		<property name="value">
+			<value>0</value>
+		</property>
+	</object>
 	<object class="AutomationCurve" id="{bced4611-4e23-432d-98e0-0c4e416d3769}">
 		<relationship name="parameter">
 			<destination>{807a6942-d1e7-41d3-880e-7193e5d0a698}</destination>
@@ -218,6 +265,25 @@
 		</relationship>
 	</object>
 	<object class="MixerBusFader" id="{3ba3a4b3-992d-4aeb-b2a5-7f534a3ce1e2}" />
+	<object class="AutomationPoint" id="{4d637d64-867e-4ac4-9b5d-28802e40680d}">
+		<property name="position">
+			<value>0.70052666083916082</value>
+		</property>
+		<property name="value">
+			<value>1</value>
+		</property>
+		<property name="curveShape">
+			<value>-1.00000048</value>
+		</property>
+	</object>
+	<object class="AutomationPoint" id="{a3c51946-8aa1-466b-9f2b-96225feab04c}">
+		<property name="position">
+			<value>0.71560533216783218</value>
+		</property>
+		<property name="value">
+			<value>0</value>
+		</property>
+	</object>
 	<object class="AutomationCurve" id="{9a7c3d7a-408c-43f3-923b-56a3dddb9940}">
 		<relationship name="parameter">
 			<destination>{807a6942-d1e7-41d3-880e-7193e5d0a698}</destination>
