@@ -18,13 +18,26 @@ enum class ETutorialContent : uint8 {
 };
 
 USTRUCT(BlueprintType)
+struct YAKOTAKI_API FInputActionImage {
+	GENERATED_BODY()
+public:
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	FMargin padding;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UTexture2D* image;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	FVector2D imageSize;
+};
+
+USTRUCT(BlueprintType)
 struct YAKOTAKI_API FTutorialImageBlock
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	FMargin padding;
-
+	
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	TEnumAsByte<EHorizontalAlignment> horizontalAlignment;
 
@@ -35,13 +48,13 @@ public:
 	bool forceNewLine;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	UTexture2D* image;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	FVector2D imageSize;
-
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	FLinearColor colourAndOpacity;
+
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	FInputActionImage keyboardImage;
+	
+	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	FInputActionImage controllerImage;
 
 	UPROPERTY(BlueprintReadOnly, EditAnywhere)
 	float renderOpacity;
