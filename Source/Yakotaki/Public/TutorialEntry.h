@@ -22,14 +22,16 @@ struct YAKOTAKI_API FInputActionImage {
 	GENERATED_BODY()
 public:
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FMargin padding;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	UTexture2D* image;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FVector2D imageSize;
+
+	FInputActionImage(){}
 };
 
 USTRUCT(BlueprintType)
@@ -38,25 +40,25 @@ struct YAKOTAKI_API FTutorialImageBlock
 	GENERATED_BODY()
 public:
 	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TEnumAsByte<EHorizontalAlignment> horizontalAlignment;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	TEnumAsByte<EVerticalAlignment> verticalAligment;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	bool forceNewLine;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FLinearColor colourAndOpacity;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FInputActionImage keyboardImage;
 	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FInputActionImage controllerImage;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	float renderOpacity;
 };
 
@@ -65,10 +67,10 @@ struct YAKOTAKI_API FTutorialSpacerBlock
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	bool fillEmptySpace;
 	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FVector2D size;
 };
 
@@ -77,20 +79,20 @@ struct YAKOTAKI_API FTutorialTextBlock
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FMargin Padding;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	bool forceNewLine;
 	
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FText text;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FTextBlockStyle textStyle;
 
-	//UPROPERTY(BlueprintReadOnly, EditAnywhere)
-	//ETextJustify justification;
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	TEnumAsByte<ETextJustify::Type>justification;
 };
 
 
@@ -99,16 +101,16 @@ struct YAKOTAKI_API FTutorialContent
 {
 	GENERATED_BODY()
 public:
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	ETutorialContent tutorialContent;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FTutorialTextBlock textContent;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FTutorialImageBlock imageContent;
 
-	UPROPERTY(BlueprintReadOnly, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	FTutorialSpacerBlock spacer;
 };
 
