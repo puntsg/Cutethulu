@@ -51,6 +51,9 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Basic)
 	uint32 UserIndex;
 
+	UPROPERTY(VisibleAnywhere, Category = Basic)
+	int collectedParticles;
+
 	//Game saved data
 	UPROPERTY(VisibleAnywhere, Category = Basic)
 	TArray<FTutorialData> TutorialsData;
@@ -84,6 +87,9 @@ public:
 	bool GetIfTutorialCompleted(FString tutorialID);
 	UFUNCTION(BlueprintCallable)
 	void SetTutorialAsCompleted(FString tutorialID);
+
+	UFUNCTION(BlueprintCallable)
+	void SaveCollectedParticles(int collected);
 private:
 	void UpdateTutorialsData();
 };
