@@ -23,7 +23,7 @@
 void ADualLevel::BeginPlay()
 {
     Super::BeginPlay();
-    musicEventInstance = UFMODBlueprintStatics::PlayEvent2D(this, musicEvent, true);
+    //musicEventInstance = UFMODBlueprintStatics::PlayEvent2D(this, musicEvent, true);
     loadingScreen = CreateWidget(GetWorld(), loadingScreenClass);
     loadingScreen->AddToViewport();
     UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeUIOnly());
@@ -76,7 +76,7 @@ void ADualLevel::BeginPlay()
 
 void ADualLevel::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-    musicEventInstance.Instance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
+    //musicEventInstance.Instance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
 }
 
 void ADualLevel::LoadlevelData()
@@ -98,6 +98,7 @@ void ADualLevel::LoadHorrorLevel()
         return;
 
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LoadingHorrorLevel"));
+    UFMODBlueprintStatics::SetGlobalParameterByName("Scene", horrorMusicTrackId);
     bool bSuccess = false;
     streamedHorrorLevel = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
         this,
@@ -139,6 +140,7 @@ void ADualLevel::LoadCuteLevel()
         return;
 
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LoadingCuteLevel"));
+    UFMODBlueprintStatics::SetGlobalParameterByName("Scene", cuteMusicTrackId);
     bool bSuccess = false;
     streamedCuteLevel = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
         this,
@@ -249,7 +251,7 @@ void ADualLevel::SwapLevel()
 void ADualLevel::OnHorrorMapLoadedFunc()
 {
     loadedState = (loadedState == ELoaded::CUTE) ? ELoaded::BOTH : ELoaded::HORROR;
-    UFMODBlueprintStatics::SetGlobalParameterByName("LoadedState", 1);
+    
     GetLoadedLevelLights(streamedHorrorLevel);
     DisableTransitionLights();
 
@@ -281,7 +283,6 @@ void ADualLevel::OnHorrorMapLoadedFunc()
 void ADualLevel::OnCuteMapLoadedFunc()
 {
     loadedState = (loadedState == ELoaded::HORROR) ? ELoaded::BOTH : loadedState = ELoaded::CUTE;
-    UFMODBlueprintStatics::SetGlobalParameterByName("LoadedState", 0);
 
     GetLoadedLevelLights(streamedCuteLevel);
     DisableTransitionLights();
