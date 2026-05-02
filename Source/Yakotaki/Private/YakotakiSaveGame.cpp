@@ -141,6 +141,12 @@ void UYakotakiSaveGame::SetTutorialAsCompleted(FString tutorialID)
 	}
 }
 
+void UYakotakiSaveGame::SaveCollectedParticles(int collected)
+{
+	this->collectedParticles = collected;
+	SaveGame();
+}
+
 void UYakotakiSaveGame::UpdateTutorialsData()
 {
 	static ConstructorHelpers::FObjectFinder<UDataTable> DataTableFinder(TEXT("/Game/Project/00_Generic/Blueprints/Tables/DT_TutorialsEntries"));
