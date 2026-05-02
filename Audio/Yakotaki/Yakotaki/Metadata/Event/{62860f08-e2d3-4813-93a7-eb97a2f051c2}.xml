@@ -6310,9 +6310,6 @@
 		<property name="length">
 			<value>73.84922916666666</value>
 		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
-		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
 		</relationship>
@@ -6350,9 +6347,6 @@
 		<property name="length">
 			<value>60.498729166666664</value>
 		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
-		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
 		</relationship>
@@ -6376,9 +6370,6 @@
 		<property name="length">
 			<value>73.849229166666646</value>
 		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
-		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
 		</relationship>
@@ -6401,9 +6392,6 @@
 		</property>
 		<property name="length">
 			<value>107.75564583333335</value>
-		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
 		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
@@ -6456,9 +6444,6 @@
 		<property name="length">
 			<value>73.849229166666646</value>
 		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
-		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
 		</relationship>
@@ -6481,9 +6466,6 @@
 		</property>
 		<property name="length">
 			<value>60.498729166666664</value>
-		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
 		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
@@ -6508,9 +6490,6 @@
 		<property name="length">
 			<value>128</value>
 		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
-		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
 		</relationship>
@@ -6533,9 +6512,6 @@
 		</property>
 		<property name="length">
 			<value>128</value>
-		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
 		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
@@ -6560,9 +6536,6 @@
 		<property name="length">
 			<value>128</value>
 		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
-		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
 		</relationship>
@@ -6585,9 +6558,6 @@
 		</property>
 		<property name="length">
 			<value>128</value>
-		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
 		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
@@ -6612,9 +6582,6 @@
 		<property name="length">
 			<value>128</value>
 		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
-		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
 		</relationship>
@@ -6637,9 +6604,6 @@
 		</property>
 		<property name="length">
 			<value>128</value>
-		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
 		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
@@ -6664,9 +6628,6 @@
 		<property name="length">
 			<value>107.75564583333335</value>
 		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
-		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
 		</relationship>
@@ -6689,9 +6650,6 @@
 		</property>
 		<property name="length">
 			<value>80</value>
-		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
 		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
@@ -6716,9 +6674,6 @@
 		<property name="length">
 			<value>80</value>
 		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
-		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
 		</relationship>
@@ -6741,9 +6696,6 @@
 		</property>
 		<property name="length">
 			<value>73.849229166666646</value>
-		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
 		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
@@ -6768,9 +6720,6 @@
 		<property name="length">
 			<value>73.849229166666646</value>
 		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
-		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
 		</relationship>
@@ -6793,9 +6742,6 @@
 		</property>
 		<property name="length">
 			<value>174</value>
-		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
 		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
@@ -6820,9 +6766,6 @@
 		<property name="length">
 			<value>174</value>
 		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
-		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
 		</relationship>
@@ -6846,9 +6789,6 @@
 		<property name="length">
 			<value>72</value>
 		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
-		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
 		</relationship>
@@ -6871,9 +6811,6 @@
 		</property>
 		<property name="length">
 			<value>72</value>
-		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
 		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
@@ -7076,9 +7013,6 @@
 		<property name="length">
 			<value>107.75564583333335</value>
 		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
-		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
 		</relationship>
@@ -7101,9 +7035,6 @@
 		</property>
 		<property name="length">
 			<value>174</value>
-		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
 		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
@@ -7277,9 +7208,6 @@
 		<property name="length">
 			<value>73.798406516547516</value>
 		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
-		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
 		</relationship>
@@ -7326,9 +7254,6 @@
 		<property name="length">
 			<value>60.498729166666664</value>
 		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
-		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
 		</relationship>
@@ -7351,9 +7276,6 @@
 		</property>
 		<property name="length">
 			<value>128</value>
-		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
 		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
@@ -7378,9 +7300,6 @@
 		<property name="length">
 			<value>73.849229166666646</value>
 		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
-		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
 		</relationship>
@@ -7403,9 +7322,6 @@
 		</property>
 		<property name="length">
 			<value>73.798406516547516</value>
-		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
 		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
@@ -7515,9 +7431,6 @@
 		<property name="length">
 			<value>107.75564583333335</value>
 		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
-		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
 		</relationship>
@@ -7540,9 +7453,6 @@
 		</property>
 		<property name="length">
 			<value>174</value>
-		</property>
-		<property name="quantizationInterval">
-			<value>2</value>
 		</property>
 		<relationship name="timeline">
 			<destination>{96a1c42b-a878-4579-93ba-41f795d3287d}</destination>
