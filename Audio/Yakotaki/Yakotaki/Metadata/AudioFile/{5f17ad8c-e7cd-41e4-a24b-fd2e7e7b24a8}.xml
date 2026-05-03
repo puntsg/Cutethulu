@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <objects serializationModel="Studio.02.03.00">
-	<object class="AudioFile" id="{d2994e38-e3a0-45d0-8a5a-c61a8e4ec907}">
+	<object class="AudioFile" id="{5f17ad8c-e7cd-41e4-a24b-fd2e7e7b24a8}">
 		<property name="assetPath">
-			<value>SFX/Objects/Platform/SFX_Platform_Disappear_02.wav</value>
+			<value>SFX/Objects/Platform/SFX_Platform_Disappear.wav</value>
 		</property>
 		<property name="frequencyInKHz">
-			<value>48</value>
+			<value>44.0999985</value>
 		</property>
 		<property name="channelCount">
 			<value>2</value>
 		</property>
 		<property name="length">
-			<value>3.25</value>
+			<value>3.75</value>
 		</property>
 		<relationship name="masterAssetFolder">
 			<destination>{cc521d23-506a-4a70-8eaf-ca2887ef6337}</destination>
