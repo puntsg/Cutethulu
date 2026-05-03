@@ -139,10 +139,9 @@ public:
 
 	#pragma region Audio
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DualLevel|Streaming|Audio")
-	UFMODEvent* musicEvent = LoadObject<UFMODEvent>(nullptr, TEXT("FMODEvent'/Game/FMOD/Events/Play_OneShot.Play_OneShot'"));
-	FFMODEventInstance musicEventInstance;
-	UPROPERTY(EditAnywhere, Category = "DualLevel|Streaming")
-	float audioFadeDuration = 1.f;
+	int horrorMusicTrackId;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "DualLevel|Streaming|Audio")
+	int cuteMusicTrackId;
 	#pragma endregion
 
 	#pragma region Lighting
