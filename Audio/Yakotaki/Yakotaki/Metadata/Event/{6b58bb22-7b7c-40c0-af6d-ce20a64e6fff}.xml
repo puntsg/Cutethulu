@@ -5,7 +5,7 @@
 			<value>TravellingPortalPieces</value>
 		</property>
 		<property name="outputFormat">
-			<value>1</value>
+			<value>2</value>
 		</property>
 		<relationship name="folder">
 			<destination>{ecdaf596-017e-4eb8-ac51-899f2ea6bd32}</destination>
@@ -171,6 +171,7 @@
 	<object class="MixerBusEffectChain" id="{a9889523-7ba6-4dec-813f-4f79de79d0b4}">
 		<relationship name="effects">
 			<destination>{4faa7c60-4c60-4a2e-b551-9f7268b2ee19}</destination>
+			<destination>{0fc2372d-dabd-44d9-a43b-6c9bdeb02c92}</destination>
 		</relationship>
 	</object>
 	<object class="MixerBusPanner" id="{9c2c1deb-1a12-4d93-8bda-0a8bbab46614}" />
@@ -215,6 +216,14 @@
 		</relationship>
 	</object>
 	<object class="MixerBusFader" id="{4faa7c60-4c60-4a2e-b551-9f7268b2ee19}" />
+	<object class="SpatialiserEffect" id="{0fc2372d-dabd-44d9-a43b-6c9bdeb02c92}">
+		<property name="maximumDistance">
+			<value>45</value>
+		</property>
+		<property name="overrideRange">
+			<value>true</value>
+		</property>
+	</object>
 	<object class="AutomationPoint" id="{9421941f-9280-4dcb-bfda-f7be607434a8}">
 		<property name="position">
 			<value>0</value>
