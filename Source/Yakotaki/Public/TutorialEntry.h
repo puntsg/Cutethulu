@@ -104,13 +104,13 @@ public:
 	UPROPERTY(BlueprintReadWrite, EditAnywhere)
 	ETutorialContent tutorialContent;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (EditCondition = "tutorialContent == ETutorialContent::TEXT", EditConditionHides))
 	FTutorialTextBlock textContent;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (EditCondition = "tutorialContent == ETutorialContent::IMAGE", EditConditionHides))
 	FTutorialImageBlock imageContent;
 
-	UPROPERTY(BlueprintReadWrite, EditAnywhere)
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, meta = (EditCondition = "tutorialContent == ETutorialContent::SPACER", EditConditionHides))
 	FTutorialSpacerBlock spacer;
 };
 
