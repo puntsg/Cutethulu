@@ -47,7 +47,7 @@ int UYakotakiSaveGame::GetPickedCollectables(int levelIndex)
 	return picked;
 }
 
-void UYakotakiSaveGame::SetLevelAsCompleted(int levelIndex, bool value)
+void UYakotakiSaveGame::SetLevelAsCompleted(int levelIndex, bool value, bool autoSave)
 {
 	while (this->LevelsData.Num() <= levelIndex)
 	{
@@ -56,10 +56,11 @@ void UYakotakiSaveGame::SetLevelAsCompleted(int levelIndex, bool value)
 		this->LevelsData.Add(newLevelData);
 	}
 	this->LevelsData[levelIndex].completed = value;
-	SaveGame();
+	if(autoSave)
+		SaveGame();
 }
 
-void UYakotakiSaveGame::DeleteLevelData(int levelIndex)
+void UYakotakiSaveGame::DeleteLevelData(int levelIndex, bool autoSave)
 {
 	while (this->LevelsData.Num() <= levelIndex)
 	{
@@ -71,7 +72,8 @@ void UYakotakiSaveGame::DeleteLevelData(int levelIndex)
 	this->LevelsData[levelIndex].hasCollectableBeenChecked.Empty();
 	this->LevelsData[levelIndex].completed = false;
 	this->LevelsData[levelIndex].visited = false;
-	SaveGame();
+	if(autoSave)
+		SaveGame();
 }
 
 bool UYakotakiSaveGame::GetIfCollectableIsPickedUp(int levelIndex, int collectableIndex)
@@ -96,7 +98,7 @@ bool UYakotakiSaveGame::GetIfPickedUpCollectableChecked(int levelIndex, int coll
 	return false;
 }
 
-void UYakotakiSaveGame::MarkCollectableAsChecked(int levelIndex, int collectableIndex)
+void UYakotakiSaveGame::MarkCollectableAsChecked(int levelIndex, int collectableIndex,bool autoSave)
 {
 	if (levelIndex >= 0 && levelIndex < LevelsData.Num()) {
 		FLevelData* selectedLevelData = &LevelsData[levelIndex];
@@ -115,7 +117,7 @@ bool UYakotakiSaveGame::GetIfCollectablesImageChecked(int levelIndex)
 	return false;
 }
 
-void UYakotakiSaveGame::MarkCollectablesImageAsChecked(int levelIndex)
+void UYakotakiSaveGame::MarkCollectablesImageAsChecked(int levelIndex, bool autoSave)
 {
 	if (levelIndex >= 0 && levelIndex < LevelsData.Num()) {
 		FLevelData* selectedLevelData = &LevelsData[levelIndex];
@@ -131,7 +133,7 @@ bool UYakotakiSaveGame::GetIfTutorialCompleted(FString tutorialID)
 	return false;
 }
 
-void UYakotakiSaveGame::SetTutorialAsCompleted(FString tutorialID)
+void UYakotakiSaveGame::SetTutorialAsCompleted(FString tutorialID, bool autoSave)
 {
 	for (int i = 0; i < TutorialsData.Num(); i++) {
 		if (TutorialsData[i].id.Equals(tutorialID)) {
@@ -141,7 +143,7 @@ void UYakotakiSaveGame::SetTutorialAsCompleted(FString tutorialID)
 	}
 }
 
-void UYakotakiSaveGame::SaveCollectedParticles(int collected)
+void UYakotakiSaveGame::SaveCollectedParticles(int collected, bool autoSave)
 {
 	this->collectedParticles = collected;
 	SaveGame();
