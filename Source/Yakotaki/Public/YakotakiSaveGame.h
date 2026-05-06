@@ -51,7 +51,7 @@ public:
 	UPROPERTY(VisibleAnywhere, Category = Basic)
 	uint32 UserIndex;
 
-	UPROPERTY(VisibleAnywhere, Category = Basic)
+	UPROPERTY(BlueprintReadWrite, Category = Basic)
 	int collectedParticles;
 
 	//Game saved data
