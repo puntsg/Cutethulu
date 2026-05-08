@@ -35,7 +35,7 @@ void ADualLevel::BeginPlay()
             UYakotakiSaveGame* SaveGameInstance = Cast<UYakotakiSaveGame>(
                 UGameplayStatics::LoadGameFromSlot("player", 0));
             if (SaveGameInstance)
-                SaveGameInstance->DeleteLevelData(LevelID);
+                SaveGameInstance->DeleteLevelData(LevelID, true);
         }
     }
 
