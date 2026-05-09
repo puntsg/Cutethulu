@@ -218,12 +218,7 @@ public:
 	#pragma endregion
 
 	#pragma region Save Functions
-	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
-	void SaveCollectable(int CollectableID);
-	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
-	bool IsLevelCompleted();
-	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
-	bool IsCollectablePickedUp(int CollectableID);
+	
 	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
 	TArray<bool> GetPickedCollectables();
 	#pragma endregion
