@@ -217,12 +217,8 @@ public:
 	void SwapLevel();
 	#pragma endregion
 
-	#pragma region Save Functions
-	
-	UFUNCTION(BlueprintCallable, Category = "LevelSaveFunctions")
-	TArray<bool> GetPickedCollectables();
-	#pragma endregion
-
+	UFUNCTION(BlueprintCallable)
+	void SkipInitialSequence();
 protected:
 
 	#pragma region Lifecycle

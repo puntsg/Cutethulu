@@ -26,7 +26,9 @@ void ADualLevel::BeginPlay()
     //musicEventInstance = UFMODBlueprintStatics::PlayEvent2D(this, musicEvent, true);
     loadingScreen = CreateWidget(GetWorld(), loadingScreenClass);
     loadingScreen->AddToViewport();
-    UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeUIOnly());
+    UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameAndUI());
+    UGameplayStatics::GetPlayerController(this, 0)->SetIgnoreLookInput(true);
+    UGameplayStatics::GetPlayerController(this, 0)->SetIgnoreMoveInput(true);
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class"));
     DisableTransitionLights();
     loadingState = ELoadingState::NONE;
@@ -86,6 +88,7 @@ void ADualLevel::BeginPlay()
 
 void ADualLevel::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
+    Super::EndPlay(EndPlayReason);
     //musicEventInstance.Instance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
 }
 
@@ -253,6 +256,15 @@ void ADualLevel::SwapLevel()
     OnSwapped.Broadcast();
 }
 
+void ADualLevel::SkipInitialSequence()
+{
+    if (initialSequence && initialSequence->GetSequencePlayer()) {
+        ULevelSequencePlayer* lsp = initialSequence->GetSequencePlayer();
+        lsp->Stop();
+    }
+    NotifySequenceEnd();
+}
+
 #pragma endregion
 
 
@@ -277,6 +289,8 @@ void ADualLevel::OnHorrorMapLoadedFunc()
             if(notifySequenceEndEvenIfNull)
                 NotifySequenceEnd();
             UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
+            UGameplayStatics::GetPlayerController(this, 0)->SetIgnoreLookInput(false);
+            UGameplayStatics::GetPlayerController(this, 0)->SetIgnoreMoveInput(false);
         }
         loadingScreen->RemoveFromParent();
     }
@@ -303,6 +317,8 @@ void ADualLevel::OnCuteMapLoadedFunc()
     if (loadingScreen) {
         loadingScreen->RemoveFromParent();
         UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
+        UGameplayStatics::GetPlayerController(this, 0)->SetIgnoreLookInput(false);
+        UGameplayStatics::GetPlayerController(this, 0)->SetIgnoreMoveInput(false);
     }
     if (loadedState == ELoaded::BOTH) {
         ApplyInterfaceEvents(ESwapEvent::BothLoaded);
@@ -316,6 +332,8 @@ void ADualLevel::OnCuteMapLoadedFunc()
 void ADualLevel::NotifySequenceEnd()
 {
     UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
+    UGameplayStatics::GetPlayerController(this, 0)->SetIgnoreLookInput(false);
+    UGameplayStatics::GetPlayerController(this, 0)->SetIgnoreMoveInput(false);
     OnInitialSequenceComplete.Broadcast();
 }
 
@@ -324,7 +342,7 @@ void ADualLevel::NotifySequenceEnd()
 
 #pragma region Save Functions
 
-TArray<bool> ADualLevel::GetPickedCollectables()
+/*TArray<bool> ADualLevel::GetPickedCollectables()
 {
     TArray<bool> defaultArray;
     defaultArray.Init(false, this->numOfCollectables);
@@ -354,7 +372,7 @@ TArray<bool> ADualLevel::GetPickedCollectables()
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Checking collectableData"));
     return levelData.pickedCollectables;
 }
-
+*/
 #pragma endregion
 
 

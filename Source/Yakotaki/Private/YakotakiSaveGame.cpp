@@ -16,6 +16,7 @@ UYakotakiSaveGame::UYakotakiSaveGame()
 
 void UYakotakiSaveGame::SaveGame()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("SavingGame"));
 	UGameplayStatics::SaveGameToSlot(this, SaveSlotName, UserIndex);
 }
 
@@ -179,7 +180,7 @@ void UYakotakiSaveGame::SaveCollectable(int levelIndex, int CollectableID, bool 
 
 bool UYakotakiSaveGame::IsLevelCompleted(int levelIndex)
 {
-	if(LevelsData.Num() >= levelIndex)
+	if(levelIndex >= 0 && levelIndex < LevelsData.Num())
 		return LevelsData[levelIndex].completed;
 	
 	return false;
