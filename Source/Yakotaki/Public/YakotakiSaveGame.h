@@ -69,7 +69,7 @@ public:
 	UFUNCTION(BlueprintPure)
 	bool GetIfLevelCompleted(int levelIndex);
 	UFUNCTION(BlueprintCallable)
-	int GetPickedCollectables(int levelIndex);
+	int GetPickedCollectablesNum(int levelIndex);
 	UFUNCTION(BlueprintCallable)
 	void SetLevelAsCompleted(int levelIndex,bool value, bool autoSave);
 	UFUNCTION(BlueprintCallable)
@@ -92,6 +92,18 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SaveCollectedParticles(int collected, bool autoSave);
+
+	UFUNCTION(BlueprintCallable)
+	void SaveCollectable(int levelIndex, int CollectableID, bool autoSave);
+
+	UFUNCTION(BlueprintCallable)
+	bool IsLevelCompleted(int levelIndex);
+	
+	UFUNCTION(BlueprintCallable)
+	bool IsCollectablePickedUp(int levelIndex, int CollectableID);
+	
+	UFUNCTION(BlueprintCallable)
+	TArray<bool> GetPickedCollectables(int levelIndex);
 private:
 	void UpdateTutorialsData();
 };
