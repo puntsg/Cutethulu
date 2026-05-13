@@ -3,6 +3,7 @@
 
 #include "YakotakiSaveGame.h"
 #include "Engine/DataTable.h"
+#include "DualLevelFunctionLibrary.h"
 #include "TutorialEntry.h"
 #include <Kismet/GameplayStatics.h>
 
@@ -15,6 +16,7 @@ UYakotakiSaveGame::UYakotakiSaveGame()
 
 void UYakotakiSaveGame::SaveGame()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("SavingGame"));
 	UGameplayStatics::SaveGameToSlot(this, SaveSlotName, UserIndex);
 }
 
@@ -35,7 +37,7 @@ bool UYakotakiSaveGame::GetIfLevelCompleted(int levelIndex)
 	return false;
 }
 
-int UYakotakiSaveGame::GetPickedCollectables(int levelIndex)
+int UYakotakiSaveGame::GetPickedCollectablesNum(int levelIndex)
 {
 	int picked = 0;
 	if (levelIndex >= 0 && levelIndex < LevelsData.Num()) {
@@ -47,7 +49,7 @@ int UYakotakiSaveGame::GetPickedCollectables(int levelIndex)
 	return picked;
 }
 
-void UYakotakiSaveGame::SetLevelAsCompleted(int levelIndex, bool value)
+void UYakotakiSaveGame::SetLevelAsCompleted(int levelIndex, bool value, bool autoSave)
 {
 	while (this->LevelsData.Num() <= levelIndex)
 	{
@@ -56,10 +58,11 @@ void UYakotakiSaveGame::SetLevelAsCompleted(int levelIndex, bool value)
 		this->LevelsData.Add(newLevelData);
 	}
 	this->LevelsData[levelIndex].completed = value;
-	SaveGame();
+	if(autoSave)
+		SaveGame();
 }
 
-void UYakotakiSaveGame::DeleteLevelData(int levelIndex)
+void UYakotakiSaveGame::DeleteLevelData(int levelIndex, bool autoSave)
 {
 	while (this->LevelsData.Num() <= levelIndex)
 	{
@@ -71,7 +74,8 @@ void UYakotakiSaveGame::DeleteLevelData(int levelIndex)
 	this->LevelsData[levelIndex].hasCollectableBeenChecked.Empty();
 	this->LevelsData[levelIndex].completed = false;
 	this->LevelsData[levelIndex].visited = false;
-	SaveGame();
+	if(autoSave)
+		SaveGame();
 }
 
 bool UYakotakiSaveGame::GetIfCollectableIsPickedUp(int levelIndex, int collectableIndex)
@@ -96,7 +100,7 @@ bool UYakotakiSaveGame::GetIfPickedUpCollectableChecked(int levelIndex, int coll
 	return false;
 }
 
-void UYakotakiSaveGame::MarkCollectableAsChecked(int levelIndex, int collectableIndex)
+void UYakotakiSaveGame::MarkCollectableAsChecked(int levelIndex, int collectableIndex,bool autoSave)
 {
 	if (levelIndex >= 0 && levelIndex < LevelsData.Num()) {
 		FLevelData* selectedLevelData = &LevelsData[levelIndex];
@@ -104,6 +108,8 @@ void UYakotakiSaveGame::MarkCollectableAsChecked(int levelIndex, int collectable
 			selectedLevelData->hasCollectableBeenChecked[collectableIndex] = true;
 		}
 	}
+	if (autoSave)
+		SaveGame();
 }
 
 bool UYakotakiSaveGame::GetIfCollectablesImageChecked(int levelIndex)
@@ -115,12 +121,14 @@ bool UYakotakiSaveGame::GetIfCollectablesImageChecked(int levelIndex)
 	return false;
 }
 
-void UYakotakiSaveGame::MarkCollectablesImageAsChecked(int levelIndex)
+void UYakotakiSaveGame::MarkCollectablesImageAsChecked(int levelIndex, bool autoSave)
 {
 	if (levelIndex >= 0 && levelIndex < LevelsData.Num()) {
 		FLevelData* selectedLevelData = &LevelsData[levelIndex];
 		selectedLevelData->hasImageBeenChecked = true;
 	}
+	if (autoSave)
+		SaveGame();
 }
 
 bool UYakotakiSaveGame::GetIfTutorialCompleted(FString tutorialID)
@@ -131,7 +139,7 @@ bool UYakotakiSaveGame::GetIfTutorialCompleted(FString tutorialID)
 	return false;
 }
 
-void UYakotakiSaveGame::SetTutorialAsCompleted(FString tutorialID)
+void UYakotakiSaveGame::SetTutorialAsCompleted(FString tutorialID, bool autoSave)
 {
 	for (int i = 0; i < TutorialsData.Num(); i++) {
 		if (TutorialsData[i].id.Equals(tutorialID)) {
@@ -139,12 +147,79 @@ void UYakotakiSaveGame::SetTutorialAsCompleted(FString tutorialID)
 			break;
 		}
 	}
+	if (autoSave)
+		SaveGame();
 }
 
-void UYakotakiSaveGame::SaveCollectedParticles(int collected)
+void UYakotakiSaveGame::SaveCollectedParticles(int collected, bool autoSave)
 {
 	this->collectedParticles = collected;
-	SaveGame();
+	if(autoSave)
+		SaveGame();
+}
+
+void UYakotakiSaveGame::SaveCollectable(int levelIndex, int CollectableID, bool autoSave)
+{
+	while (LevelsData.Num() <= levelIndex) {
+		FLevelData newLevelData;
+		newLevelData.completed = false;
+		LevelsData.Add(newLevelData);
+	}
+	FLevelData& currentLevelData = LevelsData[levelIndex];
+
+	while (currentLevelData.pickedCollectables.Num() <= CollectableID) {
+		currentLevelData.pickedCollectables.Add(false);
+		currentLevelData.hasCollectableBeenChecked.Add(false);
+	}
+	
+	currentLevelData.pickedCollectables[CollectableID] = true;
+	
+	if (autoSave)
+		SaveGame();
+}
+
+bool UYakotakiSaveGame::IsLevelCompleted(int levelIndex)
+{
+	if(levelIndex >= 0 && levelIndex < LevelsData.Num())
+		return LevelsData[levelIndex].completed;
+	
+	return false;
+}
+
+bool UYakotakiSaveGame::IsCollectablePickedUp(int levelIndex, int CollectableID)
+{
+	
+	if (levelIndex >= LevelsData.Num()) {
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Game save doesn't contain any level"));
+		return false;
+	}
+
+	const FLevelData& levelData = LevelsData[levelIndex];
+	if (CollectableID >= levelData.pickedCollectables.Num()) {
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Current level doesn't contain collectable data"));
+		return false;
+	}
+
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Checking collectableData"));
+	return levelData.pickedCollectables[CollectableID];
+
+}
+
+TArray<bool> UYakotakiSaveGame::GetPickedCollectables(int levelIndex)
+{
+	TArray<bool> defaultArray;
+	if (levelIndex >= LevelsData.Num()) {
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Game save doesn't contain any level"));
+		return defaultArray;
+	}
+
+	const FLevelData& levelData = LevelsData[levelIndex];
+	if (0 >= levelData.pickedCollectables.Num()) {
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Current level doesn't contain collectable data"));
+		return defaultArray;
+	}
+	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Checking collectableData"));
+	return levelData.pickedCollectables;
 }
 
 void UYakotakiSaveGame::UpdateTutorialsData()
