@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="SandboxScene" id="{a2e46b0f-e482-40ba-ba8d-09f03156fc15}">
+		<property name="name">
+			<value>Horror Hub</value>
+		</property>
+		<relationship name="folder">
+			<destination>{5759f45f-91f0-45ba-9a8a-dec13f0244cd}</destination>
+		</relationship>
+		<relationship name="markerTracks">
+			<destination>{7a5ffdd7-7ac0-4e8e-8c7c-a47d87b8ee5e}</destination>
+		</relationship>
+		<relationship name="timeline">
+			<destination>{32488027-1d11-4b1a-8439-adbf6f26ceb5}</destination>
+		</relationship>
+		<relationship name="sandboxParameters">
+			<destination>{c275af93-a881-49b3-8857-c621558fd80e}</destination>
+		</relationship>
+		<relationship name="emitters">
+			<destination>{ea86f25c-0303-42f3-af12-4f686d478fc8}</destination>
+		</relationship>
+	</object>
+	<object class="MarkerTrack" id="{7a5ffdd7-7ac0-4e8e-8c7c-a47d87b8ee5e}" />
+	<object class="Timeline" id="{32488027-1d11-4b1a-8439-adbf6f26ceb5}" />
+	<object class="SandboxParameter" id="{c275af93-a881-49b3-8857-c621558fd80e}">
+		<property name="parameterValue">
+			<value>8</value>
+		</property>
+		<relationship name="parameter">
+			<destination>{44468370-46e3-4074-aec5-dfd4f4106ba1}</destination>
+		</relationship>
+	</object>
+	<object class="SandboxEmitter" id="{ea86f25c-0303-42f3-af12-4f686d478fc8}">
+		<property name="positionX">
+			<value>-4.94999981</value>
+		</property>
+		<property name="positionZ">
+			<value>6.47500038</value>
+		</property>
+		<property name="rotationY">
+			<value>104.109657</value>
+		</property>
+		<relationship name="event">
+			<destination>{62860f08-e2d3-4813-93a7-eb97a2f051c2}</destination>
+		</relationship>
+	</object>
+</objects>

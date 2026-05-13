@@ -23,22 +23,34 @@
 void ADualLevel::BeginPlay()
 {
     Super::BeginPlay();
-    musicEventInstance = UFMODBlueprintStatics::PlayEvent2D(this, musicEvent, true);
+    //musicEventInstance = UFMODBlueprintStatics::PlayEvent2D(this, musicEvent, true);
     loadingScreen = CreateWidget(GetWorld(), loadingScreenClass);
     loadingScreen->AddToViewport();
-    UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeUIOnly());
+    UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameAndUI());
+    UGameplayStatics::GetPlayerController(this, 0)->SetIgnoreLookInput(true);
+    UGameplayStatics::GetPlayerController(this, 0)->SetIgnoreMoveInput(true);
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("Hi, i'm the level class"));
     DisableTransitionLights();
     loadingState = ELoadingState::NONE;
-    if (deleteLevelSaveData) {
+    bool completed = false;
+    /*if (deleteLevelSaveData) {
         if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
             UYakotakiSaveGame* SaveGameInstance = Cast<UYakotakiSaveGame>(
                 UGameplayStatics::LoadGameFromSlot("player", 0));
             if (SaveGameInstance)
-                SaveGameInstance->DeleteLevelData(LevelID);
+                SaveGameInstance->DeleteLevelData(LevelID, true);
         }
     }
-
+    */
+    if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
+        UYakotakiSaveGame* SaveGameInstance = Cast<UYakotakiSaveGame>(
+            UGameplayStatics::LoadGameFromSlot("player", 0));
+        if (SaveGameInstance) {
+            if(deleteLevelSaveData)
+                SaveGameInstance->DeleteLevelData(LevelID, true);
+            completed = SaveGameInstance->IsLevelCompleted(LevelID);
+        }
+    }
     if (overrideLoadedState) {
         if (loadedState == ELoaded::CUTE || loadedState == ELoaded::BOTH)
             LoadCuteLevel();
@@ -46,7 +58,7 @@ void ADualLevel::BeginPlay()
             LoadHorrorLevel();
     }
     else {
-        if (IsLevelCompleted())
+        if (completed)
             LoadCuteLevel();
         else
             LoadHorrorLevel();
@@ -57,7 +69,7 @@ void ADualLevel::BeginPlay()
         AGameModeBase* GameMode = UGameplayStatics::GetGameMode(this);
 
         APlayerStart* TargetStart = DefaultPlayerStart;
-        if (IsLevelCompleted() && LevelCompletedPlayerStart)
+        if (completed && LevelCompletedPlayerStart)
             TargetStart = LevelCompletedPlayerStart;
 
         if (PC && GameMode) {
@@ -76,7 +88,8 @@ void ADualLevel::BeginPlay()
 
 void ADualLevel::EndPlay(const EEndPlayReason::Type EndPlayReason)
 {
-    musicEventInstance.Instance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
+    Super::EndPlay(EndPlayReason);
+    //musicEventInstance.Instance->stop(FMOD_STUDIO_STOP_IMMEDIATE);
 }
 
 void ADualLevel::LoadlevelData()
@@ -98,6 +111,7 @@ void ADualLevel::LoadHorrorLevel()
         return;
 
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LoadingHorrorLevel"));
+    UFMODBlueprintStatics::SetGlobalParameterByName("Scene", horrorMusicTrackId);
     bool bSuccess = false;
     streamedHorrorLevel = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
         this,
@@ -139,6 +153,7 @@ void ADualLevel::LoadCuteLevel()
         return;
 
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LoadingCuteLevel"));
+    UFMODBlueprintStatics::SetGlobalParameterByName("Scene", cuteMusicTrackId);
     bool bSuccess = false;
     streamedCuteLevel = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
         this,
@@ -241,6 +256,15 @@ void ADualLevel::SwapLevel()
     OnSwapped.Broadcast();
 }
 
+void ADualLevel::SkipInitialSequence()
+{
+    if (initialSequence && initialSequence->GetSequencePlayer()) {
+        ULevelSequencePlayer* lsp = initialSequence->GetSequencePlayer();
+        lsp->Stop();
+    }
+    NotifySequenceEnd();
+}
+
 #pragma endregion
 
 
@@ -249,7 +273,7 @@ void ADualLevel::SwapLevel()
 void ADualLevel::OnHorrorMapLoadedFunc()
 {
     loadedState = (loadedState == ELoaded::CUTE) ? ELoaded::BOTH : ELoaded::HORROR;
-    UFMODBlueprintStatics::SetGlobalParameterByName("LoadedState", 1);
+    
     GetLoadedLevelLights(streamedHorrorLevel);
     DisableTransitionLights();
 
@@ -265,6 +289,8 @@ void ADualLevel::OnHorrorMapLoadedFunc()
             if(notifySequenceEndEvenIfNull)
                 NotifySequenceEnd();
             UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
+            UGameplayStatics::GetPlayerController(this, 0)->SetIgnoreLookInput(false);
+            UGameplayStatics::GetPlayerController(this, 0)->SetIgnoreMoveInput(false);
         }
         loadingScreen->RemoveFromParent();
     }
@@ -281,7 +307,6 @@ void ADualLevel::OnHorrorMapLoadedFunc()
 void ADualLevel::OnCuteMapLoadedFunc()
 {
     loadedState = (loadedState == ELoaded::HORROR) ? ELoaded::BOTH : loadedState = ELoaded::CUTE;
-    UFMODBlueprintStatics::SetGlobalParameterByName("LoadedState", 0);
 
     GetLoadedLevelLights(streamedCuteLevel);
     DisableTransitionLights();
@@ -292,6 +317,8 @@ void ADualLevel::OnCuteMapLoadedFunc()
     if (loadingScreen) {
         loadingScreen->RemoveFromParent();
         UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
+        UGameplayStatics::GetPlayerController(this, 0)->SetIgnoreLookInput(false);
+        UGameplayStatics::GetPlayerController(this, 0)->SetIgnoreMoveInput(false);
     }
     if (loadedState == ELoaded::BOTH) {
         ApplyInterfaceEvents(ESwapEvent::BothLoaded);
@@ -305,6 +332,8 @@ void ADualLevel::OnCuteMapLoadedFunc()
 void ADualLevel::NotifySequenceEnd()
 {
     UGameplayStatics::GetPlayerController(this, 0)->SetInputMode(FInputModeGameOnly());
+    UGameplayStatics::GetPlayerController(this, 0)->SetIgnoreLookInput(false);
+    UGameplayStatics::GetPlayerController(this, 0)->SetIgnoreMoveInput(false);
     OnInitialSequenceComplete.Broadcast();
 }
 
@@ -313,76 +342,7 @@ void ADualLevel::NotifySequenceEnd()
 
 #pragma region Save Functions
 
-void ADualLevel::SaveCollectable(int CollectableID)
-{
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Start saving"));
-    UYakotakiSaveGame* SaveGameInstance = nullptr;
-    if (UGameplayStatics::DoesSaveGameExist("player", 0))
-        SaveGameInstance = Cast<UYakotakiSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
-
-    if (!SaveGameInstance)
-        SaveGameInstance = Cast<UYakotakiSaveGame>(UGameplayStatics::CreateSaveGameObject(UYakotakiSaveGame::StaticClass()));
-
-    while (SaveGameInstance->LevelsData.Num() <= this->LevelID)
-    {
-        FLevelData newLevelData;
-        newLevelData.LevelName = this->LevelName;
-        newLevelData.completed = false;
-        SaveGameInstance->LevelsData.Add(newLevelData);
-    }
-    FLevelData& currentLevelData = SaveGameInstance->LevelsData[this->LevelID];
-
-    while (currentLevelData.pickedCollectables.Num() <= CollectableID) {
-        currentLevelData.pickedCollectables.Add(false);
-        currentLevelData.hasCollectableBeenChecked.Add(false);
-    }
-
-    currentLevelData.pickedCollectables[CollectableID] = true;
-    SaveGameInstance->SaveGame();
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Game saved"));
-}
-
-bool ADualLevel::IsLevelCompleted()
-{
-    bool bHasLevelBeenCompleted = false;
-    if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
-        UYakotakiSaveGame* SaveGameInstance = Cast<UYakotakiSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
-        if (SaveGameInstance)
-            bHasLevelBeenCompleted = SaveGameInstance->GetIfLevelCompleted(this->LevelID);
-    }
-    return bHasLevelBeenCompleted;
-}
-
-bool ADualLevel::IsCollectablePickedUp(int CollectableID)
-{
-    if (!UGameplayStatics::DoesSaveGameExist("player", 0)) {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Game save doesn't exist"));
-        return false;
-    }
-
-    UYakotakiSaveGame* SaveGameInstance = Cast<UYakotakiSaveGame>(UGameplayStatics::LoadGameFromSlot("player", 0));
-
-    if (!SaveGameInstance) {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("SaveGameInstance is null"));
-        return false;
-    }
-
-    if (this->LevelID >= SaveGameInstance->LevelsData.Num()) {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Game save doesn't contain any level"));
-        return false;
-    }
-
-    const FLevelData& levelData = SaveGameInstance->LevelsData[this->LevelID];
-    if (CollectableID >= levelData.pickedCollectables.Num()) {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Current level doesn't contain collectable data"));
-        return false;
-    }
-
-    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Checking collectableData"));
-    return levelData.pickedCollectables[CollectableID];
-}
-
-TArray<bool> ADualLevel::GetPickedCollectables()
+/*TArray<bool> ADualLevel::GetPickedCollectables()
 {
     TArray<bool> defaultArray;
     defaultArray.Init(false, this->numOfCollectables);
@@ -412,7 +372,7 @@ TArray<bool> ADualLevel::GetPickedCollectables()
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Checking collectableData"));
     return levelData.pickedCollectables;
 }
-
+*/
 #pragma endregion
 
 
