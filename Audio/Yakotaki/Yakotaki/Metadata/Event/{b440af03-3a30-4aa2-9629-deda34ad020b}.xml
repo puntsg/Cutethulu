@@ -97,6 +97,9 @@
 		</relationship>
 	</object>
 	<object class="EventMixerGroup" id="{ee343789-0cfd-4ee1-a429-80e45b83fe4b}">
+		<property name="volume">
+			<value>-6</value>
+		</property>
 		<property name="name">
 			<value>SFX_Platform_Hidding</value>
 		</property>
