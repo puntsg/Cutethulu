@@ -15,13 +15,13 @@ public:
 	FText LevelName;
 
 	UPROPERTY(BlueprintReadOnly)
-	bool visited;
+	bool visited = false;
 
 	UPROPERTY(BlueprintReadOnly)
-	bool completed;
+	bool completed = false;
 
 	UPROPERTY(BlueprintReadOnly)
-	bool replaying;
+	bool replaying = false;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<bool> pickedCollectables;
