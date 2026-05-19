@@ -69,7 +69,7 @@ void UYakotakiSaveGame::SetLevelAsReplaying(int levelIndex, bool value, bool aut
 		FLevelData newLevelData;
 		this->LevelsData.Add(newLevelData);
 	}
-	this->LevelsData[levelIndex].completed = value;
+	this->LevelsData[levelIndex].replaying = value;
 	if (autoSave)
 		SaveGame();
 }

@@ -60,12 +60,15 @@ void ADualLevel::BeginPlay()
             LoadHorrorLevel();
     }
     else {
-        if (!completed ||replaying)
+        if (completed == false)
             LoadHorrorLevel();
-        else
-            LoadCuteLevel();
+        else {
+            if (replaying)
+                LoadHorrorLevel();
+            else
+                LoadCuteLevel();
+        }
     }
-
     if (DefaultPlayerStart) {
         APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
         AGameModeBase* GameMode = UGameplayStatics::GetGameMode(this);
