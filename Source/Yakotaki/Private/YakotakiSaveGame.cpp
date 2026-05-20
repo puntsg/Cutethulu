@@ -62,6 +62,18 @@ void UYakotakiSaveGame::SetLevelAsCompleted(int levelIndex, bool value, bool aut
 		SaveGame();
 }
 
+void UYakotakiSaveGame::SetLevelAsReplaying(int levelIndex, bool value, bool autoSave)
+{
+	while (this->LevelsData.Num() <= levelIndex)
+	{
+		FLevelData newLevelData;
+		this->LevelsData.Add(newLevelData);
+	}
+	this->LevelsData[levelIndex].replaying = value;
+	if (autoSave)
+		SaveGame();
+}
+
 void UYakotakiSaveGame::DeleteLevelData(int levelIndex, bool autoSave)
 {
 	while (this->LevelsData.Num() <= levelIndex)
@@ -183,6 +195,13 @@ bool UYakotakiSaveGame::IsLevelCompleted(int levelIndex)
 	if(levelIndex >= 0 && levelIndex < LevelsData.Num())
 		return LevelsData[levelIndex].completed;
 	
+	return false;
+}
+
+bool UYakotakiSaveGame::IsBeingReplayed(int levelIndex)
+{
+	if (levelIndex >= 0 && levelIndex < LevelsData.Num())
+		return LevelsData[levelIndex].replaying;
 	return false;
 }
 
