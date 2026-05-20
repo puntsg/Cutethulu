@@ -33,6 +33,7 @@ void ADualLevel::BeginPlay()
     DisableTransitionLights();
     loadingState = ELoadingState::NONE;
     bool completed = false;
+    bool replaying = false;
     /*if (deleteLevelSaveData) {
         if (UGameplayStatics::DoesSaveGameExist("player", 0)) {
             UYakotakiSaveGame* SaveGameInstance = Cast<UYakotakiSaveGame>(
@@ -49,6 +50,7 @@ void ADualLevel::BeginPlay()
             if(deleteLevelSaveData)
                 SaveGameInstance->DeleteLevelData(LevelID, true);
             completed = SaveGameInstance->IsLevelCompleted(LevelID);
+            replaying = SaveGameInstance->IsBeingReplayed(LevelID);
         }
     }
     if (overrideLoadedState) {
@@ -58,12 +60,15 @@ void ADualLevel::BeginPlay()
             LoadHorrorLevel();
     }
     else {
-        if (completed)
-            LoadCuteLevel();
-        else
+        if (completed == false)
             LoadHorrorLevel();
+        else {
+            if (replaying)
+                LoadHorrorLevel();
+            else
+                LoadCuteLevel();
+        }
     }
-
     if (DefaultPlayerStart) {
         APlayerController* PC = UGameplayStatics::GetPlayerController(this, 0);
         AGameModeBase* GameMode = UGameplayStatics::GetGameMode(this);
