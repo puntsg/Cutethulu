@@ -15,10 +15,13 @@ public:
 	FText LevelName;
 
 	UPROPERTY(BlueprintReadOnly)
-	bool visited;
+	bool visited = false;
 
 	UPROPERTY(BlueprintReadOnly)
-	bool completed;
+	bool completed = false;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool replaying = false;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<bool> pickedCollectables;
@@ -73,6 +76,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SetLevelAsCompleted(int levelIndex,bool value, bool autoSave);
 	UFUNCTION(BlueprintCallable)
+	void SetLevelAsReplaying(int levelIndex, bool value, bool autoSave);
+	UFUNCTION(BlueprintCallable)
 	void DeleteLevelData(int levelIndex, bool autoSave);
 	UFUNCTION(BlueprintPure)
 	bool GetIfCollectableIsPickedUp(int levelIndex, int collectableIndex);
@@ -98,6 +103,8 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	bool IsLevelCompleted(int levelIndex);
+	UFUNCTION(BlueprintCallable)
+	bool IsBeingReplayed(int levelIndex);
 	
 	UFUNCTION(BlueprintCallable)
 	bool IsCollectablePickedUp(int levelIndex, int CollectableID);
