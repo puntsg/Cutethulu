@@ -111,6 +111,9 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	TArray<bool> GetPickedCollectables(int levelIndex);
+
+	UFUNCTION(BlueprintCallable)
+	bool IsAnyCollectableLeftToCheck();
 private:
 	void UpdateTutorialsData();
 };
