@@ -65,6 +65,9 @@ public:
 
 	UPROPERTY(BlueprintReadWrite, Category = Basic)
 	TArray<FLevelData> LevelsData;
+
+	UPROPERTY(BlueprintReadWrite, Category = Basic)
+	bool creditsChecked = false;
 #pragma endregion Vars
 	UYakotakiSaveGame();
 	void SaveGame();
@@ -111,6 +114,19 @@ public:
 	
 	UFUNCTION(BlueprintCallable)
 	TArray<bool> GetPickedCollectables(int levelIndex);
+
+	UFUNCTION(BlueprintCallable)
+	bool IsAnyCollectableLeftToCheck();
+
+	UFUNCTION(BlueprintCallable)
+	bool GetAllLevelsCompleted();
+
+	UFUNCTION(BlueprintCallable)
+	inline bool GetCreditsChecked() { return creditsChecked; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetCreditsChecked();
+
 private:
 	void UpdateTutorialsData();
 };
