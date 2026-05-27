@@ -6,6 +6,7 @@
 #include "DualLevelFunctionLibrary.h"
 #include "TutorialEntry.h"
 #include <Kismet/GameplayStatics.h>
+#include <LevelEntry.h>
 
 UYakotakiSaveGame::UYakotakiSaveGame()
 {
@@ -239,6 +240,45 @@ TArray<bool> UYakotakiSaveGame::GetPickedCollectables(int levelIndex)
 	}
 	GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Emerald, TEXT("Checking collectableData"));
 	return levelData.pickedCollectables;
+}
+
+bool UYakotakiSaveGame::IsAnyCollectableLeftToCheck()
+{
+	for (int i = 0; i < LevelsData.Num(); i++) {
+		const FLevelData& level = LevelsData[i];
+		for (int j = 0; j < level.pickedCollectables.Num(); j++) {
+			if (level.pickedCollectables[j]) { // picked
+				if (!level.hasCollectableBeenChecked[j]) { // picked and not checked
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool UYakotakiSaveGame::GetAllLevelsCompleted()
+{
+	int levelsNum = 3;
+	UDataTable* levelEntriesTable = LoadObject<UDataTable>(nullptr, TEXT("/Game/Project/00_Generic/Blueprints/Tables/DT_LevelEntries"));
+	if (levelEntriesTable) {
+		TArray<FLevelEntry*> levelRows;
+		levelEntriesTable->GetAllRows<FLevelEntry>(TEXT(""), levelRows);
+		levelsNum = levelRows.Num();
+	}
+	int completedLevels = 0;
+	for (int i = 0; i < LevelsData.Num(); i++) {
+		const FLevelData& level = LevelsData[i];
+		if (level.completed)
+			completedLevels++;
+	}
+	return (completedLevels >= levelsNum);
+}
+
+void UYakotakiSaveGame::SetCreditsChecked()
+{
+	creditsChecked = true;
+	SaveGame();
 }
 
 void UYakotakiSaveGame::UpdateTutorialsData()
