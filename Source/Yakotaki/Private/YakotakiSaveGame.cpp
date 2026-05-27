@@ -241,6 +241,38 @@ TArray<bool> UYakotakiSaveGame::GetPickedCollectables(int levelIndex)
 	return levelData.pickedCollectables;
 }
 
+bool UYakotakiSaveGame::IsAnyCollectableLeftToCheck()
+{
+	for (int i = 0; i < LevelsData.Num(); i++) {
+		const FLevelData& level = LevelsData[i];
+		for (int j = 0; j < level.pickedCollectables.Num(); j++) {
+			if (level.pickedCollectables[j]) { // picked
+				if (!level.hasCollectableBeenChecked[j]) { // picked and not checked
+					return true;
+				}
+			}
+		}
+	}
+	return false;
+}
+
+bool UYakotakiSaveGame::GetAllLevelsCompleted()
+{
+	int completedLevels = 0;
+	for (int i = 0; i < LevelsData.Num(); i++) {
+		const FLevelData& level = LevelsData[i];
+		if (level.completed)
+			completedLevels++;
+	}
+	return (completedLevels >= 3);
+}
+
+void UYakotakiSaveGame::SetCreditsChecked()
+{
+	creditsChecked = true;
+	SaveGame();
+}
+
 void UYakotakiSaveGame::UpdateTutorialsData()
 {
 	static ConstructorHelpers::FObjectFinder<UDataTable> DataTableFinder(TEXT("/Game/Project/00_Generic/Blueprints/Tables/DT_TutorialsEntries"));
