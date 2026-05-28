@@ -6,6 +6,7 @@
 #include "GameFramework/SaveGame.h"
 #include "YakotakiSaveGame.generated.h"
 
+#pragma region DataStructs
 USTRUCT(BlueprintType)
 struct FLevelData {
 	GENERATED_BODY()
@@ -14,10 +15,13 @@ public:
 	FText LevelName;
 
 	UPROPERTY(BlueprintReadOnly)
-	bool visited;
+	bool visited = false;
 
 	UPROPERTY(BlueprintReadOnly)
-	bool completed;
+	bool completed = false;
+
+	UPROPERTY(BlueprintReadOnly)
+	bool replaying = false;
 
 	UPROPERTY(BlueprintReadOnly)
 	TArray<bool> pickedCollectables;
@@ -39,57 +43,90 @@ public:
 	UPROPERTY(BlueprintReadOnly)
 	bool completed;
 };
+#pragma endregion DataStucts
 
 UCLASS()
 class YAKOTAKI_API UYakotakiSaveGame : public USaveGame
 {
 	GENERATED_BODY()
 public:
-	//Save data IDs
+#pragma region Vars
 	UPROPERTY(VisibleAnywhere, Category = Basic)
 	FString SaveSlotName;
+
 	UPROPERTY(VisibleAnywhere, Category = Basic)
 	uint32 UserIndex;
 
-	UPROPERTY(VisibleAnywhere, Category = Basic)
+	UPROPERTY(BlueprintReadWrite, Category = Basic)
 	int collectedParticles;
 
-	//Game saved data
-	UPROPERTY(VisibleAnywhere, Category = Basic)
+	UPROPERTY(BlueprintReadWrite, Category = Basic)
 	TArray<FTutorialData> TutorialsData;
 
-	UPROPERTY(VisibleAnywhere, Category = Basic)
+	UPROPERTY(BlueprintReadWrite, Category = Basic)
 	TArray<FLevelData> LevelsData;
 
+	UPROPERTY(BlueprintReadWrite, Category = Basic)
+	bool creditsChecked = false;
+#pragma endregion Vars
 	UYakotakiSaveGame();
 	void SaveGame();
 	FLevelData* GetLevelData(int levelIndex);
 	UFUNCTION(BlueprintPure)
 	bool GetIfLevelCompleted(int levelIndex);
 	UFUNCTION(BlueprintCallable)
-	int GetPickedCollectables(int levelIndex);
+	int GetPickedCollectablesNum(int levelIndex);
 	UFUNCTION(BlueprintCallable)
-	void SetLevelAsCompleted(int levelIndex,bool value);
+	void SetLevelAsCompleted(int levelIndex,bool value, bool autoSave);
 	UFUNCTION(BlueprintCallable)
-	void DeleteLevelData(int levelIndex);
+	void SetLevelAsReplaying(int levelIndex, bool value, bool autoSave);
+	UFUNCTION(BlueprintCallable)
+	void DeleteLevelData(int levelIndex, bool autoSave);
 	UFUNCTION(BlueprintPure)
 	bool GetIfCollectableIsPickedUp(int levelIndex, int collectableIndex);
 	UFUNCTION(BlueprintPure)
 	bool GetIfPickedUpCollectableChecked(int levelIndex, int collectableIndex);
 	UFUNCTION(BlueprintCallable)
-	void MarkCollectableAsChecked(int levelIndex, int collectableIndex);
+	void MarkCollectableAsChecked(int levelIndex, int collectableIndex, bool autoSave);
 	UFUNCTION(BlueprintPure)
 	bool GetIfCollectablesImageChecked(int levelIndex);
 	UFUNCTION(BlueprintCallable)
-	void MarkCollectablesImageAsChecked(int levelIndex);
+	void MarkCollectablesImageAsChecked(int levelIndex, bool autoSave);
 
 	UFUNCTION(BlueprintCallable)
 	bool GetIfTutorialCompleted(FString tutorialID);
 	UFUNCTION(BlueprintCallable)
-	void SetTutorialAsCompleted(FString tutorialID);
+	void SetTutorialAsCompleted(FString tutorialID, bool autoSave);
 
 	UFUNCTION(BlueprintCallable)
-	void SaveCollectedParticles(int collected);
+	void SaveCollectedParticles(int collected, bool autoSave);
+
+	UFUNCTION(BlueprintCallable)
+	void SaveCollectable(int levelIndex, int CollectableID, bool autoSave);
+
+	UFUNCTION(BlueprintCallable)
+	bool IsLevelCompleted(int levelIndex);
+	UFUNCTION(BlueprintCallable)
+	bool IsBeingReplayed(int levelIndex);
+	
+	UFUNCTION(BlueprintCallable)
+	bool IsCollectablePickedUp(int levelIndex, int CollectableID);
+	
+	UFUNCTION(BlueprintCallable)
+	TArray<bool> GetPickedCollectables(int levelIndex);
+
+	UFUNCTION(BlueprintCallable)
+	bool IsAnyCollectableLeftToCheck();
+
+	UFUNCTION(BlueprintCallable)
+	bool GetAllLevelsCompleted();
+
+	UFUNCTION(BlueprintCallable)
+	inline bool GetCreditsChecked() { return creditsChecked; }
+
+	UFUNCTION(BlueprintCallable)
+	void SetCreditsChecked();
+
 private:
 	void UpdateTutorialsData();
 };
