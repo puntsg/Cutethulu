@@ -6,6 +6,7 @@
 #include "DualLevelFunctionLibrary.h"
 #include "TutorialEntry.h"
 #include <Kismet/GameplayStatics.h>
+#include <LevelEntry.h>
 
 UYakotakiSaveGame::UYakotakiSaveGame()
 {
@@ -258,13 +259,20 @@ bool UYakotakiSaveGame::IsAnyCollectableLeftToCheck()
 
 bool UYakotakiSaveGame::GetAllLevelsCompleted()
 {
+	int levelsNum = 3;
+	UDataTable* levelEntriesTable = LoadObject<UDataTable>(nullptr, TEXT("/Game/Project/00_Generic/Blueprints/Tables/DT_LevelEntries"));
+	if (levelEntriesTable) {
+		TArray<FLevelEntry*> levelRows;
+		levelEntriesTable->GetAllRows<FLevelEntry>(TEXT(""), levelRows);
+		levelsNum = levelRows.Num();
+	}
 	int completedLevels = 0;
 	for (int i = 0; i < LevelsData.Num(); i++) {
 		const FLevelData& level = LevelsData[i];
 		if (level.completed)
 			completedLevels++;
 	}
-	return (completedLevels >= 3);
+	return (completedLevels >= levelsNum);
 }
 
 void UYakotakiSaveGame::SetCreditsChecked()
