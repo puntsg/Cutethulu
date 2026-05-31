@@ -54,19 +54,29 @@ void ADualLevel::BeginPlay()
         }
     }
     if (overrideLoadedState) {
-        if (loadedState == ELoaded::CUTE || loadedState == ELoaded::BOTH)
+        if (loadedState == ELoaded::CUTE || loadedState == ELoaded::BOTH) {
             LoadCuteLevel();
-        if (loadedState == ELoaded::HORROR || loadedState == ELoaded::BOTH)
+            UFMODBlueprintStatics::SetGlobalParameterByName("Scene", cuteMusicTrackId);
+        }
+        if (loadedState == ELoaded::HORROR || loadedState == ELoaded::BOTH) {
             LoadHorrorLevel();
+            UFMODBlueprintStatics::SetGlobalParameterByName("Scene", horrorMusicTrackId);
+        }
     }
     else {
-        if (completed == false)
+        if (completed == false) {
             LoadHorrorLevel();
+            UFMODBlueprintStatics::SetGlobalParameterByName("Scene", horrorMusicTrackId);
+        }
         else {
-            if (replaying)
+            if (replaying) {
                 LoadHorrorLevel();
-            else
+                UFMODBlueprintStatics::SetGlobalParameterByName("Scene", horrorMusicTrackId);
+            }
+            else {
                 LoadCuteLevel();
+                UFMODBlueprintStatics::SetGlobalParameterByName("Scene", cuteMusicTrackId);
+            }
         }
     }
     if (DefaultPlayerStart) {
@@ -116,7 +126,7 @@ void ADualLevel::LoadHorrorLevel()
         return;
 
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LoadingHorrorLevel"));
-    UFMODBlueprintStatics::SetGlobalParameterByName("Scene", horrorMusicTrackId);
+    //UFMODBlueprintStatics::SetGlobalParameterByName("Scene", horrorMusicTrackId);
     bool bSuccess = false;
     streamedHorrorLevel = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
         this,
@@ -158,7 +168,7 @@ void ADualLevel::LoadCuteLevel()
         return;
 
     GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, TEXT("LoadingCuteLevel"));
-    UFMODBlueprintStatics::SetGlobalParameterByName("Scene", cuteMusicTrackId);
+    //UFMODBlueprintStatics::SetGlobalParameterByName("Scene", cuteMusicTrackId);
     bool bSuccess = false;
     streamedCuteLevel = ULevelStreamingDynamic::LoadLevelInstanceBySoftObjectPtr(
         this,
@@ -281,7 +291,7 @@ void ADualLevel::OnHorrorMapLoadedFunc()
     
     GetLoadedLevelLights(streamedHorrorLevel);
     DisableTransitionLights();
-
+   // UFMODBlueprintStatics::SetGlobalParameterByName("Scene", horrorMusicTrackId);
     ApplyInterfaceEvents(ESwapEvent::HorrorLoaded);
     OnHorrorLoaded.Broadcast();
     OnAnyLoaded.Broadcast();
@@ -315,6 +325,7 @@ void ADualLevel::OnCuteMapLoadedFunc()
 
     GetLoadedLevelLights(streamedCuteLevel);
     DisableTransitionLights();
+    //UFMODBlueprintStatics::SetGlobalParameterByName("Scene", cuteMusicTrackId);
 
     ApplyInterfaceEvents(ESwapEvent::CuteLoaded);
     OnCuteLoaded.Broadcast();
