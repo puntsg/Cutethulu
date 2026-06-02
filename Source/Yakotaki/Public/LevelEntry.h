@@ -37,4 +37,7 @@ struct YAKOTAKI_API FLevelEntry : public FTableRowBase
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     UTexture2D* completedLevelThumbnail;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    UTexture2D* collectableBookThumbnail;
 };

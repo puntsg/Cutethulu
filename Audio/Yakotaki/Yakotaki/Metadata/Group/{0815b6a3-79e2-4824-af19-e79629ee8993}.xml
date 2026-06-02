@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<objects serializationModel="Studio.02.03.00">
+	<object class="MixerGroup" id="{0815b6a3-79e2-4824-af19-e79629ee8993}">
+		<property name="name">
+			<value>Music</value>
+		</property>
+		<relationship name="masters">
+			<destination>{e163bb04-7eed-43da-adf0-24d5c214963d}</destination>
+			<destination>{3de87dde-8562-41ed-b6fa-7fdee06df187}</destination>
+		</relationship>
+		<relationship name="effectChain">
+			<destination>{c8777e10-1c5c-4a03-8873-0f9997da05e9}</destination>
+		</relationship>
+		<relationship name="panner">
+			<destination>{1584eca4-e821-409e-8c40-42c3613cc3b6}</destination>
+		</relationship>
+		<relationship name="output">
+			<destination>{f66f9753-72bf-432b-b331-d30ac326f7c2}</destination>
+		</relationship>
+	</object>
+	<object class="MixerBusEffectChain" id="{c8777e10-1c5c-4a03-8873-0f9997da05e9}">
+		<relationship name="effects">
+			<destination>{9081e51f-9ef0-4ea8-a919-4e67caf4068c}</destination>
+			<destination>{87fd83e7-7517-416c-9882-a8b204552ad5}</destination>
+			<destination>{da1bacbf-fe78-4994-8291-c963f9727381}</destination>
+		</relationship>
+	</object>
+	<object class="MixerBusPanner" id="{1584eca4-e821-409e-8c40-42c3613cc3b6}" />
+	<object class="CompressorEffect" id="{9081e51f-9ef0-4ea8-a919-4e67caf4068c}">
+		<property name="threshold">
+			<value>-17</value>
+		</property>
+		<property name="ratio">
+			<value>3.10000014</value>
+		</property>
+		<property name="releaseTime">
+			<value>500</value>
+		</property>
+		<relationship name="sidechains">
+			<destination>{df577541-e6b4-44ec-a9c0-cca520af85cf}</destination>
+		</relationship>
+	</object>
+	<object class="MixerBusFader" id="{87fd83e7-7517-416c-9882-a8b204552ad5}" />
+	<object class="SFXReverbEffect" id="{da1bacbf-fe78-4994-8291-c963f9727381}">
+		<property name="decayTime">
+			<value>2900</value>
+		</property>
+		<property name="earlyDelay">
+			<value>15</value>
+		</property>
+		<property name="lateDelay">
+			<value>22</value>
+		</property>
+		<property name="HFDecayRatio">
+			<value>100</value>
+		</property>
+		<property name="highCut">
+			<value>20000</value>
+		</property>
+		<property name="earlyLateMix">
+			<value>59</value>
+		</property>
+		<property name="wetLevel">
+			<value>-11.3000002</value>
+		</property>
+	</object>
+</objects>
